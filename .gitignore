@@ -1,0 +1,13 @@
+# Môi trường ảo
+venv/
+.venv/
+
+# Python
+__pycache__/
+*.pyc
+
+# Dữ liệu gốc tải về (~170 MB) — tải lại bằng: python scripts/download_public_data.py
+data/raw/
+
+# Kết quả huấn luyện
+output/

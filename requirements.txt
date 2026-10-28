@@ -1,0 +1,21 @@
+# NEAT Robot Navigation - Dependencies
+# Core
+numpy>=1.24.0
+neat-python>=0.92
+gymnasium>=0.29.0
+
+# Simulation & Rendering
+pygame>=2.5.0
+
+# Map Generation & Pathfinding
+scipy>=1.11.0
+
+# Experiments & Statistics
+matplotlib>=3.7.0
+seaborn>=0.12.0
+pandas>=2.0.0
+
+# Utilities
+tqdm>=4.65.0
+imageio>=2.31.0          # Video/GIF export
+imageio-ffmpeg>=0.4.8    # MP4 encoding backend

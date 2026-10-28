@@ -1,0 +1,87 @@
+{
+  "map_id": "lvl1_seed_200024",
+  "difficulty_level": 1,
+  "seed": 200024,
+  "source": "generator",
+  "bounds": [
+    10.0,
+    10.0
+  ],
+  "start": [
+    2.771869201717072,
+    9.4268893985705
+  ],
+  "goal": [
+    4.599837702372375,
+    4.408625427492884
+  ],
+  "robot_radius": 0.25,
+  "inflation_radius": 0.3,
+  "metrics": {
+    "euclidean_distance": 5.3408,
+    "optimal_path_length": 5.3408,
+    "tortuosity": 1.0,
+    "optimal_path_length_grid": 5.7456,
+    "tortuosity_grid": 1.0758,
+    "grid_resolution": 0.05,
+    "bottleneck_clearance": 0.575,
+    "mean_path_clearance": 2.9217,
+    "start_clearance": 0.5731,
+    "goal_clearance": 4.4086,
+    "greedy_stuck": false,
+    "greedy_progress": 1.0,
+    "trap_depth": 0.0
+  },
+  "optimal_path": [
+    [
+      2.7719,
+      9.4269
+    ],
+    [
+      4.5998,
+      4.4086
+    ]
+  ],
+  "segments": [
+    [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        10.0,
+        0.0
+      ]
+    ],
+    [
+      [
+        10.0,
+        0.0
+      ],
+      [
+        10.0,
+        10.0
+      ]
+    ],
+    [
+      [
+        10.0,
+        10.0
+      ],
+      [
+        0.0,
+        10.0
+      ]
+    ],
+    [
+      [
+        0.0,
+        10.0
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ]
+  ]
+}

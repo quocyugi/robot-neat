@@ -1,0 +1,361 @@
+{
+  "thoi_diem_chay": "2026-10-27T14:48:56",
+  "robot_radius": 0.25,
+  "inflation_radius": 0.3,
+  "ban_do_tu_sinh": {
+    "so_luong": {
+      "train": {
+        "level_1": 250,
+        "level_2": 250,
+        "level_3": 250,
+        "level_4": 250
+      },
+      "val": {
+        "level_1": 25,
+        "level_2": 25,
+        "level_3": 25,
+        "level_4": 25
+      },
+      "test": {
+        "level_1": 50,
+        "level_2": 50,
+        "level_3": 50,
+        "level_4": 50
+      }
+    },
+    "ky_vong_moi_cap": {
+      "train": 250,
+      "val": 25,
+      "test": 50
+    }
+  },
+  "co_loi": {},
+  "trung_lap": {
+    "so_ban_do_trung_giua_cac_tap": 0,
+    "so_ban_do_trung_trong_cung_tap": 0
+  },
+  "barn": {
+    "so_world": 300,
+    "robot_di_lot": 300,
+    "bi_bo": [],
+    "so_ban_do_test": 50,
+    "test_barn": [
+      "barn_012",
+      "barn_016",
+      "barn_032",
+      "barn_035",
+      "barn_039",
+      "barn_042",
+      "barn_049",
+      "barn_050",
+      "barn_052",
+      "barn_054",
+      "barn_056",
+      "barn_076",
+      "barn_091",
+      "barn_094",
+      "barn_098",
+      "barn_100",
+      "barn_103",
+      "barn_104",
+      "barn_109",
+      "barn_126",
+      "barn_133",
+      "barn_135",
+      "barn_146",
+      "barn_151",
+      "barn_152",
+      "barn_156",
+      "barn_157",
+      "barn_158",
+      "barn_165",
+      "barn_183",
+      "barn_187",
+      "barn_191",
+      "barn_204",
+      "barn_226",
+      "barn_230",
+      "barn_234",
+      "barn_245",
+      "barn_246",
+      "barn_249",
+      "barn_257",
+      "barn_263",
+      "barn_274",
+      "barn_275",
+      "barn_277",
+      "barn_278",
+      "barn_279",
+      "barn_283",
+      "barn_290",
+      "barn_294",
+      "barn_296"
+    ]
+  },
+  "lehman_stanley": {
+    "lehman_medium_maze": {
+      "maze_size_m": [
+        9.062,
+        4.062
+      ],
+      "tortuosity": 1.1292,
+      "optimal_path_length": 8.9054,
+      "bottleneck_clearance": 0.3933,
+      "trap_depth": 0.6139
+    },
+    "lehman_hard_maze": {
+      "maze_size_m": [
+        6.094,
+        6.094
+      ],
+      "tortuosity": 2.927,
+      "optimal_path_length": 15.0081,
+      "bottleneck_clearance": 0.3719,
+      "trap_depth": 2.8254
+    }
+  },
+  "chi_so_theo_nhom": {
+    "Cấp 1": {
+      "n": 325,
+      "tortuosity": {
+        "min": 1.0,
+        "median": 1.0,
+        "max": 1.0
+      },
+      "optimal_path_length": {
+        "min": 5.003,
+        "median": 6.577,
+        "max": 11.476
+      },
+      "bottleneck_clearance": {
+        "min": 0.475,
+        "median": 0.975,
+        "max": 2.425
+      },
+      "mean_path_clearance": {
+        "min": 0.509,
+        "median": 2.745,
+        "max": 3.86
+      },
+      "trap_depth": {
+        "min": 0.0,
+        "median": 0.0,
+        "max": 0.0
+      },
+      "n_segments": {
+        "min": 4.0,
+        "median": 4.0,
+        "max": 4.0
+      },
+      "ti_le_robot_tham_lam_bi_ket": 0.0
+    },
+    "Cấp 2": {
+      "n": 325,
+      "tortuosity": {
+        "min": 1.05,
+        "median": 1.088,
+        "max": 1.241
+      },
+      "optimal_path_length": {
+        "min": 5.43,
+        "median": 7.662,
+        "max": 12.176
+      },
+      "bottleneck_clearance": {
+        "min": 0.433,
+        "median": 0.664,
+        "max": 1.625
+      },
+      "mean_path_clearance": {
+        "min": 0.396,
+        "median": 0.796,
+        "max": 1.66
+      },
+      "trap_depth": {
+        "min": 0.0,
+        "median": 0.013,
+        "max": 2.346
+      },
+      "n_segments": {
+        "min": 24.0,
+        "median": 44.0,
+        "max": 64.0
+      },
+      "ti_le_robot_tham_lam_bi_ket": 0.705
+    },
+    "Cấp 3": {
+      "n": 325,
+      "tortuosity": {
+        "min": 1.251,
+        "median": 1.41,
+        "max": 1.599
+      },
+      "optimal_path_length": {
+        "min": 6.438,
+        "median": 9.545,
+        "max": 16.539
+      },
+      "bottleneck_clearance": {
+        "min": 0.3,
+        "median": 0.583,
+        "max": 1.375
+      },
+      "mean_path_clearance": {
+        "min": 0.387,
+        "median": 0.79,
+        "max": 1.457
+      },
+      "trap_depth": {
+        "min": 0.0,
+        "median": 1.519,
+        "max": 7.086
+      },
+      "n_segments": {
+        "min": 7.0,
+        "median": 8.0,
+        "max": 9.0
+      },
+      "ti_le_robot_tham_lam_bi_ket": 0.975
+    },
+    "Cấp 4": {
+      "n": 325,
+      "tortuosity": {
+        "min": 1.6,
+        "median": 1.721,
+        "max": 3.012
+      },
+      "optimal_path_length": {
+        "min": 8.013,
+        "median": 9.743,
+        "max": 15.305
+      },
+      "bottleneck_clearance": {
+        "min": 0.311,
+        "median": 0.625,
+        "max": 1.375
+      },
+      "mean_path_clearance": {
+        "min": 0.379,
+        "median": 0.706,
+        "max": 1.195
+      },
+      "trap_depth": {
+        "min": 0.0,
+        "median": 2.594,
+        "max": 5.184
+      },
+      "n_segments": {
+        "min": 19.0,
+        "median": 26.0,
+        "max": 34.0
+      },
+      "ti_le_robot_tham_lam_bi_ket": 1.0
+    },
+    "BARN (50 test)": {
+      "n": 50,
+      "tortuosity": {
+        "min": 1.0,
+        "median": 1.034,
+        "max": 1.149
+      },
+      "optimal_path_length": {
+        "min": 8.1,
+        "median": 8.376,
+        "max": 9.305
+      },
+      "bottleneck_clearance": {
+        "min": 0.375,
+        "median": 0.426,
+        "max": 0.825
+      },
+      "mean_path_clearance": {
+        "min": 0.598,
+        "median": 0.716,
+        "max": 1.448
+      },
+      "trap_depth": {
+        "min": 0.0,
+        "median": 0.0,
+        "max": 1.5
+      },
+      "n_segments": {
+        "min": 66.0,
+        "median": 159.0,
+        "max": 258.0
+      },
+      "ti_le_robot_tham_lam_bi_ket": 0.88
+    },
+    "BARN (cả 300)": {
+      "n": 300,
+      "tortuosity": {
+        "min": 1.0,
+        "median": 1.036,
+        "max": 1.244
+      },
+      "optimal_path_length": {
+        "min": 8.1,
+        "median": 8.391,
+        "max": 10.072
+      },
+      "bottleneck_clearance": {
+        "min": 0.375,
+        "median": 0.425,
+        "max": 0.825
+      },
+      "mean_path_clearance": {
+        "min": 0.59,
+        "median": 0.737,
+        "max": 1.448
+      },
+      "trap_depth": {
+        "min": 0.0,
+        "median": 0.001,
+        "max": 1.5
+      },
+      "n_segments": {
+        "min": 54.0,
+        "median": 160.0,
+        "max": 278.0
+      },
+      "ti_le_robot_tham_lam_bi_ket": 0.893
+    },
+    "Lehman": {
+      "n": 2,
+      "tortuosity": {
+        "min": 1.129,
+        "median": 2.028,
+        "max": 2.927
+      },
+      "optimal_path_length": {
+        "min": 8.905,
+        "median": 11.957,
+        "max": 15.008
+      },
+      "bottleneck_clearance": {
+        "min": 0.372,
+        "median": 0.383,
+        "max": 0.393
+      },
+      "mean_path_clearance": {
+        "min": 0.432,
+        "median": 0.435,
+        "max": 0.437
+      },
+      "trap_depth": {
+        "min": 0.614,
+        "median": 1.72,
+        "max": 2.825
+      },
+      "n_segments": {
+        "min": 15.0,
+        "median": 15.0,
+        "max": 15.0
+      },
+      "ti_le_robot_tham_lam_bi_ket": 1.0
+    }
+  },
+  "mo_phong_bam_duong_Astar": {
+    "so_ban_do": 1602,
+    "khong_toi_dich": []
+  }
+}

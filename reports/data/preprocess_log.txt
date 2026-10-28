@@ -1,0 +1,49 @@
+﻿[1] BARN: chuyển 300 world về schema của dự án
+  đã xử lý 50/300
+  đã xử lý 100/300
+  đã xử lý 150/300
+  đã xử lý 200/300
+  đã xử lý 250/300
+  đã xử lý 300/300
+  robot đi lọt 300/300 bản đồ; bỏ 0
+  chọn 50 bản đồ trải đều độ khó → data\maps\test_barn
+[2] Mê cung Lehman & Stanley
+  medium_maze: τ = 1.13, đường tối ưu 8.91 m, khe hẹp nhất 0.39 m
+  hard_maze: τ = 2.93, đường tối ưu 15.01 m, khe hẹp nhất 0.37 m
+[3] Kiểm tra bộ bản đồ tự sinh (tính lại A* và chỉ số cho từng bản đồ)
+  train/level_1: 250 bản đồ
+  train/level_2: 250 bản đồ
+  train/level_3: 250 bản đồ
+  train/level_4: 250 bản đồ
+  val/level_1: 25 bản đồ
+  val/level_2: 25 bản đồ
+  val/level_3: 25 bản đồ
+  val/level_4: 25 bản đồ
+  test/level_1: 50 bản đồ
+  test/level_2: 50 bản đồ
+  test/level_3: 50 bản đồ
+  test/level_4: 50 bản đồ
+[3b] Mô phỏng: robot bám đường A* trong RobotNavEnv (1602 bản đồ)
+  tới đích 1602/1602; không tới: []
+[4] Vẽ hình minh hoạ
+
+================================================================
+  TÓM TẮT TIỀN XỬ LÝ DỮ LIỆU
+================================================================
+  train: 1000/1000 bản đồ  (L1=250, L2=250, L3=250, L4=250)
+  val  :  100/100 bản đồ  (L1=25, L2=25, L3=25, L4=25)
+  test :  200/200 bản đồ  (L1=50, L2=50, L3=50, L4=50)
+  Cờ lỗi: không có
+  Trùng lặp: {'so_ban_do_trung_giua_cac_tap': 0, 'so_ban_do_trung_trong_cung_tap': 0}
+  BARN: robot đi lọt 300/300, chọn 50 bản đồ test
+  lehman_medium_maze: τ = 1.1292, L* = 8.9054 m, khe hẹp = 0.3933 m
+  lehman_hard_maze: τ = 2.927, L* = 15.0081 m, khe hẹp = 0.3719 m
+
+Đã ghi: data\maps\manifest.csv
+        reports\data\summary.json
+        reports\data\figures\01_ban_do_tu_sinh_theo_cap.png
+        reports\data\figures\02_barn_vi_du.png
+        reports\data\figures\03_me_cung_lehman.png
+        reports\data\figures\04_phan_bo_chi_so.png
+        reports\data\figures\05_barn_chon_50.png
+Thời gian chạy: 180 s
