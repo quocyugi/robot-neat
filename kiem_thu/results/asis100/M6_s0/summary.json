@@ -1,0 +1,98 @@
+{
+  "model": "M6",
+  "seed": 0,
+  "gens_requested": 100,
+  "gens_run": 100,
+  "stopped_early_by_threshold": false,
+  "solution_generation": null,
+  "wall_seconds": 6224.5,
+  "final_level": 1,
+  "max_level": 1,
+  "promotions_at": [],
+  "extinctions": [],
+  "species_stagnated": 0,
+  "species_min": 1,
+  "species_max": 2,
+  "winner_key": 14592,
+  "winner_fitness": 0.901494376197376,
+  "winner_generation": 99,
+  "winner_level_when_found": 1,
+  "winner_nodes": 9,
+  "winner_conns": 10,
+  "winner_test": {
+    "test_L1": {
+      "SR": 0.04,
+      "CR": 0.96,
+      "MTT": 11.45,
+      "SPL": 0.04
+    },
+    "test_L2": {
+      "SR": 0.0,
+      "CR": 1.0,
+      "MTT": null,
+      "SPL": 0.0
+    },
+    "test_L3": {
+      "SR": 0.0,
+      "CR": 1.0,
+      "MTT": null,
+      "SPL": 0.0
+    },
+    "test_L4": {
+      "SR": 0.0,
+      "CR": 1.0,
+      "MTT": null,
+      "SPL": 0.0
+    },
+    "test_barn": {
+      "SR": 0.0,
+      "CR": 1.0,
+      "MTT": null,
+      "SPL": 0.0
+    },
+    "test_lehman": {
+      "SR": 0.0,
+      "CR": 1.0,
+      "MTT": null,
+      "SPL": 0.0
+    }
+  },
+  "last_gen_raw_best_test": {
+    "test_L1": {
+      "SR": 1.0,
+      "CR": 0.0,
+      "MTT": 16.326,
+      "SPL": 0.9933
+    },
+    "test_L2": {
+      "SR": 0.0,
+      "CR": 1.0,
+      "MTT": null,
+      "SPL": 0.0
+    },
+    "test_L3": {
+      "SR": 0.0,
+      "CR": 1.0,
+      "MTT": null,
+      "SPL": 0.0
+    },
+    "test_L4": {
+      "SR": 0.0,
+      "CR": 1.0,
+      "MTT": null,
+      "SPL": 0.0
+    },
+    "test_barn": {
+      "SR": 0.12,
+      "CR": 0.88,
+      "MTT": 19.15,
+      "SPL": 0.1181
+    },
+    "test_lehman": {
+      "SR": 0.0,
+      "CR": 1.0,
+      "MTT": null,
+      "SPL": 0.0
+    }
+  }
+}

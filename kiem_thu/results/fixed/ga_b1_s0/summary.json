@@ -1,0 +1,126 @@
+{
+  "algo": "ga",
+  "net": "rnn",
+  "novelty": "pop",
+  "layers": "8",
+  "seed": 0,
+  "gens": 100,
+  "pop": 150,
+  "workers": 2,
+  "wall_seconds": 2817.4,
+  "final_level": 2,
+  "promotions_at": [
+    10
+  ],
+  "extinctions": [],
+  "species_stagnated": 0,
+  "champion_gen": 100,
+  "champion_val_mean_sr": 0.47,
+  "champion_val_per_level": {
+    "1": 1.0,
+    "2": 0.72,
+    "3": 0.04,
+    "4": 0.12
+  },
+  "champion_test": {
+    "test_L1": {
+      "SR": 1.0,
+      "CR": 0.0,
+      "timeout": 0.0,
+      "SPL": 0.9663,
+      "MTT": 15.63,
+      "n": 50
+    },
+    "test_L2": {
+      "SR": 0.7,
+      "CR": 0.26,
+      "timeout": 0.04,
+      "SPL": 0.628,
+      "MTT": 26.23,
+      "n": 50
+    },
+    "test_L3": {
+      "SR": 0.06,
+      "CR": 0.94,
+      "timeout": 0.0,
+      "SPL": 0.0549,
+      "MTT": 25.3,
+      "n": 50
+    },
+    "test_L4": {
+      "SR": 0.02,
+      "CR": 0.96,
+      "timeout": 0.02,
+      "SPL": 0.0184,
+      "MTT": 23.7,
+      "n": 50
+    },
+    "test_barn": {
+      "SR": 0.14,
+      "CR": 0.78,
+      "timeout": 0.08,
+      "SPL": 0.1399,
+      "MTT": 34.01,
+      "n": 50
+    },
+    "test_lehman": {
+      "SR": 0.0,
+      "CR": 1.0,
+      "timeout": 0.0,
+      "SPL": 0.0,
+      "MTT": null,
+      "n": 2
+    }
+  },
+  "neat_best_genome_test": {
+    "test_L1": {
+      "SR": 1.0,
+      "CR": 0.0,
+      "timeout": 0.0,
+      "SPL": 0.9541,
+      "MTT": 15.54,
+      "n": 50
+    },
+    "test_L2": {
+      "SR": 0.32,
+      "CR": 0.68,
+      "timeout": 0.0,
+      "SPL": 0.2524,
+      "MTT": 22.04,
+      "n": 50
+    },
+    "test_L3": {
+      "SR": 0.14,
+      "CR": 0.78,
+      "timeout": 0.08,
+      "SPL": 0.1257,
+      "MTT": 23.16,
+      "n": 50
+    },
+    "test_L4": {
+      "SR": 0.02,
+      "CR": 0.98,
+      "timeout": 0.0,
+      "SPL": 0.0166,
+      "MTT": 21.7,
+      "n": 50
+    },
+    "test_barn": {
+      "SR": 0.08,
+      "CR": 0.92,
+      "timeout": 0.0,
+      "SPL": 0.0778,
+      "MTT": 17.67,
+      "n": 50
+    },
+    "test_lehman": {
+      "SR": 0.0,
+      "CR": 1.0,
+      "timeout": 0.0,
+      "SPL": 0.0,
+      "MTT": null,
+      "n": 2
+    }
+  },
+  "train_evals": 60000
+}

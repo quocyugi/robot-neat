@@ -1,0 +1,227 @@
+{
+    "cma_h32_s0":  {
+                       "out":  "C:\\Users\\PC-Gaming\\AppData\\Local\\Temp\\claude\\61ec2fd4e5ccadd8\\ab3453a9-8289-41f7-a525-be2e9421a0b6\\scratchpad\\results2\\baselines\\lahouazi\\cma_h32_s0.json",
+                       "cmd":  [
+                                   "C:\\Users\\PC-Gaming\\AppData\\Local\\Temp\\claude\\b93bd871053f3aad\\ab3453a9-8289-41f7-a525-be2e9421a0b6\\scratchpad\\env\\py314\\Scripts\\python.exe",
+                                   "-I",
+                                   "-X",
+                                   "utf8",
+                                   "C:\\Users\\PC-Gaming\\AppData\\Local\\Temp\\claude\\61ec2fd4e5ccadd8\\ab3453a9-8289-41f7-a525-be2e9421a0b6\\scratchpad\\baselines\\b02_lahouazi.py",
+                                   "train",
+                                   "C:\\Users\\PC-Gaming\\AppData\\Local\\Temp\\claude\\b93bd871053f3aad\\ab3453a9-8289-41f7-a525-be2e9421a0b6\\scratchpad\\repos\\Project_IT4906\\Project_IT4906-main",
+                                   "C:\\Users\\PC-Gaming\\AppData\\Local\\Temp\\claude\\61ec2fd4e5ccadd8\\ab3453a9-8289-41f7-a525-be2e9421a0b6\\scratchpad\\tests2",
+                                   "C:\\Users\\PC-Gaming\\AppData\\Local\\Temp\\claude\\61ec2fd4e5ccadd8\\ab3453a9-8289-41f7-a525-be2e9421a0b6\\scratchpad\\results2\\baselines\\lahouazi\\cma_h32_s0.json",
+                                   "--algo",
+                                   "cma",
+                                   "--hidden",
+                                   "32",
+                                   "--seed",
+                                   "0"
+                               ],
+                       "log":  "C:\\Users\\PC-Gaming\\AppData\\Local\\Temp\\claude\\61ec2fd4e5ccadd8\\ab3453a9-8289-41f7-a525-be2e9421a0b6\\scratchpad\\results2\\baselines\\lahouazi\\cma_h32_s0.log"
+                   },
+    "cma_h32_s1":  {
+                       "out":  "C:\\Users\\PC-Gaming\\AppData\\Local\\Temp\\claude\\61ec2fd4e5ccadd8\\ab3453a9-8289-41f7-a525-be2e9421a0b6\\scratchpad\\results2\\baselines\\lahouazi\\cma_h32_s1.json",
+                       "cmd":  [
+                                   "C:\\Users\\PC-Gaming\\AppData\\Local\\Temp\\claude\\b93bd871053f3aad\\ab3453a9-8289-41f7-a525-be2e9421a0b6\\scratchpad\\env\\py314\\Scripts\\python.exe",
+                                   "-I",
+                                   "-X",
+                                   "utf8",
+                                   "C:\\Users\\PC-Gaming\\AppData\\Local\\Temp\\claude\\61ec2fd4e5ccadd8\\ab3453a9-8289-41f7-a525-be2e9421a0b6\\scratchpad\\baselines\\b02_lahouazi.py",
+                                   "train",
+                                   "C:\\Users\\PC-Gaming\\AppData\\Local\\Temp\\claude\\b93bd871053f3aad\\ab3453a9-8289-41f7-a525-be2e9421a0b6\\scratchpad\\repos\\Project_IT4906\\Project_IT4906-main",
+                                   "C:\\Users\\PC-Gaming\\AppData\\Local\\Temp\\claude\\61ec2fd4e5ccadd8\\ab3453a9-8289-41f7-a525-be2e9421a0b6\\scratchpad\\tests2",
+                                   "C:\\Users\\PC-Gaming\\AppData\\Local\\Temp\\claude\\61ec2fd4e5ccadd8\\ab3453a9-8289-41f7-a525-be2e9421a0b6\\scratchpad\\results2\\baselines\\lahouazi\\cma_h32_s1.json",
+                                   "--algo",
+                                   "cma",
+                                   "--hidden",
+                                   "32",
+                                   "--seed",
+                                   "1"
+                               ],
+                       "log":  "C:\\Users\\PC-Gaming\\AppData\\Local\\Temp\\claude\\61ec2fd4e5ccadd8\\ab3453a9-8289-41f7-a525-be2e9421a0b6\\scratchpad\\results2\\baselines\\lahouazi\\cma_h32_s1.log"
+                   },
+    "cma_h32_s2":  {
+                       "out":  "C:\\Users\\PC-Gaming\\AppData\\Local\\Temp\\claude\\61ec2fd4e5ccadd8\\ab3453a9-8289-41f7-a525-be2e9421a0b6\\scratchpad\\results2\\baselines\\lahouazi\\cma_h32_s2.json",
+                       "cmd":  [
+                                   "C:\\Users\\PC-Gaming\\AppData\\Local\\Temp\\claude\\b93bd871053f3aad\\ab3453a9-8289-41f7-a525-be2e9421a0b6\\scratchpad\\env\\py314\\Scripts\\python.exe",
+                                   "-I",
+                                   "-X",
+                                   "utf8",
+                                   "C:\\Users\\PC-Gaming\\AppData\\Local\\Temp\\claude\\61ec2fd4e5ccadd8\\ab3453a9-8289-41f7-a525-be2e9421a0b6\\scratchpad\\baselines\\b02_lahouazi.py",
+                                   "train",
+                                   "C:\\Users\\PC-Gaming\\AppData\\Local\\Temp\\claude\\b93bd871053f3aad\\ab3453a9-8289-41f7-a525-be2e9421a0b6\\scratchpad\\repos\\Project_IT4906\\Project_IT4906-main",
+                                   "C:\\Users\\PC-Gaming\\AppData\\Local\\Temp\\claude\\61ec2fd4e5ccadd8\\ab3453a9-8289-41f7-a525-be2e9421a0b6\\scratchpad\\tests2",
+                                   "C:\\Users\\PC-Gaming\\AppData\\Local\\Temp\\claude\\61ec2fd4e5ccadd8\\ab3453a9-8289-41f7-a525-be2e9421a0b6\\scratchpad\\results2\\baselines\\lahouazi\\cma_h32_s2.json",
+                                   "--algo",
+                                   "cma",
+                                   "--hidden",
+                                   "32",
+                                   "--seed",
+                                   "2"
+                               ],
+                       "log":  "C:\\Users\\PC-Gaming\\AppData\\Local\\Temp\\claude\\61ec2fd4e5ccadd8\\ab3453a9-8289-41f7-a525-be2e9421a0b6\\scratchpad\\results2\\baselines\\lahouazi\\cma_h32_s2.log"
+                   },
+    "neat_s0":  {
+                    "out":  "C:\\Users\\PC-Gaming\\AppData\\Local\\Temp\\claude\\61ec2fd4e5ccadd8\\ab3453a9-8289-41f7-a525-be2e9421a0b6\\scratchpad\\results2\\baselines\\lahouazi\\neat_s0.json",
+                    "cmd":  [
+                                "C:\\Users\\PC-Gaming\\AppData\\Local\\Temp\\claude\\b93bd871053f3aad\\ab3453a9-8289-41f7-a525-be2e9421a0b6\\scratchpad\\env\\py314\\Scripts\\python.exe",
+                                "-I",
+                                "-X",
+                                "utf8",
+                                "C:\\Users\\PC-Gaming\\AppData\\Local\\Temp\\claude\\61ec2fd4e5ccadd8\\ab3453a9-8289-41f7-a525-be2e9421a0b6\\scratchpad\\baselines\\b02_lahouazi.py",
+                                "train",
+                                "C:\\Users\\PC-Gaming\\AppData\\Local\\Temp\\claude\\b93bd871053f3aad\\ab3453a9-8289-41f7-a525-be2e9421a0b6\\scratchpad\\repos\\Project_IT4906\\Project_IT4906-main",
+                                "C:\\Users\\PC-Gaming\\AppData\\Local\\Temp\\claude\\61ec2fd4e5ccadd8\\ab3453a9-8289-41f7-a525-be2e9421a0b6\\scratchpad\\tests2",
+                                "C:\\Users\\PC-Gaming\\AppData\\Local\\Temp\\claude\\61ec2fd4e5ccadd8\\ab3453a9-8289-41f7-a525-be2e9421a0b6\\scratchpad\\results2\\baselines\\lahouazi\\neat_s0.json",
+                                "--algo",
+                                "neat",
+                                "--seed",
+                                "0"
+                            ],
+                    "log":  "C:\\Users\\PC-Gaming\\AppData\\Local\\Temp\\claude\\61ec2fd4e5ccadd8\\ab3453a9-8289-41f7-a525-be2e9421a0b6\\scratchpad\\results2\\baselines\\lahouazi\\neat_s0.log"
+                },
+    "neat_s1":  {
+                    "out":  "C:\\Users\\PC-Gaming\\AppData\\Local\\Temp\\claude\\61ec2fd4e5ccadd8\\ab3453a9-8289-41f7-a525-be2e9421a0b6\\scratchpad\\results2\\baselines\\lahouazi\\neat_s1.json",
+                    "cmd":  [
+                                "C:\\Users\\PC-Gaming\\AppData\\Local\\Temp\\claude\\b93bd871053f3aad\\ab3453a9-8289-41f7-a525-be2e9421a0b6\\scratchpad\\env\\py314\\Scripts\\python.exe",
+                                "-I",
+                                "-X",
+                                "utf8",
+                                "C:\\Users\\PC-Gaming\\AppData\\Local\\Temp\\claude\\61ec2fd4e5ccadd8\\ab3453a9-8289-41f7-a525-be2e9421a0b6\\scratchpad\\baselines\\b02_lahouazi.py",
+                                "train",
+                                "C:\\Users\\PC-Gaming\\AppData\\Local\\Temp\\claude\\b93bd871053f3aad\\ab3453a9-8289-41f7-a525-be2e9421a0b6\\scratchpad\\repos\\Project_IT4906\\Project_IT4906-main",
+                                "C:\\Users\\PC-Gaming\\AppData\\Local\\Temp\\claude\\61ec2fd4e5ccadd8\\ab3453a9-8289-41f7-a525-be2e9421a0b6\\scratchpad\\tests2",
+                                "C:\\Users\\PC-Gaming\\AppData\\Local\\Temp\\claude\\61ec2fd4e5ccadd8\\ab3453a9-8289-41f7-a525-be2e9421a0b6\\scratchpad\\results2\\baselines\\lahouazi\\neat_s1.json",
+                                "--algo",
+                                "neat",
+                                "--seed",
+                                "1"
+                            ],
+                    "log":  "C:\\Users\\PC-Gaming\\AppData\\Local\\Temp\\claude\\61ec2fd4e5ccadd8\\ab3453a9-8289-41f7-a525-be2e9421a0b6\\scratchpad\\results2\\baselines\\lahouazi\\neat_s1.log"
+                },
+    "neat_s2":  {
+                    "out":  "C:\\Users\\PC-Gaming\\AppData\\Local\\Temp\\claude\\61ec2fd4e5ccadd8\\ab3453a9-8289-41f7-a525-be2e9421a0b6\\scratchpad\\results2\\baselines\\lahouazi\\neat_s2.json",
+                    "cmd":  [
+                                "C:\\Users\\PC-Gaming\\AppData\\Local\\Temp\\claude\\b93bd871053f3aad\\ab3453a9-8289-41f7-a525-be2e9421a0b6\\scratchpad\\env\\py314\\Scripts\\python.exe",
+                                "-I",
+                                "-X",
+                                "utf8",
+                                "C:\\Users\\PC-Gaming\\AppData\\Local\\Temp\\claude\\61ec2fd4e5ccadd8\\ab3453a9-8289-41f7-a525-be2e9421a0b6\\scratchpad\\baselines\\b02_lahouazi.py",
+                                "train",
+                                "C:\\Users\\PC-Gaming\\AppData\\Local\\Temp\\claude\\b93bd871053f3aad\\ab3453a9-8289-41f7-a525-be2e9421a0b6\\scratchpad\\repos\\Project_IT4906\\Project_IT4906-main",
+                                "C:\\Users\\PC-Gaming\\AppData\\Local\\Temp\\claude\\61ec2fd4e5ccadd8\\ab3453a9-8289-41f7-a525-be2e9421a0b6\\scratchpad\\tests2",
+                                "C:\\Users\\PC-Gaming\\AppData\\Local\\Temp\\claude\\61ec2fd4e5ccadd8\\ab3453a9-8289-41f7-a525-be2e9421a0b6\\scratchpad\\results2\\baselines\\lahouazi\\neat_s2.json",
+                                "--algo",
+                                "neat",
+                                "--seed",
+                                "2"
+                            ],
+                    "log":  "C:\\Users\\PC-Gaming\\AppData\\Local\\Temp\\claude\\61ec2fd4e5ccadd8\\ab3453a9-8289-41f7-a525-be2e9421a0b6\\scratchpad\\results2\\baselines\\lahouazi\\neat_s2.log"
+                },
+    "ga_h8_s0":  {
+                     "out":  "C:\\Users\\PC-Gaming\\AppData\\Local\\Temp\\claude\\61ec2fd4e5ccadd8\\ab3453a9-8289-41f7-a525-be2e9421a0b6\\scratchpad\\results2\\baselines\\lahouazi\\ga_h8_s0.json",
+                     "cmd":  [
+                                 "C:\\Users\\PC-Gaming\\AppData\\Local\\Temp\\claude\\b93bd871053f3aad\\ab3453a9-8289-41f7-a525-be2e9421a0b6\\scratchpad\\env\\py314\\Scripts\\python.exe",
+                                 "-I",
+                                 "-X",
+                                 "utf8",
+                                 "C:\\Users\\PC-Gaming\\AppData\\Local\\Temp\\claude\\61ec2fd4e5ccadd8\\ab3453a9-8289-41f7-a525-be2e9421a0b6\\scratchpad\\baselines\\b02_lahouazi.py",
+                                 "train",
+                                 "C:\\Users\\PC-Gaming\\AppData\\Local\\Temp\\claude\\b93bd871053f3aad\\ab3453a9-8289-41f7-a525-be2e9421a0b6\\scratchpad\\repos\\Project_IT4906\\Project_IT4906-main",
+                                 "C:\\Users\\PC-Gaming\\AppData\\Local\\Temp\\claude\\61ec2fd4e5ccadd8\\ab3453a9-8289-41f7-a525-be2e9421a0b6\\scratchpad\\tests2",
+                                 "C:\\Users\\PC-Gaming\\AppData\\Local\\Temp\\claude\\61ec2fd4e5ccadd8\\ab3453a9-8289-41f7-a525-be2e9421a0b6\\scratchpad\\results2\\baselines\\lahouazi\\ga_h8_s0.json",
+                                 "--algo",
+                                 "ga",
+                                 "--hidden",
+                                 "8",
+                                 "--seed",
+                                 "0"
+                             ],
+                     "log":  "C:\\Users\\PC-Gaming\\AppData\\Local\\Temp\\claude\\61ec2fd4e5ccadd8\\ab3453a9-8289-41f7-a525-be2e9421a0b6\\scratchpad\\results2\\baselines\\lahouazi\\ga_h8_s0.log"
+                 },
+    "ga_h8_s1":  {
+                     "out":  "C:\\Users\\PC-Gaming\\AppData\\Local\\Temp\\claude\\61ec2fd4e5ccadd8\\ab3453a9-8289-41f7-a525-be2e9421a0b6\\scratchpad\\results2\\baselines\\lahouazi\\ga_h8_s1.json",
+                     "cmd":  [
+                                 "C:\\Users\\PC-Gaming\\AppData\\Local\\Temp\\claude\\b93bd871053f3aad\\ab3453a9-8289-41f7-a525-be2e9421a0b6\\scratchpad\\env\\py314\\Scripts\\python.exe",
+                                 "-I",
+                                 "-X",
+                                 "utf8",
+                                 "C:\\Users\\PC-Gaming\\AppData\\Local\\Temp\\claude\\61ec2fd4e5ccadd8\\ab3453a9-8289-41f7-a525-be2e9421a0b6\\scratchpad\\baselines\\b02_lahouazi.py",
+                                 "train",
+                                 "C:\\Users\\PC-Gaming\\AppData\\Local\\Temp\\claude\\b93bd871053f3aad\\ab3453a9-8289-41f7-a525-be2e9421a0b6\\scratchpad\\repos\\Project_IT4906\\Project_IT4906-main",
+                                 "C:\\Users\\PC-Gaming\\AppData\\Local\\Temp\\claude\\61ec2fd4e5ccadd8\\ab3453a9-8289-41f7-a525-be2e9421a0b6\\scratchpad\\tests2",
+                                 "C:\\Users\\PC-Gaming\\AppData\\Local\\Temp\\claude\\61ec2fd4e5ccadd8\\ab3453a9-8289-41f7-a525-be2e9421a0b6\\scratchpad\\results2\\baselines\\lahouazi\\ga_h8_s1.json",
+                                 "--algo",
+                                 "ga",
+                                 "--hidden",
+                                 "8",
+                                 "--seed",
+                                 "1"
+                             ],
+                     "log":  "C:\\Users\\PC-Gaming\\AppData\\Local\\Temp\\claude\\61ec2fd4e5ccadd8\\ab3453a9-8289-41f7-a525-be2e9421a0b6\\scratchpad\\results2\\baselines\\lahouazi\\ga_h8_s1.log"
+                 },
+    "ga_h8_s2":  {
+                     "out":  "C:\\Users\\PC-Gaming\\AppData\\Local\\Temp\\claude\\61ec2fd4e5ccadd8\\ab3453a9-8289-41f7-a525-be2e9421a0b6\\scratchpad\\results2\\baselines\\lahouazi\\ga_h8_s2.json",
+                     "cmd":  [
+                                 "C:\\Users\\PC-Gaming\\AppData\\Local\\Temp\\claude\\b93bd871053f3aad\\ab3453a9-8289-41f7-a525-be2e9421a0b6\\scratchpad\\env\\py314\\Scripts\\python.exe",
+                                 "-I",
+                                 "-X",
+                                 "utf8",
+                                 "C:\\Users\\PC-Gaming\\AppData\\Local\\Temp\\claude\\61ec2fd4e5ccadd8\\ab3453a9-8289-41f7-a525-be2e9421a0b6\\scratchpad\\baselines\\b02_lahouazi.py",
+                                 "train",
+                                 "C:\\Users\\PC-Gaming\\AppData\\Local\\Temp\\claude\\b93bd871053f3aad\\ab3453a9-8289-41f7-a525-be2e9421a0b6\\scratchpad\\repos\\Project_IT4906\\Project_IT4906-main",
+                                 "C:\\Users\\PC-Gaming\\AppData\\Local\\Temp\\claude\\61ec2fd4e5ccadd8\\ab3453a9-8289-41f7-a525-be2e9421a0b6\\scratchpad\\tests2",
+                                 "C:\\Users\\PC-Gaming\\AppData\\Local\\Temp\\claude\\61ec2fd4e5ccadd8\\ab3453a9-8289-41f7-a525-be2e9421a0b6\\scratchpad\\results2\\baselines\\lahouazi\\ga_h8_s2.json",
+                                 "--algo",
+                                 "ga",
+                                 "--hidden",
+                                 "8",
+                                 "--seed",
+                                 "2"
+                             ],
+                     "log":  "C:\\Users\\PC-Gaming\\AppData\\Local\\Temp\\claude\\61ec2fd4e5ccadd8\\ab3453a9-8289-41f7-a525-be2e9421a0b6\\scratchpad\\results2\\baselines\\lahouazi\\ga_h8_s2.log"
+                 },
+    "cma_h8_s0":  {
+                      "out":  "C:\\Users\\PC-Gaming\\AppData\\Local\\Temp\\claude\\61ec2fd4e5ccadd8\\ab3453a9-8289-41f7-a525-be2e9421a0b6\\scratchpad\\results2\\baselines\\lahouazi\\cma_h8_s0.json",
+                      "cmd":  [
+                                  "C:\\Users\\PC-Gaming\\AppData\\Local\\Temp\\claude\\b93bd871053f3aad\\ab3453a9-8289-41f7-a525-be2e9421a0b6\\scratchpad\\env\\py314\\Scripts\\python.exe",
+                                  "-I",
+                                  "-X",
+                                  "utf8",
+                                  "C:\\Users\\PC-Gaming\\AppData\\Local\\Temp\\claude\\61ec2fd4e5ccadd8\\ab3453a9-8289-41f7-a525-be2e9421a0b6\\scratchpad\\baselines\\b02_lahouazi.py",
+                                  "train",
+                                  "C:\\Users\\PC-Gaming\\AppData\\Local\\Temp\\claude\\b93bd871053f3aad\\ab3453a9-8289-41f7-a525-be2e9421a0b6\\scratchpad\\repos\\Project_IT4906\\Project_IT4906-main",
+                                  "C:\\Users\\PC-Gaming\\AppData\\Local\\Temp\\claude\\61ec2fd4e5ccadd8\\ab3453a9-8289-41f7-a525-be2e9421a0b6\\scratchpad\\tests2",
+                                  "C:\\Users\\PC-Gaming\\AppData\\Local\\Temp\\claude\\61ec2fd4e5ccadd8\\ab3453a9-8289-41f7-a525-be2e9421a0b6\\scratchpad\\results2\\baselines\\lahouazi\\cma_h8_s0.json",
+                                  "--algo",
+                                  "cma",
+                                  "--hidden",
+                                  "8",
+                                  "--seed",
+                                  "0"
+                              ],
+                      "log":  "C:\\Users\\PC-Gaming\\AppData\\Local\\Temp\\claude\\61ec2fd4e5ccadd8\\ab3453a9-8289-41f7-a525-be2e9421a0b6\\scratchpad\\results2\\baselines\\lahouazi\\cma_h8_s0.log"
+                  },
+    "cma_h8_s1":  {
+                      "out":  "C:\\Users\\PC-Gaming\\AppData\\Local\\Temp\\claude\\61ec2fd4e5ccadd8\\ab3453a9-8289-41f7-a525-be2e9421a0b6\\scratchpad\\results2\\baselines\\lahouazi\\cma_h8_s1.json",
+                      "cmd":  [
+                                  "C:\\Users\\PC-Gaming\\AppData\\Local\\Temp\\claude\\b93bd871053f3aad\\ab3453a9-8289-41f7-a525-be2e9421a0b6\\scratchpad\\env\\py314\\Scripts\\python.exe",
+                                  "-I",
+                                  "-X",
+                                  "utf8",
+                                  "C:\\Users\\PC-Gaming\\AppData\\Local\\Temp\\claude\\61ec2fd4e5ccadd8\\ab3453a9-8289-41f7-a525-be2e9421a0b6\\scratchpad\\baselines\\b02_lahouazi.py",
+                                  "train",
+                                  "C:\\Users\\PC-Gaming\\AppData\\Local\\Temp\\claude\\b93bd871053f3aad\\ab3453a9-8289-41f7-a525-be2e9421a0b6\\scratchpad\\repos\\Project_IT4906\\Project_IT4906-main",
+                                  "C:\\Users\\PC-Gaming\\AppData\\Local\\Temp\\claude\\61ec2fd4e5ccadd8\\ab3453a9-8289-41f7-a525-be2e9421a0b6\\scratchpad\\tests2",
+                                  "C:\\Users\\PC-Gaming\\AppData\\Local\\Temp\\claude\\61ec2fd4e5ccadd8\\ab3453a9-8289-41f7-a525-be2e9421a0b6\\scratchpad\\results2\\baselines\\lahouazi\\cma_h8_s1.json",
+                                  "--algo",
+                                  "cma",
+                                  "--hidden",
+                                  "8",
+                                  "--seed",
+                                  "1"
+                              ],
+                      "log":  "C:\\Users\\PC-Gaming\\AppData\\Local\\Temp\\claude\\61ec2fd4e5ccadd8\\ab3453a9-8289-41f7-a525-be2e9421a0b6\\scratchpad\\results2\\baselines\\lahouazi\\cma_h8_s1.log"
+                  }
+}

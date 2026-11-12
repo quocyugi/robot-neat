@@ -1,0 +1,34 @@
+{
+ "unit_checks": {
+  "ray0_sees_bin0": true,
+  "rho_scale_ok": true,
+  "sin_phi_ok": true,
+  "each_bin_used": true,
+  "bins_per_sector": [
+   4
+  ],
+  "straight_full_speed": true,
+  "spin_left": true
+ },
+ "pillars": {
+  "bridge_SR": 0.95,
+  "bridge_MTT_s": 22.36,
+  "batch_sim_SR": 0.925,
+  "batch_sim_MTT_s": 18.69,
+  "n": 40
+ },
+ "maze": {
+  "bridge_SR": 0.55,
+  "bridge_MTT_s": 30.37,
+  "batch_sim_SR": 0.625,
+  "batch_sim_MTT_s": 28.68,
+  "n": 40
+ },
+ "inspect": {
+  "bridge_SR": 0.85,
+  "bridge_MTT_s": 14.51,
+  "batch_sim_SR": 0.775,
+  "batch_sim_MTT_s": 12.64,
+  "n": 40
+ }
+}

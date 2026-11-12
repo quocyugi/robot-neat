@@ -1,0 +1,467 @@
+{
+ "cma_thick": {
+  "algo": "cma",
+  "train_evals": 180000,
+  "map_root_trained": "1,2,3,4",
+  "scores": {
+   "test/level_5": {
+    "SR": 0.57,
+    "CR": 0.24,
+    "timeout": 0.19,
+    "SPL": 0.4737,
+    "MTT": 21.43,
+    "n": 100
+   }
+  }
+ },
+ "cma_thick_s1": {
+  "algo": "cma",
+  "train_evals": 180000,
+  "map_root_trained": "1,2,3,4",
+  "scores": {
+   "test/level_5": {
+    "SR": 0.72,
+    "CR": 0.24,
+    "timeout": 0.04,
+    "SPL": 0.5768,
+    "MTT": 22.98,
+    "n": 100
+   }
+  }
+ },
+ "cma_thick_s2": {
+  "algo": "cma",
+  "train_evals": 180000,
+  "map_root_trained": "1,2,3,4",
+  "scores": {
+   "test/level_5": {
+    "SR": 0.59,
+    "CR": 0.24,
+    "timeout": 0.17,
+    "SPL": 0.4701,
+    "MTT": 22.32,
+    "n": 100
+   }
+  }
+ },
+ "cma_thick_1M": {
+  "algo": "cma",
+  "train_evals": 999840,
+  "map_root_trained": "1,2,3,4",
+  "scores": {
+   "test/level_5": {
+    "SR": 0.74,
+    "CR": 0.19,
+    "timeout": 0.07,
+    "SPL": 0.6361,
+    "MTT": 20.38,
+    "n": 100
+   }
+  }
+ },
+ "neat_thick": {
+  "algo": "neat",
+  "train_evals": 180000,
+  "map_root_trained": "1,2,3,4",
+  "scores": {
+   "test/level_5": {
+    "SR": 0.43,
+    "CR": 0.39,
+    "timeout": 0.18,
+    "SPL": 0.3361,
+    "MTT": 22.26,
+    "n": 100
+   }
+  }
+ },
+ "neat_thick_s1": {
+  "algo": "neat",
+  "train_evals": 180000,
+  "map_root_trained": "1,2,3,4",
+  "scores": {
+   "test/level_5": {
+    "SR": 0.5,
+    "CR": 0.15,
+    "timeout": 0.35,
+    "SPL": 0.4142,
+    "MTT": 21.46,
+    "n": 100
+   }
+  }
+ },
+ "neat_h8_thick": {
+  "algo": "neat",
+  "train_evals": 180000,
+  "map_root_trained": "1,2,3,4",
+  "scores": {
+   "test/level_5": {
+    "SR": 0.36,
+    "CR": 0.44,
+    "timeout": 0.2,
+    "SPL": 0.2783,
+    "MTT": 21.93,
+    "n": 100
+   }
+  }
+ },
+ "neat_ref_thick": {
+  "algo": "neat",
+  "train_evals": 180000,
+  "map_root_trained": "1,2,3,4",
+  "scores": {
+   "test/level_5": {
+    "SR": 0.6,
+    "CR": 0.25,
+    "timeout": 0.15,
+    "SPL": 0.4751,
+    "MTT": 22.22,
+    "n": 100
+   }
+  }
+ },
+ "neat_ref_thick_s1": {
+  "algo": "neat",
+  "train_evals": 180000,
+  "map_root_trained": "1,2,3,4",
+  "scores": {
+   "test/level_5": {
+    "SR": 0.43,
+    "CR": 0.55,
+    "timeout": 0.02,
+    "SPL": 0.3686,
+    "MTT": 20.63,
+    "n": 100
+   }
+  }
+ },
+ "neat_ref_thick_s2": {
+  "algo": "neat",
+  "train_evals": 180000,
+  "map_root_trained": "1,2,3,4",
+  "scores": {
+   "test/level_5": {
+    "SR": 0.45,
+    "CR": 0.28,
+    "timeout": 0.27,
+    "SPL": 0.3488,
+    "MTT": 24.49,
+    "n": 100
+   }
+  }
+ },
+ "neat_ref_thick_1M5": {
+  "algo": "neat",
+  "train_evals": 1500000,
+  "map_root_trained": "1,2,3,4",
+  "scores": {
+   "test/level_5": {
+    "SR": 0.33,
+    "CR": 0.33,
+    "timeout": 0.34,
+    "SPL": 0.2934,
+    "MTT": 22.03,
+    "n": 100
+   }
+  }
+ },
+ "ga_old_thick": {
+  "algo": "ga",
+  "train_evals": 180000,
+  "map_root_trained": "1,2,3,4",
+  "scores": {
+   "test/level_5": {
+    "SR": 0.63,
+    "CR": 0.29,
+    "timeout": 0.08,
+    "SPL": 0.5745,
+    "MTT": 19.02,
+    "n": 100
+   }
+  }
+ },
+ "ga_old_thick_s1": {
+  "algo": "ga",
+  "train_evals": 180000,
+  "map_root_trained": "1,2,3,4",
+  "scores": {
+   "test/level_5": {
+    "SR": 0.56,
+    "CR": 0.43,
+    "timeout": 0.01,
+    "SPL": 0.4627,
+    "MTT": 21.08,
+    "n": 100
+   }
+  }
+ },
+ "ga2_s05": {
+  "algo": "ga2",
+  "train_evals": 180000,
+  "map_root_trained": "1,2,3,4",
+  "scores": {
+   "test/level_5": {
+    "SR": 0.6,
+    "CR": 0.27,
+    "timeout": 0.13,
+    "SPL": 0.5057,
+    "MTT": 21.65,
+    "n": 100
+   }
+  }
+ },
+ "neat_ref_uni": {
+  "algo": "neat",
+  "train_evals": 180000,
+  "map_root_trained": "1,2,3,4",
+  "scores": {
+   "test/level_5": {
+    "SR": 0.28,
+    "CR": 0.5,
+    "timeout": 0.22,
+    "SPL": 0.198,
+    "MTT": 26.4,
+    "n": 100
+   }
+  }
+ },
+ "fixB_rnn_s0": {
+  "algo": "neat",
+  "train_evals": 180000,
+  "map_root_trained": "1,2,3,4",
+  "scores": {
+   "test/level_5": {
+    "SR": 0.39,
+    "CR": 0.39,
+    "timeout": 0.22,
+    "SPL": 0.3498,
+    "MTT": 19.89,
+    "n": 100
+   }
+  }
+ },
+ "fixB_rnn_s1": {
+  "algo": "neat",
+  "train_evals": 180000,
+  "map_root_trained": "1,2,3,4",
+  "scores": {
+   "test/level_5": {
+    "SR": 0.37,
+    "CR": 0.29,
+    "timeout": 0.34,
+    "SPL": 0.2975,
+    "MTT": 25.51,
+    "n": 100
+   }
+  }
+ },
+ "fixB_rnn_s2": {
+  "algo": "neat",
+  "train_evals": 180000,
+  "map_root_trained": "1,2,3,4",
+  "scores": {
+   "test/level_5": {
+    "SR": 0.67,
+    "CR": 0.22,
+    "timeout": 0.11,
+    "SPL": 0.5494,
+    "MTT": 21.77,
+    "n": 100
+   }
+  }
+ },
+ "fixB_ff_s0": {
+  "algo": "neat",
+  "train_evals": 180000,
+  "map_root_trained": "1,2,3,4",
+  "scores": {
+   "test/level_5": {
+    "SR": 0.39,
+    "CR": 0.29,
+    "timeout": 0.32,
+    "SPL": 0.3498,
+    "MTT": 21.19,
+    "n": 100
+   }
+  }
+ },
+ "fixB_ff_s1": {
+  "algo": "neat",
+  "train_evals": 180000,
+  "map_root_trained": "1,2,3,4",
+  "scores": {
+   "test/level_5": {
+    "SR": 0.66,
+    "CR": 0.14,
+    "timeout": 0.2,
+    "SPL": 0.5118,
+    "MTT": 24.52,
+    "n": 100
+   }
+  }
+ },
+ "gafix_s0": {
+  "algo": "ga",
+  "train_evals": 180000,
+  "map_root_trained": "1,2,3,4",
+  "scores": {
+   "test/level_5": {
+    "SR": 0.72,
+    "CR": 0.21,
+    "timeout": 0.07,
+    "SPL": 0.6136,
+    "MTT": 21.29,
+    "n": 100
+   }
+  }
+ },
+ "gafix_s1": {
+  "algo": "ga",
+  "train_evals": 180000,
+  "map_root_trained": "1,2,3,4",
+  "scores": {
+   "test/level_5": {
+    "SR": 0.5,
+    "CR": 0.37,
+    "timeout": 0.13,
+    "SPL": 0.3902,
+    "MTT": 23.51,
+    "n": 100
+   }
+  }
+ },
+ "gafix_s2": {
+  "algo": "ga",
+  "train_evals": 180000,
+  "map_root_trained": "1,2,3,4",
+  "scores": {
+   "test/level_5": {
+    "SR": 0.53,
+    "CR": 0.4,
+    "timeout": 0.07,
+    "SPL": 0.4295,
+    "MTT": 22.42,
+    "n": 100
+   }
+  }
+ },
+ "neat_team_uni": {
+  "algo": "neat",
+  "train_evals": 180000,
+  "map_root_trained": "1,2,3,4",
+  "scores": {
+   "test/level_5": {
+    "SR": 0.25,
+    "CR": 0.56,
+    "timeout": 0.19,
+    "SPL": 0.2145,
+    "MTT": 20.26,
+    "n": 100
+   }
+  }
+ },
+ "ga_team_uni": {
+  "algo": "ga",
+  "train_evals": 180000,
+  "map_root_trained": "1,2,3,4",
+  "scores": {
+   "test/level_5": {
+    "SR": 0.36,
+    "CR": 0.29,
+    "timeout": 0.35,
+    "SPL": 0.267,
+    "MTT": 24.6,
+    "n": 100
+   }
+  }
+ },
+ "fixB_ff_s2": {
+  "algo": "neat",
+  "train_evals": 180000,
+  "map_root_trained": "1,2,3,4",
+  "scores": {
+   "test/level_5": {
+    "SR": 0.32,
+    "CR": 0.26,
+    "timeout": 0.42,
+    "SPL": 0.2738,
+    "MTT": 24.11,
+    "n": 100
+   }
+  }
+ },
+ "ga_team_uni_s1": {
+  "algo": "ga",
+  "train_evals": 180000,
+  "map_root_trained": "1,2,3,4",
+  "scores": {
+   "test/level_5": {
+    "SR": 0.58,
+    "CR": 0.22,
+    "timeout": 0.2,
+    "SPL": 0.4838,
+    "MTT": 23.53,
+    "n": 100
+   }
+  }
+ },
+ "neat_team_uni_s1": {
+  "algo": "neat",
+  "train_evals": 180000,
+  "map_root_trained": "1,2,3,4",
+  "scores": {
+   "test/level_5": {
+    "SR": 0.39,
+    "CR": 0.41,
+    "timeout": 0.2,
+    "SPL": 0.3064,
+    "MTT": 21.38,
+    "n": 100
+   }
+  }
+ },
+ "neat_team_uni_s2": {
+  "algo": "neat",
+  "train_evals": 180000,
+  "map_root_trained": "1,2,3,4",
+  "scores": {
+   "test/level_5": {
+    "SR": 0.37,
+    "CR": 0.63,
+    "timeout": 0.0,
+    "SPL": 0.2814,
+    "MTT": 21.02,
+    "n": 100
+   }
+  }
+ },
+ "ga_team_uni_s2": {
+  "algo": "ga",
+  "train_evals": 180000,
+  "map_root_trained": "1,2,3,4",
+  "scores": {
+   "test/level_5": {
+    "SR": 0.57,
+    "CR": 0.28,
+    "timeout": 0.15,
+    "SPL": 0.4725,
+    "MTT": 19.74,
+    "n": 100
+   }
+  }
+ },
+ "fixB_rnn_1M5": {
+  "algo": "neat",
+  "train_evals": 1500000,
+  "map_root_trained": "1,2,3,4",
+  "scores": {
+   "test/level_5": {
+    "SR": 0.6,
+    "CR": 0.15,
+    "timeout": 0.25,
+    "SPL": 0.4396,
+    "MTT": 27.31,
+    "n": 100
+   }
+  }
+ }
+}

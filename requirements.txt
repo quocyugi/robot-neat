@@ -1,13 +1,15 @@
 # NEAT Robot Navigation - Dependencies
 # Core
 numpy>=1.24.0
-neat-python>=0.92
+# Cấu hình .ini viết cho neat-python 2.0.0 (khóa response_*); bản 1.x báo lỗi (L18)
+neat-python==2.0.0
 gymnasium>=0.29.0
 
 # Simulation & Rendering
-pygame>=2.5.0
+# pygame chưa có bản cho Python 3.14; pygame-ce dùng cùng tên import "pygame" (L18)
+pygame-ce>=2.5.0
 
-# Map Generation & Pathfinding
+# Map Generation & Pathfinding (scipy cũng dùng cho trường geodesic, L26)
 scipy>=1.11.0
 
 # Experiments & Statistics

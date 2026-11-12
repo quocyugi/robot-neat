@@ -32,6 +32,7 @@ robot-neat/
 │   │   ├── lidar.py            #   LiDAR 12 tia vectorised ray-casting
 │   │   ├── collision.py        #   Phát hiện va chạm point-to-segment
 │   │   ├── renderer.py         #   Pygame renderer (human + rgb_array)
+│   │   ├── geodesic.py         #   Khoảng cách theo đường đi thật tới đích (fitness, L26)
 │   │   └── robot_env.py        #   RobotNavEnv chuẩn Gymnasium API
 │   ├── maps/                   # Sinh bản đồ & kiểm định
 │   │   ├── generator.py        #   MapGenerator 4 cấp độ
@@ -42,7 +43,9 @@ robot-neat/
 │   ├── neat_engine/            # Engine tiến hóa
 │   │   ├── evaluator.py        #   Hàm fitness 5 thành phần
 │   │   ├── novelty.py          #   NoveltyArchive + AdaptiveHybridManager
-│   │   ├── curriculum.py       #   Quản lý thăng cấp độ khó
+│   │   ├── curriculum.py       #   Curriculum + lịch học đều 4 cấp
+│   │   ├── parallel.py         #   Đánh giá song song (multiprocessing)
+│   │   ├── neat_fixes.py       #   Vá quanh neat-python 2.0.0 (khóa nút ẩn, ...)
 │   │   └── runner.py           #   Vòng lặp tiến hóa chính (orchestrator)
 │   ├── baselines/              # Phương pháp đối chuẩn
 │   │   ├── fixed_ga.py         #   B1/B2: Fixed MLP + GA
@@ -52,15 +55,24 @@ robot-neat/
 │   └── experiments/            # Thực nghiệm & thống kê
 │       ├── metrics.py          #   SR, SPL, MTT, Collision Rate
 │       ├── stats.py            #   Mann-Whitney U + Boxplot
+│       ├── evaluation.py       #   Chấm bộ điều khiển trên các tập test
 │       └── run_ablation.py     #   Chạy Ablation M1–M6
 ├── scripts/                    # Entry points
 │   ├── download_public_data.py #   Tải BARN + mê cung Lehman–Stanley
 │   ├── pregenerate_maps.py     #   Sinh 1,300 bản đồ
 │   ├── preprocess_data.py      #   Tiền xử lý + kiểm tra chất lượng dữ liệu
 │   ├── train_neat.py           #   Huấn luyện NEAT
+│   ├── evaluate.py             #   Chấm champion trên tập test
+│   ├── run_baselines.py        #   Huấn luyện + chấm baseline B1–B5
+│   ├── summarize_results.py    #   Gom seed, kiểm định, boxplot
 │   └── visualize.py            #   Replay genome trên Pygame
+├── tests/                      # Kiểm thử các bản sửa lỗi
 ├── brainstorm/                 # Kết quả brainstorm (35 quyết định)
 ├── docs/tien_xu_ly_du_lieu.md  # Báo cáo phần tiền xử lý dữ liệu
+├── docs/sua_loi_code.md        # Các lỗi đã sửa (mã L01–L34) và cách kiểm
+├── docs/sua_cau_hinh_NEAT_GA.md # Cấu hình NEAT/GA đã sửa và kết quả kiểm thử
+├── reports/                    # Báo cáo khả thi (Word) và các báo cáo khảo sát
+├── kiem_thu/                   # Script và kết quả kiểm thử của báo cáo
 ├── reports/data/               # Thống kê + hình của bộ dữ liệu
 ├── overview.md                 # Tài liệu thiết kế chi tiết
 └── requirements.txt            # Dependencies
@@ -103,31 +115,47 @@ python scripts/preprocess_data.py
 Kết quả: `data/maps/{train,val,test}/level_k/`, `data/maps/test_barn/` (50 bản đồ BARN),
 `data/maps/test_lehman/` (2 mê cung), `data/maps/manifest.csv` và `reports/data/`.
 
+Bản đồ cấp 3 đã được sinh lại với tường dày 0,20 m nối liền tường biên (lỗi L27, xem
+[docs/sua_loi_code.md](docs/sua_loi_code.md)). `manifest.csv` và `reports/data/` vẫn ghi số của bộ cấp 3 cũ;
+chạy lại bước 2c (cần tải `data/raw` ở bước 2a) để cập nhật.
+
 ### 3. Huấn luyện NEAT
 
 ```bash
 # Mô hình đề xuất đầy đủ (M6): Recurrent + Novelty + Curriculum
-python scripts/train_neat.py \
-    --config configs/neat_recurrent.ini \
-    --recurrent --novelty --curriculum \
-    --generations 300
+python scripts/train_neat.py --config configs/neat_recurrent.ini \
+    --novelty --curriculum --generations 300 --seed 0 --workers 4
 
-# Cấu hình cơ bản (M1): Feedforward, không Novelty, không Curriculum
-python scripts/train_neat.py \
-    --config configs/neat_feedforward.ini \
-    --no-recurrent --no-novelty --no-curriculum
+# Cấu hình cơ bản (M1): Feedforward, không Novelty, học đều cả 4 cấp
+python scripts/train_neat.py --config configs/neat_feedforward.ini \
+    --no-novelty --no-curriculum --seed 0 --workers 4
+```
+Kiểu mạng (hồi quy hay truyền thẳng) suy ra từ `feed_forward` của file config. Mỗi thế hệ dùng chung
+8 bản đồ cho cả quần thể; fitness đo tiến độ theo đường đi thật (trường geodesic, lưu đệm ở `output/geo_cache/`).
+Kết quả trong `output/train/`: `champion_genome.pkl` (genome có SR cao nhất trên bản đồ val của cả 4 cấp),
+`summary.json` (cấp cao nhất đã học, các lần lên cấp, SR val của champion), `training_history.json`, `neat_config.ini`.
+
+### 4. Chấm trên tập test và xem kết quả
+```bash
+python scripts/evaluate.py --run-dir output/train          # SR, CR, hết giờ, SPL, MTT trên mọi tập test
+python scripts/visualize.py --genome output/train/champion_genome.pkl \
+    --map data/maps/test/level_4/map_200000.json
 ```
 
-### 4. Xem kết quả
+### 5. Chạy Ablation Study (10 seeds × 6 cấu hình) và baseline
 ```bash
-python scripts/visualize.py \
-    --genome output/train/winner_genome.pkl \
-    --map data/maps/test/level_4/map_200050.json
+python -m src.experiments.run_ablation --seeds 10 --workers 4          # output/ablation/M*/seed_*/
+python scripts/run_baselines.py --baseline ga_b1 --seed 0 --workers 4   # cũng có ga_b2, random, rule, apf
+python scripts/evaluate.py --run-dir output/ablation/M6/seed_0
+python scripts/summarize_results.py --runs M6=output/ablation/M6 GA=output/baselines/ga_b1 --set test/level_3
 ```
+Baseline dùng cùng lịch học, cùng số bản đồ mỗi thế hệ, cùng fitness, cùng ngân sách và cùng cách chọn
+champion với NEAT, để phép so Q1 công bằng.
 
-### 5. Chạy Ablation Study (10 seeds × 6 cấu hình)
+### 6. Kiểm thử các bản sửa lỗi
 ```bash
-python src/experiments/run_ablation.py
+python tests/test_fixes.py          # 14 phép thử nhanh, mỗi phép một mã lỗi (vài giây)
+python tests/test_reproducible.py   # cùng seed cho cùng log với 1 hay 4 worker (1–3 phút)
 ```
 
 ---

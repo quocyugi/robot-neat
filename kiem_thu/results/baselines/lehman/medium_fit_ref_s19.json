@@ -1,0 +1,1 @@
+{"maze": "medium", "method": "fit", "config": "ref", "seed": 19, "pop": 250, "gens": 300, "steps": 400, "solved": false, "evals_to_solve": null, "evals_used": 75000, "best_distance": 9.07, "archive": 0, "final_threshold": 6.0, "species_median": 3.0, "wall_s": 88.6}

@@ -1,0 +1,43 @@
+{
+ "algo": "ga",
+ "hidden": 8,
+ "k": 4,
+ "seed": 0,
+ "steps": 3130308,
+ "generations": 22,
+ "wall_s": 17.6,
+ "test": {
+  "standard (4-8 obstacles)": {
+   "success": 168,
+   "collision": 25,
+   "timeout": 7,
+   "n": 200
+  },
+  "dense (10-14 obstacles)": {
+   "success": 105,
+   "collision": 88,
+   "timeout": 7,
+   "n": 200
+  },
+  "noisy lidar (sigma = 10 cm)": {
+   "success": 168,
+   "collision": 28,
+   "timeout": 4,
+   "n": 200
+  }
+ },
+ "log": [
+  {
+   "gen": 10,
+   "steps": 1395654,
+   "best": 43.33,
+   "mean_sr": 0.068
+  },
+  {
+   "gen": 20,
+   "steps": 2862268,
+   "best": 68.7,
+   "mean_sr": 0.135
+  }
+ ]
+}

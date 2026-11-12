@@ -58,7 +58,13 @@ class RobotNavEnv(gym.Env):
         self,
         map_data: dict,
         render_mode: Optional[str] = None,
+        geodesic=None,
     ):
+        """
+        geodesic : GeodesicField, optional
+            Trường khoảng cách theo đường đi thật (src.env.geodesic). Khi có, info cuối
+            lượt chứa thêm "g0" và "g_min" để đo tiến độ theo đường đi (sửa L26).
+        """
         super().__init__()
 
         # ── Map data ──────────────────────────────────────────────────
@@ -72,6 +78,11 @@ class RobotNavEnv(gym.Env):
         self.goal_pos: np.ndarray = np.array(
             map_data["goal"], dtype=np.float64
         )
+        # Hướng xuất phát của bản đồ (BARN đặt pi/2, quay mặt về đích); mặc định 0 như cũ
+        self.start_heading: float = float(map_data.get("start_heading", 0.0))
+        self._geo = geodesic
+        self.g0: float | None = None
+        self.g_min: float | None = None
 
         # ── Spaces ────────────────────────────────────────────────────
         self.action_space = spaces.Box(
@@ -109,13 +120,16 @@ class RobotNavEnv(gym.Env):
         super().reset(seed=seed)
 
         self.pos = self.start_pos.copy()
-        self.theta = 0.0
+        self.theta = self.start_heading
         self.step_count = 0
         self.spin_count = 0
         self.trajectory = [self.pos.copy()]
 
         self.d0 = float(np.linalg.norm(self.pos - self.goal_pos))
         self.d_min = self.d0
+        if self._geo is not None:
+            self.g0 = self._geo.at(self.pos[0], self.pos[1])
+            self.g_min = self.g0
 
         obs = self._get_obs()
         return obs, {}
@@ -145,9 +159,14 @@ class RobotNavEnv(gym.Env):
         dist_to_goal = float(np.linalg.norm(self.pos - self.goal_pos))
         self.d_min = min(self.d_min, dist_to_goal)
         reached_goal = dist_to_goal <= GOAL_RADIUS
+        if self._geo is not None:
+            self.g_min = min(self.g_min, self._geo.at(self.pos[0], self.pos[1]))
 
         terminated = collided or reached_goal
         truncated = (self.step_count >= MAX_STEPS) and (not terminated)
+        # L20: bước vừa tới đích vừa chạm vật cản tính là tới đích, không đếm thêm
+        # một lần va chạm (trước đây fitness cộng +10 và trừ 2, SR và CR đếm trùng).
+        is_collision = collided and not reached_goal
 
         # ── Observation ───────────────────────────────────────────────
         obs = self._get_obs()
@@ -155,7 +174,7 @@ class RobotNavEnv(gym.Env):
         # ── Info dict (consumed by NEAT evaluator & Novelty module) ───
         info: dict[str, Any] = {
             "is_success": reached_goal,
-            "is_collision": collided,
+            "is_collision": is_collision,
             "steps": self.step_count,
             "final_pos": (float(self.pos[0]), float(self.pos[1])),
             "trajectory": self.trajectory,
@@ -164,6 +183,9 @@ class RobotNavEnv(gym.Env):
             "min_distance_to_goal": self.d_min,
             "d0": self.d0,
         }
+        if self._geo is not None:
+            info["g0"] = self.g0          # khoảng cách theo đường đi lúc xuất phát
+            info["g_min"] = self.g_min    # nhỏ nhất đạt được trong lượt
 
         # Reward is unused — NEAT evaluates fitness *after* the episode
         reward = 0.0

@@ -1,0 +1,1 @@
+{"maze": "hard", "method": "ns", "config": "file", "seed": 6, "pop": 250, "gens": 300, "steps": 400, "solved": true, "evals_to_solve": 22978, "evals_used": 23000, "best_distance": 4.81, "archive": 365, "final_threshold": 24.51, "species_median": 1.0, "wall_s": 66.2}

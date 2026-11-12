@@ -1,0 +1,214 @@
+{
+  "go_to_goal": {
+    "test_L1": {
+      "SR": 1.0,
+      "CR": 0.0,
+      "SPL": 0.999,
+      "MTT": 19.9,
+      "timeout_rate": 0.0,
+      "n": 50
+    },
+    "test_L2": {
+      "SR": 0.0,
+      "CR": 1.0,
+      "SPL": 0.0,
+      "MTT": null,
+      "timeout_rate": 0.0,
+      "n": 50
+    },
+    "test_L3": {
+      "SR": 0.0,
+      "CR": 1.0,
+      "SPL": 0.0,
+      "MTT": null,
+      "timeout_rate": 0.0,
+      "n": 50
+    },
+    "test_L4": {
+      "SR": 0.0,
+      "CR": 1.0,
+      "SPL": 0.0,
+      "MTT": null,
+      "timeout_rate": 0.0,
+      "n": 50
+    },
+    "test_barn": {
+      "SR": 0.1,
+      "CR": 0.9,
+      "SPL": 0.1,
+      "MTT": 22.3,
+      "timeout_rate": 0.0,
+      "n": 50
+    },
+    "test_lehman": {
+      "SR": 0.0,
+      "CR": 1.0,
+      "SPL": 0.0,
+      "MTT": null,
+      "timeout_rate": 0.0,
+      "n": 2
+    }
+  },
+  "B4_rule_as_is": {
+    "test_L1": {
+      "SR": 0.66,
+      "CR": 0.34,
+      "SPL": 0.653,
+      "MTT": 23.5,
+      "timeout_rate": 0.0,
+      "n": 50
+    },
+    "test_L2": {
+      "SR": 0.0,
+      "CR": 1.0,
+      "SPL": 0.0,
+      "MTT": null,
+      "timeout_rate": 0.0,
+      "n": 50
+    },
+    "test_L3": {
+      "SR": 0.0,
+      "CR": 1.0,
+      "SPL": 0.0,
+      "MTT": null,
+      "timeout_rate": 0.0,
+      "n": 50
+    },
+    "test_L4": {
+      "SR": 0.0,
+      "CR": 1.0,
+      "SPL": 0.0,
+      "MTT": null,
+      "timeout_rate": 0.0,
+      "n": 50
+    },
+    "test_barn": {
+      "SR": 0.02,
+      "CR": 0.98,
+      "SPL": 0.02,
+      "MTT": 27.2,
+      "timeout_rate": 0.0,
+      "n": 50
+    },
+    "test_lehman": {
+      "SR": 0.0,
+      "CR": 1.0,
+      "SPL": 0.0,
+      "MTT": null,
+      "timeout_rate": 0.0,
+      "n": 2
+    }
+  },
+  "B4_rule_sign_fixed": {
+    "test_L1": {
+      "SR": 0.8,
+      "CR": 0.0,
+      "SPL": 0.778,
+      "MTT": 22.9,
+      "timeout_rate": 0.2,
+      "n": 50
+    },
+    "test_L2": {
+      "SR": 0.02,
+      "CR": 0.96,
+      "SPL": 0.018,
+      "MTT": 35.6,
+      "timeout_rate": 0.02,
+      "n": 50
+    },
+    "test_L3": {
+      "SR": 0.0,
+      "CR": 0.58,
+      "SPL": 0.0,
+      "MTT": null,
+      "timeout_rate": 0.42,
+      "n": 50
+    },
+    "test_L4": {
+      "SR": 0.0,
+      "CR": 0.86,
+      "SPL": 0.0,
+      "MTT": null,
+      "timeout_rate": 0.14,
+      "n": 50
+    },
+    "test_barn": {
+      "SR": 0.0,
+      "CR": 0.52,
+      "SPL": 0.0,
+      "MTT": null,
+      "timeout_rate": 0.48,
+      "n": 50
+    },
+    "test_lehman": {
+      "SR": 0.0,
+      "CR": 1.0,
+      "SPL": 0.0,
+      "MTT": null,
+      "timeout_rate": 0.0,
+      "n": 2
+    }
+  },
+  "B5_apf_as_is": {
+    "test_L1": {
+      "SR": 1.0,
+      "CR": 0.0,
+      "SPL": 1.0,
+      "MTT": 27.3,
+      "timeout_rate": 0.0,
+      "n": 50
+    },
+    "test_L2": {
+      "SR": 0.38,
+      "CR": 0.0,
+      "SPL": 0.363,
+      "MTT": 39.7,
+      "timeout_rate": 0.62,
+      "n": 50
+    },
+    "test_L3": {
+      "SR": 0.02,
+      "CR": 0.02,
+      "SPL": 0.02,
+      "MTT": 49.4,
+      "timeout_rate": 0.96,
+      "n": 50
+    },
+    "test_L4": {
+      "SR": 0.0,
+      "CR": 0.0,
+      "SPL": 0.0,
+      "MTT": null,
+      "timeout_rate": 1.0,
+      "n": 50
+    },
+    "test_barn": {
+      "SR": 0.34,
+      "CR": 0.0,
+      "SPL": 0.336,
+      "MTT": 37.7,
+      "timeout_rate": 0.66,
+      "n": 50
+    },
+    "test_lehman": {
+      "SR": 0.0,
+      "CR": 1.0,
+      "SPL": 0.0,
+      "MTT": null,
+      "timeout_rate": 0.0,
+      "n": 2
+    }
+  },
+  "B4_sign_check": {
+    "front_danger": 0.7666666507720947,
+    "left_sum": 1.263903260231018,
+    "right_sum": 3.2920801639556885,
+    "left_is_freer": true,
+    "action_oL_oR": [
+      0.699999988079071,
+      -0.10000000149011612
+    ],
+    "dtheta_rad": -0.10000000149011612,
+    "turned": "RIGHT (toward crowded side)"
+  }
+}

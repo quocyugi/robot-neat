@@ -1,0 +1,73 @@
+{
+ "algo": "cma",
+ "hidden": 32,
+ "k": 4,
+ "seed": 0,
+ "steps": 3005197,
+ "generations": 146,
+ "wall_s": 56.8,
+ "test": {
+  "standard (4-8 obstacles)": {
+   "success": 166,
+   "collision": 27,
+   "timeout": 7,
+   "n": 200
+  },
+  "dense (10-14 obstacles)": {
+   "success": 94,
+   "collision": 82,
+   "timeout": 24,
+   "n": 200
+  },
+  "noisy lidar (sigma = 10 cm)": {
+   "success": 157,
+   "collision": 35,
+   "timeout": 8,
+   "n": 200
+  }
+ },
+ "log": [
+  {
+   "gen": 20,
+   "steps": 434839,
+   "best": 47.57,
+   "mean_sr": 0.391
+  },
+  {
+   "gen": 40,
+   "steps": 856888,
+   "best": 62.23,
+   "mean_sr": 0.62
+  },
+  {
+   "gen": 60,
+   "steps": 1359382,
+   "best": 41.94,
+   "mean_sr": 0.489
+  },
+  {
+   "gen": 80,
+   "steps": 1857959,
+   "best": 63.58,
+   "mean_sr": 0.739
+  },
+  {
+   "gen": 100,
+   "steps": 2266929,
+   "best": 73.29,
+   "mean_sr": 0.446
+  },
+  {
+   "gen": 120,
+   "steps": 2641873,
+   "best": 67.59,
+   "mean_sr": 0.967
+  },
+  {
+   "gen": 140,
+   "steps": 2933051,
+   "best": 65.54,
+   "mean_sr": 0.935
+  }
+ ]
+}

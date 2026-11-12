@@ -1,0 +1,34 @@
+{
+ "L3": {
+  "n": 50,
+  "tau_med": 1.411,
+  "trap_depth_med": 1.72,
+  "trap_depth_p90": 4.7,
+  "share_trap_gt_3m": 0.28,
+  "bottleneck_min": 0.3,
+  "bug_500": {
+   "SR": 0.22,
+   "CR": 0.18,
+   "timeout": 0.6,
+   "n": 50
+  },
+  "bug_1000": {
+   "SR": 0.28,
+   "CR": 0.34,
+   "timeout": 0.38,
+   "n": 50
+  },
+  "apf_500": {
+   "SR": 0.02,
+   "CR": 0.02,
+   "timeout": 0.96,
+   "n": 50
+  },
+  "mapping_500": {
+   "SR": 0.28,
+   "CR": 0.56,
+   "timeout": 0.16,
+   "n": 50
+  }
+ }
+}

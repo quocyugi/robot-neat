@@ -1,0 +1,78 @@
+{
+ "algo": "neat",
+ "arch": "mlp",
+ "fitness": "geo",
+ "schedule": "uniform",
+ "levels": "1,2,3,4",
+ "net": "rnn",
+ "layers": "8",
+ "k": 8,
+ "gens": 1250,
+ "pop": 150,
+ "seed": 0,
+ "n_rays": 12,
+ "max_steps": 500,
+ "train_evals": 1500000,
+ "wall_s": 3051.9,
+ "approx_steps_M": 446.2,
+ "final_level": 1,
+ "promotions": [],
+ "champion_gen": 920,
+ "champion_val_mean": 0.68,
+ "champion_val": {
+  "1": 1.0,
+  "2": 0.8,
+  "3": 0.32,
+  "4": 0.6
+ },
+ "test": {
+  "test_L1": {
+   "SR": 0.92,
+   "CR": 0.0,
+   "timeout": 0.08,
+   "SPL": 0.6996,
+   "MTT": 22.99,
+   "n": 50
+  },
+  "test_L2": {
+   "SR": 0.72,
+   "CR": 0.04,
+   "timeout": 0.24,
+   "SPL": 0.5631,
+   "MTT": 25.19,
+   "n": 50
+  },
+  "test_L3": {
+   "SR": 0.28,
+   "CR": 0.06,
+   "timeout": 0.66,
+   "SPL": 0.2001,
+   "MTT": 32.12,
+   "n": 50
+  },
+  "test_L4": {
+   "SR": 0.5,
+   "CR": 0.28,
+   "timeout": 0.22,
+   "SPL": 0.3355,
+   "MTT": 35.68,
+   "n": 50
+  },
+  "test_barn": {
+   "SR": 0.26,
+   "CR": 0.62,
+   "timeout": 0.12,
+   "SPL": 0.2101,
+   "MTT": 26.02,
+   "n": 50
+  },
+  "test_lehman": {
+   "SR": 0.0,
+   "CR": 1.0,
+   "timeout": 0.0,
+   "SPL": 0.0,
+   "MTT": null,
+   "n": 2
+  }
+ }
+}

@@ -1,0 +1,48 @@
+{
+ "level": 5,
+ "params": {
+  "arena": 10.0,
+  "scale": 0.7143,
+  "grid": 7,
+  "cell": 1.429,
+  "p_straight": 0.7,
+  "corridor_cover": 0.4,
+  "widen_each_side": 0.286,
+  "open_square_half": 1.429,
+  "split_if_longer_than": 4.0,
+  "opening_half": 0.964,
+  "openings_per_m": 0.14,
+  "wall_thickness": 0.1,
+  "raster": 0.05,
+  "min_start_goal": 5.0
+ },
+ "splits": {
+  "train": {
+   "maps": 250,
+   "seeds_tried": 250,
+   "seeds_without_valid_map": 0,
+   "tau_median": 1.035,
+   "path_median_m": 7.69,
+   "wall_pieces_median": 21.0,
+   "openings_median": 5.0
+  },
+  "val": {
+   "maps": 25,
+   "seeds_tried": 25,
+   "seeds_without_valid_map": 0,
+   "tau_median": 1.035,
+   "path_median_m": 7.69,
+   "wall_pieces_median": 23.0,
+   "openings_median": 6.0
+  },
+  "test": {
+   "maps": 100,
+   "seeds_tried": 100,
+   "seeds_without_valid_map": 0,
+   "tau_median": 1.035,
+   "path_median_m": 7.6,
+   "wall_pieces_median": 20.0,
+   "openings_median": 5.0
+  }
+ }
+}

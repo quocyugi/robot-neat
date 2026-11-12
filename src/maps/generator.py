@@ -23,6 +23,15 @@ Sửa đổi khi làm tiền xử lý dữ liệu (xem docs/tien_xu_ly_du_lieu.m
 3. Cấp 4: thêm 3 VẬT CẢN rải rác (code cũ lấy nhầm 3 cạnh của 1 vật cản).
 4. S, G cách vật cản tối thiểu r + 0.2 m như overview §5.1.
 5. Lọc dải τ bằng đường A* đã làm mượt; lưu thêm bộ chỉ số độ khó (map_metrics).
+
+Sửa lỗi L27 (báo cáo mục 8.10)
+------------------------------
+Tường cấp 3 cũ là đoạn thẳng không bề dày, bắt đầu cách tường biên 0,5 m. 12 tia
+LiDAR cách nhau 30° hay bỏ lọt đầu tường: planner tự lập bản đồ va chạm 54% ở cấp 3,
+cả 27 lần đều sát đầu tường; khe 0,5 m ở đầu kia trông như lối đi nhưng robot
+đường kính 0,5 m không lọt. Nay mỗi tường là hình chữ nhật dày WALL_THICKNESS_L3
+= 0,20 m, nối liền với tường biên (không còn khe). Thứ tự gọi bộ sinh số giữ như cũ.
+Đây đúng là bộ bản đồ "tường dày" đã dùng cho mọi kết quả từ mục 8.10 trở đi.
 """
 
 from __future__ import annotations
@@ -51,6 +60,7 @@ _TAU_RANGES: dict[int, tuple[float, float]] = {
 }
 
 _MIN_SG_DIST: float = 5.0   # minimum Start–Goal Euclidean distance
+WALL_THICKNESS_L3: float = 0.20   # m, bề dày tường hành lang cấp 3 (L27)
 _SG_CLEARANCE: float = ROBOT_RADIUS + 0.2   # S, G cách vật cản tối thiểu r + 0.2 m
 
 # Số lần thử tối đa cho mỗi seed. Cấp 3 cần trung bình ~11 lần thử mới đạt dải τ,
@@ -91,6 +101,33 @@ class MapGenerator:
             if result is not None:
                 return result
         return None
+
+    def generate_n(
+        self,
+        level: int,
+        n: int,
+        seed_offset: int,
+        out_dir: str | Path,
+        max_seeds: Optional[int] = None,
+    ) -> list[str]:
+        """Sinh ĐỦ n bản đồ: thử seed offset, offset+1, ... cho tới khi đủ (seed hỏng thì bỏ qua).
+
+        generate_dataset() cũ dùng đúng n seed, nên seed nào hỏng thì tập thiếu bản đồ.
+        """
+        out_path = Path(out_dir)
+        out_path.mkdir(parents=True, exist_ok=True)
+        written: list[str] = []
+        seed = seed_offset
+        limit = seed_offset + (max_seeds if max_seeds is not None else 20 * n)
+        while len(written) < n and seed < limit:
+            data = self.generate(level, seed)
+            if data is not None:
+                fp = out_path / f"map_{seed:06d}.json"
+                with open(fp, "w", encoding="utf-8") as f:
+                    json.dump(data, f, indent=2, ensure_ascii=False)
+                written.append(str(fp))
+            seed += 1
+        return written
 
     def generate_dataset(
         self,
@@ -225,15 +262,16 @@ class MapGenerator:
         segs = []
         n_walls = rng.integers(3, 6)
         for i in range(n_walls):
-            # Alternating horizontal walls from left/right
+            # Alternating horizontal walls from left/right, nối liền tường biên (L27)
             if i % 2 == 0:
-                x1 = 0.5
+                x1 = 0.0
                 x2 = rng.uniform(5.0, 8.5)
             else:
                 x1 = rng.uniform(1.5, 5.0)
-                x2 = self.arena_w - 0.5
+                x2 = self.arena_w
             y = rng.uniform(1.5, self.arena_h - 1.5)
-            segs.append([[x1, y], [x2, y]])
+            # Tường có bề dày: hình chữ nhật 4 cạnh thay cho một đoạn thẳng (L27)
+            segs.extend(self._rect_segments((x1 + x2) / 2, y, (x2 - x1) / 2, WALL_THICKNESS_L3 / 2))
         return segs
 
     # ── Level 4: U-Traps ─────────────────────────────────────────────

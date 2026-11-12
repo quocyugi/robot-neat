@@ -1,0 +1,9 @@
+{
+ "genomes": 150,
+ "maps": 8,
+ "episodes": 1200,
+ "mismatches": 0,
+ "seconds_library": 8.0,
+ "seconds_batch": 5.2,
+ "speedup": 1.5
+}

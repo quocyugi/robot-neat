@@ -1,0 +1,45 @@
+{
+ "header": [
+  "# -----------------------------------------------------------------------------",
+  "# BẢN ĐÃ SỬA cho neat-python==2.0.0 (báo cáo mục 8.13).",
+  "# Mỗi dòng đổi so với bản gốc có chú thích \"SỬA\" ngay phía trên; diff ở thư mục diff/.",
+  "# -----------------------------------------------------------------------------"
+ ],
+ "changes": {
+  "no_fitness_termination": {"value": "True", "comment": [
+    "SỬA: False -> True. Với False, run() dừng ngay khi có genome đạt fitness_threshold = 16,",
+    "mà phòng trống ở cấp 1 cho 16 điểm ngay thế hệ 0-1, nên M1, M2 không tiến hóa (lỗi L01)."]},
+  "conn_add_prob": {"value": "0.5", "comment": [
+    "SỬA (4 dòng): 0.05 / 0.01 / 0.03 / 0.01 -> 0.5 / 0.1 / 0.1 / 0.1, như cấu hình mê cung tham chiếu",
+    "(Hands-on Neuroevolution with Python, chương 6). Giá trị cũ lấy từ bài NEAT gốc; trên neat-python",
+    "chúng làm XOR chỉ giải 87/100 lần, so với 100/100 của cấu hình mẫu."]},
+  "conn_delete_prob": {"value": "0.1"},
+  "node_add_prob": {"value": "0.1"},
+  "node_delete_prob": {"value": "0.1"},
+  "weight_mutate_power": {"value": "0.1", "comment": [
+    "SỬA (4 dòng: power và replace của trọng số và bias): 0.5 / 0.1 -> 0.1 / 0.01. Cộng nhiễu sigma 0,5 vào",
+    "80% trọng số và gán lại 10% mỗi thế hệ quá thô để tinh chỉnh bộ điều khiển (lỗi L32). Cùng 180.000 lượt,",
+    "giá trị mới nâng SR cấp 3 rõ rệt (báo cáo mục 8.13). Nếu đổi bài toán, quét lại trong khoảng 0,05-0,3."]},
+  "weight_replace_rate": {"value": "0.01"},
+  "bias_mutate_power": {"value": "0.1"},
+  "bias_replace_rate": {"value": "0.01"},
+  "max_stagnation": {"value": "20", "comment": [
+    "SỬA: 15 -> 20 như ví dụ của neat-python. Fitness mỗi thế hệ đo trên bản đồ mới nên ồn,",
+    "15 thế hệ dễ loại nhầm một loài đang tốt."]}
+ },
+ "insert_after": {
+  "node_delete_prob": {"comment": [
+    "SỬA (dòng mới): neat-python 2.0.0 đọc khóa này khi vắng mặt thành chuỗi 'false', và chuỗi khác rỗng",
+    "được coi là True, nên bản gốc thực ra đã chạy chế độ một đột biến cấu trúc cho mỗi con. Ghi rõ để",
+    "hành vi không âm thầm đổi khi nâng phiên bản; mọi kiểm thử trong báo cáo đều chạy ở chế độ này."],
+   "lines": ["single_structural_mutation = True"]}
+ },
+ "notes": {
+  "num_hidden": [
+    "Giữ 0. Nếu tăng, gọi unify_initial_hidden_keys() (src/neat_engine/neat_fixes.py) ngay sau",
+    "neat.Population(); nếu không, mỗi genome ban đầu thành một loài và quần thể sụp ở thế hệ đầu."],
+  "compatibility_threshold": [
+    "Giữ 3.0. Với 15 đầu vào chỉ có 1-3 loài, nhưng neat-python không gộp loài nên tăng ngưỡng không",
+    "giảm được số loài; xem mục 8.13 trước khi bật TargetSpeciesReporter."]
+ }
+}

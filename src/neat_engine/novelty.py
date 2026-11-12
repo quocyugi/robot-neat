@@ -2,7 +2,7 @@
 Novelty Search — Archive, k-NN Scoring & Adaptive Hybrid Manager
 ==================================================================
 Implements Novelty Search with:
-  - Behavior descriptor b(x) = (x_final, y_final)
+  - Behavior descriptor b(x) = vị trí cuối trên K bản đồ, nối thành vector 2K chiều
   - k-NN novelty scoring via scipy cKDTree
   - Adaptive archive with threshold control
   - Hybrid fitness-novelty combination with adaptive λ
@@ -13,12 +13,38 @@ Reference
 - brainstorm/03_novelty/behavior_descriptor.md   (Decisions #16, #17)
 - brainstorm/03_novelty/archive_management.md     (Decisions #18, #19)
 - brainstorm/03_novelty/adaptive_lambda.md        (Decisions #20, #21)
+
+Các lỗi đã sửa (báo cáo mục 9)
+-------------------------------
+L06  Descriptor cũ là TRUNG BÌNH vị trí cuối qua K bản đồ khác nhau: hai hành vi
+     khác hẳn có thể cùng một trung bình. Nay nối K vị trí (behavior_descriptor),
+     chia cho kích thước arena để mọi chiều cùng thang [0, 1].
+L07  Archive giữ vị trí đo trên bản đồ của thế hệ trước nên không so được với
+     thế hệ sau. NEATRunner nay đo hành vi trên một bộ "bản đồ probe" cố định
+     (novelty_space="probe", mặc định), hoặc chỉ so trong quần thể hiện tại
+     (novelty_space="population", không dùng archive).
+L08  Điểm hybrid chuẩn hóa min–max theo từng thế hệ nên không so được giữa các
+     thế hệ (gây L02, làm stagnation vô nghĩa). Nay dùng thang cố định:
+     fitness / fitness lớn nhất có thể, novelty / novelty_scale (cắt về [0, 1]).
+L09  λ so với kỷ lục toàn run và không reset khi lên cấp nên kẹt ở 0,1 tới 87–88%
+     số thế hệ. Nay so trung bình W thế hệ gần nhất với W thế hệ trước đó, gọi
+     reset() khi lên cấp, λ khởi đầu 0,5, sàn 0,2.
+L03  Thêm fixed_lambda: λ cố định (M4 "novelty thuần" dùng fixed_lambda = 0).
+L14  Nhận ngẫu nhiên 1% vào archive dùng bộ sinh số có seed.
 """
 
 from __future__ import annotations
 
+from typing import Optional
+
 import numpy as np
 from scipy.spatial import cKDTree
+
+
+def behavior_descriptor(final_positions, arena_size=(10.0, 10.0)) -> np.ndarray:
+    """L06: nối vị trí cuối (x, y) trên K bản đồ thành vector 2K chiều, chia cho kích thước arena."""
+    p = np.asarray(final_positions, dtype=np.float64) / np.asarray(arena_size, dtype=np.float64)
+    return p.ravel()
 
 
 # ══════════════════════════════════════════════════════════════════════════
@@ -35,20 +61,25 @@ class NoveltyArchive:
     max_size : int
         Hard cap on archive size; oldest entries are evicted (FIFO).
     initial_threshold : float
-        Starting novelty threshold for archive admission.
+        Starting novelty threshold for archive admission. Descriptor nay đã chia
+        cho kích thước arena (L06) nên ngưỡng khởi đầu là 0,1 thay cho 0,5 (mét);
+        ngưỡng tự điều chỉnh để nhận khoảng 5–10% số cá thể mỗi thế hệ.
+    rng : numpy.random.Generator, optional
+        Bộ sinh số có seed (L14) cho việc nhận ngẫu nhiên 1%.
     """
 
     def __init__(
         self,
         k_neighbours: int = 15,
         max_size: int = 2000,
-        initial_threshold: float = 0.5,
+        initial_threshold: float = 0.1,
+        rng: Optional[np.random.Generator] = None,
     ):
         self.k = k_neighbours
         self.max_size = max_size
         self.threshold = initial_threshold
         self._archive: list[np.ndarray] = []
-        self._tree: cKDTree | None = None
+        self._rng = rng if rng is not None else np.random.default_rng()
 
         # Adaptive threshold bookkeeping
         self._added_this_gen: int = 0
@@ -62,27 +93,27 @@ class NoveltyArchive:
         self,
         behaviors: np.ndarray,
         population_behaviors: np.ndarray | None = None,
+        use_archive: bool = True,
     ) -> np.ndarray:
-        """Compute novelty score for each behavior in *behaviors*.
-
-        Novelty(b) = mean distance to k nearest neighbours in
-        (population ∪ archive).
+        """Novelty(b) = khoảng cách trung bình tới k láng giềng gần nhất trong
+        (quần thể ∪ archive), bỏ chính nó.
 
         Parameters
         ----------
         behaviors : ndarray, shape (N, D)
         population_behaviors : ndarray, shape (N, D), optional
             If provided, included in the neighbour pool.
+        use_archive : bool
+            False: chỉ so trong quần thể hiện tại (novelty_space="population").
 
         Returns
         -------
         scores : ndarray, shape (N,)
         """
-        # Build combined pool
         pool_parts: list[np.ndarray] = []
         if population_behaviors is not None and len(population_behaviors):
             pool_parts.append(population_behaviors)
-        if self._archive:
+        if use_archive and self._archive:
             pool_parts.append(np.array(self._archive))
 
         if not pool_parts:
@@ -116,20 +147,28 @@ class NoveltyArchive:
         admitted = False
         if novelty_score >= self.threshold:
             admitted = True
-        elif np.random.random() < 0.01:
+        elif self._rng.random() < 0.01:
             admitted = True  # 1% random admission
 
         if admitted:
-            self._archive.append(behavior.copy())
+            self._archive.append(np.array(behavior, dtype=np.float64, copy=True))
             self._added_this_gen += 1
-            self._tree = None  # invalidate cached tree
 
             # FIFO eviction if over capacity
             if len(self._archive) > self.max_size:
                 self._archive = self._archive[-self.max_size:]
-                self._tree = None
 
         return admitted
+
+    def calibrate(self, scores: np.ndarray, target_rate: float = 0.075) -> None:
+        """Đặt ngưỡng ban đầu theo phân bố novelty thực tế (gọi khi archive còn rỗng).
+
+        Ngưỡng cố định ban đầu không khớp thang của descriptor nên thế hệ đầu nhận gần
+        như mọi cá thể, và với hệ số 1,05 mỗi thế hệ phải hơn 40 thế hệ mới bắt kịp.
+        Lấy phân vị (1 - target_rate) để chỉ khoảng 7,5% được nhận, rồi tự điều chỉnh.
+        """
+        if len(scores):
+            self.threshold = max(float(np.quantile(scores, 1.0 - target_rate)), 1e-4)
 
     def end_generation(self):
         """Adapt threshold at the end of each generation (Decision #18).
@@ -142,10 +181,13 @@ class NoveltyArchive:
                 self.threshold *= 1.05    # too many → raise bar
             elif rate < 0.05:
                 self.threshold *= 0.95    # too few → lower bar
-            self.threshold = max(self.threshold, 0.01)
+            self.threshold = max(self.threshold, 1e-4)
 
         self._added_this_gen = 0
         self._evaluated_this_gen = 0
+
+    def clear(self):
+        self._archive = []
 
     @property
     def size(self) -> int:
@@ -159,8 +201,16 @@ class NoveltyArchive:
 class AdaptiveHybridManager:
     """Controls the hybrid fitness-novelty blend weight λ.
 
-    Normal:     λ = 0.6  (fitness-dominant)
-    Stagnation: λ = 0.1  (novelty-dominant, "trap-breaker" mode)
+    hybrid = λ · fitness_chuẩn_hóa + (1 − λ) · novelty_chuẩn_hóa
+
+    Normal:     λ tăng dần 0,1 mỗi thế hệ tới base_lambda (0,6, fitness là chính)
+    Stagnation: λ = exploration_lambda (0,2, novelty là chính, "trap-breaker")
+    Fixed:      fixed_lambda ≠ None giữ λ cố định (M4: 0 = novelty thuần)
+
+    Stagnation (L09): trung bình fitness thô tốt nhất của `window` thế hệ gần nhất
+    không cao hơn trung bình của `window` thế hệ trước đó, liên tiếp
+    `stagnation_limit` lần kiểm tra. Fitness mỗi thế hệ đo trên bản đồ ngẫu nhiên
+    nên ồn; so với kỷ lục (code cũ) thì gần như luôn "trì trệ".
 
     Reference: brainstorm/03_novelty/adaptive_lambda.md (Decision #20)
     """
@@ -168,33 +218,55 @@ class AdaptiveHybridManager:
     def __init__(
         self,
         base_lambda: float = 0.6,
-        exploration_lambda: float = 0.1,
+        exploration_lambda: float = 0.2,
+        start_lambda: float = 0.5,
         stagnation_limit: int = 5,
+        window: int = 5,
+        fixed_lambda: Optional[float] = None,
+        fitness_scale: float = 28.0,
+        novelty_scale: float = 1.0,
     ):
         self.base_lambda = base_lambda
         self.exploration_lambda = exploration_lambda
+        self.start_lambda = start_lambda
         self.stagnation_limit = stagnation_limit
+        self.window = window
+        self.fixed_lambda = fixed_lambda
+        self.fitness_scale = fitness_scale      # L08: thang cố định của fitness
+        self.novelty_scale = novelty_scale      # L08: thang cố định của novelty
 
-        self.current_lambda: float = base_lambda
+        self.current_lambda: float = start_lambda
         self._best_history: list[float] = []
         self._stagnant_gens: int = 0
+        self.reset()
+
+    def reset(self):
+        """Gọi khi lên cấp curriculum: thang fitness đổi nên bỏ lịch sử cũ (L09)."""
+        self._best_history = []
+        self._stagnant_gens = 0
+        self.current_lambda = self.fixed_lambda if self.fixed_lambda is not None else self.start_lambda
 
     def update(self, current_max_fitness: float) -> float:
-        """Call once per generation with the population's best fitness."""
-        if self._best_history and current_max_fitness <= max(self._best_history):
-            self._stagnant_gens += 1
-        else:
-            self._stagnant_gens = 0
+        """Call once per generation with the population's best RAW fitness."""
+        if self.fixed_lambda is not None:
+            self.current_lambda = self.fixed_lambda
+            return self.current_lambda
 
-        self._best_history.append(current_max_fitness)
+        self._best_history.append(float(current_max_fitness))
+        w = self.window
+        if len(self._best_history) >= 2 * w:
+            recent = float(np.mean(self._best_history[-w:]))
+            previous = float(np.mean(self._best_history[-2 * w:-w]))
+            if recent <= previous:
+                self._stagnant_gens += 1
+            else:
+                self._stagnant_gens = 0
 
         if self._stagnant_gens >= self.stagnation_limit:
             self.current_lambda = self.exploration_lambda
         else:
-            self.current_lambda = min(
-                self.base_lambda, self.current_lambda + 0.1,
-            )
-
+            self.current_lambda = min(self.base_lambda, self.current_lambda + 0.1)
+        self.current_lambda = max(self.current_lambda, self.exploration_lambda)
         return self.current_lambda
 
     def combine_scores(
@@ -205,21 +277,20 @@ class AdaptiveHybridManager:
         collisions: np.ndarray,
         mc_threshold: int = 30,
     ) -> np.ndarray:
-        """Min-Max normalise and combine fitness + novelty.
+        """Chuẩn hóa theo thang CỐ ĐỊNH (L08) rồi kết hợp fitness + novelty.
 
         Applies Minimal Criteria (Decision #21): genomes that collide
         before step *mc_threshold* receive only 20% of their novelty score.
 
         Returns
         -------
-        hybrid : ndarray, shape (N,) — values ≥ 0.01
+        hybrid : ndarray, shape (N,) — values in [0.01, 1]
         """
-        # Min-Max scaling
-        f_norm = _minmax(raw_fitness)
-        n_norm = _minmax(raw_novelty)
+        f_norm = np.clip(np.asarray(raw_fitness, dtype=np.float64) / self.fitness_scale, 0.0, 1.0)
+        n_norm = np.clip(np.asarray(raw_novelty, dtype=np.float64) / self.novelty_scale, 0.0, 1.0)
 
         # MCNS penalty
-        mc_factor = np.where(collisions & (steps < mc_threshold), 0.2, 1.0)
+        mc_factor = np.where(np.asarray(collisions) & (np.asarray(steps) < mc_threshold), 0.2, 1.0)
         adjusted_novelty = n_norm * mc_factor
 
         hybrid = (
@@ -230,13 +301,4 @@ class AdaptiveHybridManager:
 
     @property
     def is_exploring(self) -> bool:
-        return self.current_lambda <= self.exploration_lambda
-
-
-# ── Helpers ──────────────────────────────────────────────────────────────
-
-def _minmax(arr: np.ndarray) -> np.ndarray:
-    ptp = np.ptp(arr)
-    if ptp < 1e-6:
-        return np.zeros_like(arr)
-    return (arr - np.min(arr)) / ptp
+        return self.fixed_lambda is None and self.current_lambda <= self.exploration_lambda

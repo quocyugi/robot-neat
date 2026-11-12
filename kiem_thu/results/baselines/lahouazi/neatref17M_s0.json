@@ -1,0 +1,183 @@
+{
+ "algo": "neat",
+ "hidden": 32,
+ "k": 4,
+ "seed": 0,
+ "steps": 17098424,
+ "generations": 196,
+ "wall_s": 348.6,
+ "test": {
+  "standard (4-8 obstacles)": {
+   "success": 116,
+   "collision": 84,
+   "timeout": 0,
+   "n": 200
+  },
+  "dense (10-14 obstacles)": {
+   "success": 57,
+   "collision": 143,
+   "timeout": 0,
+   "n": 200
+  },
+  "noisy lidar (sigma = 10 cm)": {
+   "success": 117,
+   "collision": 83,
+   "timeout": 0,
+   "n": 200
+  }
+ },
+ "log": [
+  {
+   "gen": 10,
+   "steps": 1102709,
+   "best": 47.46,
+   "mean_sr": 0.445,
+   "species": 1,
+   "nodes": 3
+  },
+  {
+   "gen": 20,
+   "steps": 1887482,
+   "best": 68.75,
+   "mean_sr": 0.505,
+   "species": 1,
+   "nodes": 3
+  },
+  {
+   "gen": 30,
+   "steps": 2565130,
+   "best": 66.22,
+   "mean_sr": 0.582,
+   "species": 1,
+   "nodes": 2
+  },
+  {
+   "gen": 40,
+   "steps": 3402775,
+   "best": 63.75,
+   "mean_sr": 0.518,
+   "species": 1,
+   "nodes": 5
+  },
+  {
+   "gen": 50,
+   "steps": 4181603,
+   "best": 70.96,
+   "mean_sr": 0.47,
+   "species": 1,
+   "nodes": 2
+  },
+  {
+   "gen": 60,
+   "steps": 4978282,
+   "best": 53.76,
+   "mean_sr": 0.49,
+   "species": 1,
+   "nodes": 3
+  },
+  {
+   "gen": 70,
+   "steps": 5860864,
+   "best": 65.71,
+   "mean_sr": 0.453,
+   "species": 1,
+   "nodes": 2
+  },
+  {
+   "gen": 80,
+   "steps": 6633489,
+   "best": 65.34,
+   "mean_sr": 0.563,
+   "species": 2,
+   "nodes": 2
+  },
+  {
+   "gen": 90,
+   "steps": 7410008,
+   "best": 67.3,
+   "mean_sr": 0.358,
+   "species": 2,
+   "nodes": 4
+  },
+  {
+   "gen": 100,
+   "steps": 8234292,
+   "best": 78.8,
+   "mean_sr": 0.297,
+   "species": 3,
+   "nodes": 4
+  },
+  {
+   "gen": 110,
+   "steps": 9137876,
+   "best": 64.54,
+   "mean_sr": 0.493,
+   "species": 4,
+   "nodes": 3
+  },
+  {
+   "gen": 120,
+   "steps": 10036725,
+   "best": 67.77,
+   "mean_sr": 0.448,
+   "species": 4,
+   "nodes": 3
+  },
+  {
+   "gen": 130,
+   "steps": 10882005,
+   "best": 69.35,
+   "mean_sr": 0.532,
+   "species": 4,
+   "nodes": 3
+  },
+  {
+   "gen": 140,
+   "steps": 11784896,
+   "best": 66.22,
+   "mean_sr": 0.467,
+   "species": 4,
+   "nodes": 4
+  },
+  {
+   "gen": 150,
+   "steps": 12601952,
+   "best": 63.85,
+   "mean_sr": 0.377,
+   "species": 4,
+   "nodes": 2
+  },
+  {
+   "gen": 160,
+   "steps": 13632426,
+   "best": 61.84,
+   "mean_sr": 0.347,
+   "species": 4,
+   "nodes": 5
+  },
+  {
+   "gen": 170,
+   "steps": 14588443,
+   "best": 65.17,
+   "mean_sr": 0.398,
+   "species": 4,
+   "nodes": 5
+  },
+  {
+   "gen": 180,
+   "steps": 15572057,
+   "best": 64.44,
+   "mean_sr": 0.437,
+   "species": 3,
+   "nodes": 5
+  },
+  {
+   "gen": 190,
+   "steps": 16482556,
+   "best": 69.54,
+   "mean_sr": 0.568,
+   "species": 3,
+   "nodes": 11
+  }
+ ]
+}

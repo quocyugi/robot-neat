@@ -1,0 +1,279 @@
+{
+ "n_collisions": 27,
+ "rows": [
+  {
+   "map": "test/level_3/map_200000.json",
+   "steps": 299,
+   "wall_index": 4,
+   "is_arena_wall": false,
+   "distance_to_wall_tip_m": 0.246,
+   "angle_to_wall_deg": 71.1,
+   "tip_is_the_end_0p5m_from_arena_wall": false,
+   "wall_length_m": 7.4
+  },
+  {
+   "map": "test/level_3/map_200002.json",
+   "steps": 294,
+   "wall_index": 5,
+   "is_arena_wall": false,
+   "distance_to_wall_tip_m": 0.247,
+   "angle_to_wall_deg": 85.9,
+   "tip_is_the_end_0p5m_from_arena_wall": false,
+   "wall_length_m": 7.38
+  },
+  {
+   "map": "test/level_3/map_200003.json",
+   "steps": 149,
+   "wall_index": 6,
+   "is_arena_wall": false,
+   "distance_to_wall_tip_m": 0.241,
+   "angle_to_wall_deg": 89.5,
+   "tip_is_the_end_0p5m_from_arena_wall": false,
+   "wall_length_m": 6.84
+  },
+  {
+   "map": "test/level_3/map_200004.json",
+   "steps": 283,
+   "wall_index": 6,
+   "is_arena_wall": false,
+   "distance_to_wall_tip_m": 0.245,
+   "angle_to_wall_deg": 59.0,
+   "tip_is_the_end_0p5m_from_arena_wall": false,
+   "wall_length_m": 6.91
+  },
+  {
+   "map": "test/level_3/map_200005.json",
+   "steps": 290,
+   "wall_index": 5,
+   "is_arena_wall": false,
+   "distance_to_wall_tip_m": 0.244,
+   "angle_to_wall_deg": 85.1,
+   "tip_is_the_end_0p5m_from_arena_wall": false,
+   "wall_length_m": 5.86
+  },
+  {
+   "map": "test/level_3/map_200008.json",
+   "steps": 97,
+   "wall_index": 4,
+   "is_arena_wall": false,
+   "distance_to_wall_tip_m": 0.248,
+   "angle_to_wall_deg": 78.0,
+   "tip_is_the_end_0p5m_from_arena_wall": false,
+   "wall_length_m": 4.95
+  },
+  {
+   "map": "test/level_3/map_200009.json",
+   "steps": 256,
+   "wall_index": 7,
+   "is_arena_wall": false,
+   "distance_to_wall_tip_m": 0.244,
+   "angle_to_wall_deg": 73.0,
+   "tip_is_the_end_0p5m_from_arena_wall": false,
+   "wall_length_m": 7.23
+  },
+  {
+   "map": "test/level_3/map_200010.json",
+   "steps": 251,
+   "wall_index": 6,
+   "is_arena_wall": false,
+   "distance_to_wall_tip_m": 0.243,
+   "angle_to_wall_deg": 56.2,
+   "tip_is_the_end_0p5m_from_arena_wall": false,
+   "wall_length_m": 6.01
+  },
+  {
+   "map": "test/level_3/map_200012.json",
+   "steps": 277,
+   "wall_index": 4,
+   "is_arena_wall": false,
+   "distance_to_wall_tip_m": 0.246,
+   "angle_to_wall_deg": 83.5,
+   "tip_is_the_end_0p5m_from_arena_wall": false,
+   "wall_length_m": 6.74
+  },
+  {
+   "map": "test/level_3/map_200014.json",
+   "steps": 208,
+   "wall_index": 7,
+   "is_arena_wall": false,
+   "distance_to_wall_tip_m": 0.239,
+   "angle_to_wall_deg": 87.5,
+   "tip_is_the_end_0p5m_from_arena_wall": false,
+   "wall_length_m": 5.97
+  },
+  {
+   "map": "test/level_3/map_200015.json",
+   "steps": 143,
+   "wall_index": 7,
+   "is_arena_wall": false,
+   "distance_to_wall_tip_m": 0.244,
+   "angle_to_wall_deg": 85.2,
+   "tip_is_the_end_0p5m_from_arena_wall": false,
+   "wall_length_m": 4.83
+  },
+  {
+   "map": "test/level_3/map_200016.json",
+   "steps": 224,
+   "wall_index": 5,
+   "is_arena_wall": false,
+   "distance_to_wall_tip_m": 0.245,
+   "angle_to_wall_deg": 64.2,
+   "tip_is_the_end_0p5m_from_arena_wall": false,
+   "wall_length_m": 7.58
+  },
+  {
+   "map": "test/level_3/map_200018.json",
+   "steps": 261,
+   "wall_index": 4,
+   "is_arena_wall": false,
+   "distance_to_wall_tip_m": 0.239,
+   "angle_to_wall_deg": 82.3,
+   "tip_is_the_end_0p5m_from_arena_wall": false,
+   "wall_length_m": 7.06
+  },
+  {
+   "map": "test/level_3/map_200019.json",
+   "steps": 313,
+   "wall_index": 4,
+   "is_arena_wall": false,
+   "distance_to_wall_tip_m": 0.238,
+   "angle_to_wall_deg": 85.3,
+   "tip_is_the_end_0p5m_from_arena_wall": false,
+   "wall_length_m": 7.45
+  },
+  {
+   "map": "test/level_3/map_200020.json",
+   "steps": 285,
+   "wall_index": 5,
+   "is_arena_wall": false,
+   "distance_to_wall_tip_m": 0.248,
+   "angle_to_wall_deg": 85.3,
+   "tip_is_the_end_0p5m_from_arena_wall": false,
+   "wall_length_m": 7.84
+  },
+  {
+   "map": "test/level_3/map_200022.json",
+   "steps": 175,
+   "wall_index": 6,
+   "is_arena_wall": false,
+   "distance_to_wall_tip_m": 0.245,
+   "angle_to_wall_deg": 85.7,
+   "tip_is_the_end_0p5m_from_arena_wall": false,
+   "wall_length_m": 5.12
+  },
+  {
+   "map": "test/level_3/map_200025.json",
+   "steps": 289,
+   "wall_index": 5,
+   "is_arena_wall": false,
+   "distance_to_wall_tip_m": 0.249,
+   "angle_to_wall_deg": 54.6,
+   "tip_is_the_end_0p5m_from_arena_wall": false,
+   "wall_length_m": 6.52
+  },
+  {
+   "map": "test/level_3/map_200026.json",
+   "steps": 150,
+   "wall_index": 4,
+   "is_arena_wall": false,
+   "distance_to_wall_tip_m": 0.241,
+   "angle_to_wall_deg": 66.0,
+   "tip_is_the_end_0p5m_from_arena_wall": false,
+   "wall_length_m": 6.69
+  },
+  {
+   "map": "test/level_3/map_200028.json",
+   "steps": 46,
+   "wall_index": 4,
+   "is_arena_wall": false,
+   "distance_to_wall_tip_m": 0.249,
+   "angle_to_wall_deg": 83.2,
+   "tip_is_the_end_0p5m_from_arena_wall": false,
+   "wall_length_m": 5.45
+  },
+  {
+   "map": "test/level_3/map_200033.json",
+   "steps": 286,
+   "wall_index": 5,
+   "is_arena_wall": false,
+   "distance_to_wall_tip_m": 0.245,
+   "angle_to_wall_deg": 73.7,
+   "tip_is_the_end_0p5m_from_arena_wall": false,
+   "wall_length_m": 6.93
+  },
+  {
+   "map": "test/level_3/map_200035.json",
+   "steps": 148,
+   "wall_index": 5,
+   "is_arena_wall": false,
+   "distance_to_wall_tip_m": 0.244,
+   "angle_to_wall_deg": 64.4,
+   "tip_is_the_end_0p5m_from_arena_wall": false,
+   "wall_length_m": 5.3
+  },
+  {
+   "map": "test/level_3/map_200037.json",
+   "steps": 265,
+   "wall_index": 6,
+   "is_arena_wall": false,
+   "distance_to_wall_tip_m": 0.249,
+   "angle_to_wall_deg": 82.3,
+   "tip_is_the_end_0p5m_from_arena_wall": false,
+   "wall_length_m": 7.06
+  },
+  {
+   "map": "test/level_3/map_200039.json",
+   "steps": 129,
+   "wall_index": 7,
+   "is_arena_wall": false,
+   "distance_to_wall_tip_m": 0.246,
+   "angle_to_wall_deg": 57.6,
+   "tip_is_the_end_0p5m_from_arena_wall": false,
+   "wall_length_m": 5.05
+  },
+  {
+   "map": "test/level_3/map_200042.json",
+   "steps": 157,
+   "wall_index": 4,
+   "is_arena_wall": false,
+   "distance_to_wall_tip_m": 0.249,
+   "angle_to_wall_deg": 73.9,
+   "tip_is_the_end_0p5m_from_arena_wall": false,
+   "wall_length_m": 6.19
+  },
+  {
+   "map": "test/level_3/map_200043.json",
+   "steps": 211,
+   "wall_index": 7,
+   "is_arena_wall": false,
+   "distance_to_wall_tip_m": 0.247,
+   "angle_to_wall_deg": 88.9,
+   "tip_is_the_end_0p5m_from_arena_wall": false,
+   "wall_length_m": 7.64
+  },
+  {
+   "map": "test/level_3/map_200045.json",
+   "steps": 300,
+   "wall_index": 4,
+   "is_arena_wall": false,
+   "distance_to_wall_tip_m": 0.248,
+   "angle_to_wall_deg": 69.5,
+   "tip_is_the_end_0p5m_from_arena_wall": false,
+   "wall_length_m": 6.89
+  },
+  {
+   "map": "test/level_3/map_200048.json",
+   "steps": 284,
+   "wall_index": 4,
+   "is_arena_wall": false,
+   "distance_to_wall_tip_m": 0.248,
+   "angle_to_wall_deg": 82.8,
+   "tip_is_the_end_0p5m_from_arena_wall": false,
+   "wall_length_m": 7.05
+  }
+ ],
+ "share_within_0.5m_of_tip": 1.0,
+ "median_angle_to_wall": 82.3,
+ "collisions_at_slit_end": 0,
+ "collisions_at_inner_end": 27
+}

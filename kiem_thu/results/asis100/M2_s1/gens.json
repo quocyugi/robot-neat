@@ -1,0 +1,1 @@
+[{"gen": 0, "seconds": 25.379, "n_species": 1, "raw_best": 17.096436654911813, "raw_mean": 2.8936751683112547, "best_solved_of_K": 4, "any_full_solve": true, "hybrid_best": 17.096436654911813, "level": 1, "lambda": 1.0, "archive": 0, "val_sr": null, "promoted": false, "best_nodes": 2, "best_conns": 32}]

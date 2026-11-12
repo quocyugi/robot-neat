@@ -37,13 +37,16 @@ class RuleBasedController:
         front_danger = max(proximity[0], proximity[1], proximity[11])
 
         if front_danger > self.danger_threshold:
-            # Obstacle ahead → swerve
+            # Obstacle ahead → swerve toward the clearer side.
+            # Tia i nằm ở góc i·30° ngược chiều kim đồng hồ: tia 1–5 bên trái, 6–10 bên phải.
+            # turn > 0 làm oR > oL nên robot quay trái. Code cũ gán ngược dấu nên rẽ VÀO
+            # phía có vật cản (lỗi L12: SR cấp 1 66%, sửa dấu lên 80%).
             left_sum = np.sum(proximity[1:6])
             right_sum = np.sum(proximity[6:11])
             if left_sum < right_sum:
-                turn = -0.8  # turn left
+                turn = 0.8   # bên trái thoáng hơn → rẽ trái
             else:
-                turn = 0.8   # turn right
+                turn = -0.8  # bên phải thoáng hơn → rẽ phải
             speed = 0.3
 
         oL = np.clip(speed - turn * 0.5, -1.0, 1.0)

@@ -1,0 +1,335 @@
+{
+ "algo": "neat",
+ "hidden": 32,
+ "k": 4,
+ "seed": 2,
+ "steps": 17010440,
+ "generations": 389,
+ "wall_s": 298.0,
+ "test": {
+  "standard (4-8 obstacles)": {
+   "success": 105,
+   "collision": 95,
+   "timeout": 0,
+   "n": 200
+  },
+  "dense (10-14 obstacles)": {
+   "success": 44,
+   "collision": 156,
+   "timeout": 0,
+   "n": 200
+  },
+  "noisy lidar (sigma = 10 cm)": {
+   "success": 105,
+   "collision": 95,
+   "timeout": 0,
+   "n": 200
+  }
+ },
+ "log": [
+  {
+   "gen": 10,
+   "steps": 1641866,
+   "best": 76.14,
+   "mean_sr": 0.137,
+   "species": 4,
+   "nodes": 2
+  },
+  {
+   "gen": 20,
+   "steps": 2543136,
+   "best": 65.0,
+   "mean_sr": 0.395,
+   "species": 9,
+   "nodes": 2
+  },
+  {
+   "gen": 30,
+   "steps": 3066486,
+   "best": 37.42,
+   "mean_sr": 0.258,
+   "species": 7,
+   "nodes": 6
+  },
+  {
+   "gen": 40,
+   "steps": 3482033,
+   "best": 57.1,
+   "mean_sr": 0.388,
+   "species": 9,
+   "nodes": 2
+  },
+  {
+   "gen": 50,
+   "steps": 3956742,
+   "best": 43.75,
+   "mean_sr": 0.24,
+   "species": 13,
+   "nodes": 2
+  },
+  {
+   "gen": 60,
+   "steps": 4437040,
+   "best": 48.69,
+   "mean_sr": 0.683,
+   "species": 16,
+   "nodes": 3
+  },
+  {
+   "gen": 70,
+   "steps": 4831126,
+   "best": 54.95,
+   "mean_sr": 0.195,
+   "species": 12,
+   "nodes": 3
+  },
+  {
+   "gen": 80,
+   "steps": 5199645,
+   "best": 54.24,
+   "mean_sr": 0.568,
+   "species": 15,
+   "nodes": 4
+  },
+  {
+   "gen": 90,
+   "steps": 5578360,
+   "best": 60.66,
+   "mean_sr": 0.647,
+   "species": 11,
+   "nodes": 3
+  },
+  {
+   "gen": 100,
+   "steps": 5953876,
+   "best": 31.28,
+   "mean_sr": 0.452,
+   "species": 15,
+   "nodes": 4
+  },
+  {
+   "gen": 110,
+   "steps": 6300225,
+   "best": 42.38,
+   "mean_sr": 0.288,
+   "species": 20,
+   "nodes": 4
+  },
+  {
+   "gen": 120,
+   "steps": 6717682,
+   "best": 45.28,
+   "mean_sr": 0.527,
+   "species": 15,
+   "nodes": 5
+  },
+  {
+   "gen": 130,
+   "steps": 7073213,
+   "best": 62.99,
+   "mean_sr": 0.71,
+   "species": 11,
+   "nodes": 5
+  },
+  {
+   "gen": 140,
+   "steps": 7413279,
+   "best": 64.79,
+   "mean_sr": 0.63,
+   "species": 14,
+   "nodes": 4
+  },
+  {
+   "gen": 150,
+   "steps": 7809641,
+   "best": 57.46,
+   "mean_sr": 0.537,
+   "species": 15,
+   "nodes": 2
+  },
+  {
+   "gen": 160,
+   "steps": 8194213,
+   "best": 45.28,
+   "mean_sr": 0.48,
+   "species": 6,
+   "nodes": 3
+  },
+  {
+   "gen": 170,
+   "steps": 8609263,
+   "best": 54.49,
+   "mean_sr": 0.777,
+   "species": 14,
+   "nodes": 6
+  },
+  {
+   "gen": 180,
+   "steps": 8986260,
+   "best": 55.39,
+   "mean_sr": 0.495,
+   "species": 17,
+   "nodes": 8
+  },
+  {
+   "gen": 190,
+   "steps": 9338522,
+   "best": 50.71,
+   "mean_sr": 0.357,
+   "species": 13,
+   "nodes": 7
+  },
+  {
+   "gen": 200,
+   "steps": 9705705,
+   "best": 65.37,
+   "mean_sr": 0.745,
+   "species": 12,
+   "nodes": 7
+  },
+  {
+   "gen": 210,
+   "steps": 10069119,
+   "best": 48.05,
+   "mean_sr": 0.627,
+   "species": 8,
+   "nodes": 8
+  },
+  {
+   "gen": 220,
+   "steps": 10489571,
+   "best": 38.27,
+   "mean_sr": 0.27,
+   "species": 10,
+   "nodes": 4
+  },
+  {
+   "gen": 230,
+   "steps": 10865400,
+   "best": 64.99,
+   "mean_sr": 0.422,
+   "species": 9,
+   "nodes": 8
+  },
+  {
+   "gen": 240,
+   "steps": 11197305,
+   "best": 45.93,
+   "mean_sr": 0.483,
+   "species": 13,
+   "nodes": 8
+  },
+  {
+   "gen": 250,
+   "steps": 11583520,
+   "best": 61.42,
+   "mean_sr": 0.68,
+   "species": 16,
+   "nodes": 8
+  },
+  {
+   "gen": 260,
+   "steps": 11936483,
+   "best": 44.44,
+   "mean_sr": 0.5,
+   "species": 17,
+   "nodes": 8
+  },
+  {
+   "gen": 270,
+   "steps": 12276378,
+   "best": 59.71,
+   "mean_sr": 0.317,
+   "species": 7,
+   "nodes": 4
+  },
+  {
+   "gen": 280,
+   "steps": 12707381,
+   "best": 46.71,
+   "mean_sr": 0.32,
+   "species": 9,
+   "nodes": 10
+  },
+  {
+   "gen": 290,
+   "steps": 13130096,
+   "best": 55.15,
+   "mean_sr": 0.955,
+   "species": 19,
+   "nodes": 5
+  },
+  {
+   "gen": 300,
+   "steps": 13544267,
+   "best": 49.02,
+   "mean_sr": 0.503,
+   "species": 12,
+   "nodes": 6
+  },
+  {
+   "gen": 310,
+   "steps": 13952556,
+   "best": 60.48,
+   "mean_sr": 0.698,
+   "species": 8,
+   "nodes": 7
+  },
+  {
+   "gen": 320,
+   "steps": 14355001,
+   "best": 58.87,
+   "mean_sr": 0.708,
+   "species": 13,
+   "nodes": 5
+  },
+  {
+   "gen": 330,
+   "steps": 14715890,
+   "best": 37.42,
+   "mean_sr": 0.168,
+   "species": 11,
+   "nodes": 4
+  },
+  {
+   "gen": 340,
+   "steps": 15166637,
+   "best": 50.36,
+   "mean_sr": 0.702,
+   "species": 15,
+   "nodes": 11
+  },
+  {
+   "gen": 350,
+   "steps": 15540437,
+   "best": 66.74,
+   "mean_sr": 0.5,
+   "species": 16,
+   "nodes": 12
+  },
+  {
+   "gen": 360,
+   "steps": 15890733,
+   "best": 49.63,
+   "mean_sr": 0.578,
+   "species": 17,
+   "nodes": 7
+  },
+  {
+   "gen": 370,
+   "steps": 16285551,
+   "best": 46.52,
+   "mean_sr": 0.445,
+   "species": 7,
+   "nodes": 13
+  },
+  {
+   "gen": 380,
+   "steps": 16644665,
+   "best": 46.38,
+   "mean_sr": 0.533,
+   "species": 13,
+   "nodes": 12
+  }
+ ]
+}

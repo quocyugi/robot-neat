@@ -1,0 +1,101 @@
+{
+  "generator_determinism": {
+    "level_1": {
+      "identical": 5,
+      "checked": 5,
+      "seconds": 0.2
+    },
+    "level_2": {
+      "identical": 5,
+      "checked": 5,
+      "seconds": 2.9
+    },
+    "level_3": {
+      "identical": 5,
+      "checked": 5,
+      "seconds": 4.0
+    },
+    "level_4": {
+      "identical": 3,
+      "checked": 3,
+      "seconds": 9.5
+    }
+  },
+  "stats": {
+    "n_pairs": 78,
+    "corrected_alpha": 0.000641025641025641,
+    "boxplot": "ok",
+    "warnings": [
+      "\n\nPassing `palette` without assigning `hue` is deprecated and will be removed in v0.14.0. Assign the `x` variable to `hue` and set `legend=F",
+      "vert: bool was deprecated in Matplotlib 3.11 and will be removed in 3.13. Use orientation: {'vertical', 'horizontal'} instead."
+    ]
+  },
+  "mwu_limits": {
+    "perfect_separation_10v10_auto_p": 0.00018267179110955002,
+    "perfect_separation_10v10_exact_p": 1.082508822446903e-05,
+    "bonferroni_alpha_78_pairs": 0.000641025641025641,
+    "holm_first_step_alpha": 0.000641025641025641,
+    "ties_example_auto_p": 0.0007958352878115723
+  },
+  "fisher_10v10": {
+    "10/10 vs 0/10": 1e-05,
+    "9/10 vs 1/10": 0.00109,
+    "8/10 vs 2/10": 0.02301,
+    "7/10 vs 3/10": 0.1789,
+    "6/10 vs 1/10": 0.05728,
+    "5/10 vs 0/10": 0.03251,
+    "4/10 vs 0/10": 0.08669
+  },
+  "metrics_smoke": {
+    "SR": 1.0,
+    "CR": 0.0,
+    "MTT": 19.85,
+    "SPL": 1.0
+  },
+  "novelty_aliasing": {
+    "mean_b1": [
+      5.0,
+      5.0
+    ],
+    "mean_b2": [
+      5.0,
+      5.0
+    ],
+    "L2_between_means": 0.0,
+    "L2_between_concatenated": 11.313708498984761
+  },
+  "lambda_after_promotion": {
+    "gens_before_drop_lambda_0.6": 40,
+    "gens_after_drop": 60,
+    "gens_after_drop_at_0.1": 56,
+    "note": "fitness keeps improving after the drop yet stays below the all-time max"
+  },
+  "M4_equals_M6": {
+    "identical_arguments": true,
+    "M4": {
+      "config_file": "configs/neat_recurrent.ini",
+      "is_recurrent": true,
+      "use_novelty": true,
+      "use_curriculum": true
+    },
+    "M6": {
+      "config_file": "configs/neat_recurrent.ini",
+      "is_recurrent": true,
+      "use_novelty": true,
+      "use_curriculum": true
+    }
+  },
+  "baseline_smoke": {
+    "ga_params_B1": 146,
+    "ga_params_B2": 410,
+    "ga_best_gen0": 3.5023278439548324,
+    "ga_best_gen1": 9.602386796061968,
+    "random_search_best": 16.69853183341705,
+    "seconds": 2.4
+  },
+  "visualize_headless": {
+    "returncode": 0,
+    "stdout_tail": "\nResult: ✓ GOAL!  |  Steps: 186  |  Dist: 0.28m\n",
+    "stderr_tail": ""
+  }
+}

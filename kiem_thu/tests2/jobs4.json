@@ -1,0 +1,5 @@
+{
+ "neat_curr_1M": ["--algo", "neat", "--net", "rnn", "--fitness", "geo", "--schedule", "curriculum", "--k", "8", "--gens", "833", "--thr", "2.0", "--survival", "0.5", "--replace", "0.02", "--workers", "3"],
+ "cma_1M": ["--algo", "cma", "--fitness", "geo", "--schedule", "uniform", "--k", "8", "--pop", "60", "--gens", "2083", "--workers", "3"],
+ "neat_complex_1M": ["--algo", "neat", "--net", "rnn", "--fitness", "geo", "--schedule", "curriculum", "--k", "8", "--gens", "833", "--thr", "2.0", "--survival", "0.5", "--replace", "0.02", "--node-add", "0.2", "--conn-add", "0.5", "--weight-power", "0.3", "--workers", "3"]
+}
