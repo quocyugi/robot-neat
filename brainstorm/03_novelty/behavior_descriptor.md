@@ -5,7 +5,7 @@
 
 ---
 
-## 1. Câu hỏi gốc tôi đã hỏi LLM
+## 1. Câu hỏi gốc
 > "Thiết kế bộ mô tả hành vi b(x) (Behavior Characterization) trong Novelty Search: so sánh giữa Final Position (tọa độ điểm cuối 2D) và Trajectory Sampling (lấy mẫu quỹ đạo 10D/20D), số lượng láng giềng k-NN và cơ chế tính độ thưa thớt (Sparsity)."
 
 ---

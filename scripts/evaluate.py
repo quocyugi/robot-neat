@@ -1,8 +1,7 @@
 """
 Evaluate — chấm một bộ điều khiển trên các tập test (sửa lỗi L04)
 ====================================================================
-Trước đây repo không có script kiểm thử: compute_all_metrics, SimpleGA,
-random_search, APFController, RuleBasedController không được gọi ở đâu.
+Trước đây repo không có script kiểm thử: compute_all_metrics, SimpleGA không được gọi ở đâu.
 
 Usage
 -----
@@ -15,11 +14,11 @@ Usage
     # champion GA của scripts/run_baselines.py
     python scripts/evaluate.py --mlp-params output/baselines/ga_b1/seed_0/champion_params.npz
 
-    # bộ điều khiển không học
-    python scripts/evaluate.py --controller apf
-    python scripts/evaluate.py --controller rule
 
-Kết quả in ra màn hình và ghi JSON (mặc định <run-dir>/test_results.json).
+Kết quả in ra màn hình và ghi JSON (mặc định <run-dir>/test_results.json). Có file JSON
+thì ghi thêm, cạnh nó: <tên>_bang.png (ảnh bảng), <tên>_bieu_do.png (ảnh biểu đồ TỚI ĐÍCH /
+VA CHẠM / HẾT GIỜ từng tập) và <tên>.html (một trang mở bằng trình duyệt, ảnh nhúng sẵn);
+--no-visual để bỏ. Đường dẫn các file in ở cuối terminal.
 """
 
 import argparse
@@ -53,9 +52,20 @@ def build_spec(args) -> tuple[dict, str]:
     if args.mlp_params:
         z = np.load(args.mlp_params)
         return mlp_spec(z["params"], [int(x) for x in z["layers"]]), f"MLP {args.mlp_params}"
-    if args.controller:
-        return {"kind": args.controller}, f"controller {args.controller}"
-    raise SystemExit("Cần một trong: --run-dir, --genome, --mlp-params, --controller")
+    raise SystemExit("Cần một trong: --run-dir, --genome, --mlp-params")
+
+
+def display_name(args, spec: dict) -> str:
+    """Tên bộ điều khiển ghi trên ảnh và trang HTML (NEAT, hoặc GA ghi nhãn baseline)."""
+    from src.visual_report import short_path
+    if spec["kind"] == "neat":
+        kind = "hồi quy" if spec.get("recurrent") else "truyền thẳng"
+        src = args.run_dir if args.run_dir else args.genome
+        return f"NEAT {kind} · {short_path(src)}"
+    if spec["kind"] == "mlp":
+        layers = "-".join(str(x) for x in spec.get("layers") or [])
+        return f"GA, mạng cố định {layers} (baseline) · {short_path(args.mlp_params)}"
+    return spec["kind"]
 
 
 def _neat(genome, cfg_path: Path, recurrent):
@@ -74,13 +84,14 @@ def main():
     ap.add_argument("--genome", type=str, default=None)
     ap.add_argument("--config", type=str, default="configs/neat_recurrent.ini")
     ap.add_argument("--mlp-params", type=str, default=None)
-    ap.add_argument("--controller", choices=["apf", "rule"], default=None)
     ap.add_argument("--recurrent", dest="recurrent", action="store_true", default=None)
     ap.add_argument("--no-recurrent", dest="recurrent", action="store_false")
     ap.add_argument("--data-dir", type=str, default="data/maps")
     ap.add_argument("--sets", type=str, default=",".join(DEFAULT_SETS))
     ap.add_argument("--workers", type=int, default=4)
     ap.add_argument("--out", type=str, default=None)
+    ap.add_argument("--no-visual", action="store_true",
+                    help="không ghi ảnh bảng, ảnh biểu đồ và trang HTML cạnh file JSON")
     args = ap.parse_args()
 
     spec, label = build_spec(args)
@@ -95,6 +106,13 @@ def main():
         with open(out, "w", encoding="utf-8") as f:
             json.dump({"policy": label, "results": report}, f, indent=2, ensure_ascii=False)
         print(f"\nĐã ghi {out}")
+        if not args.no_visual:
+            from src.visual_report import eval_report, print_written, short_path, warn_failed
+            try:
+                print_written(eval_report(report, display_name(args, spec), Path(out).with_suffix(""),
+                                          source=f"{short_path(out)} (scripts/evaluate.py)"))
+            except Exception as e:  # noqa: BLE001  (ảnh là phần thêm: lỗi vẽ không làm mất file JSON)
+                warn_failed("ảnh và trang HTML", e)
 
 
 if __name__ == "__main__":

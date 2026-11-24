@@ -11,3 +11,8 @@ data/raw/
 
 # Kết quả huấn luyện
 output/
+
+# Báo cáo Word và báo cáo khảo sát: giữ ngoài repo
+*.docx
+~$*
+reports/*.md

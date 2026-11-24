@@ -153,7 +153,7 @@ class CurriculumManager:
 class UniformSchedule:
     """Không curriculum (sửa L05): mỗi thế hệ bốc đều từ mọi cấp, cùng một bộ cho cả quần thể.
 
-    Đây cũng là lịch học chung nên dùng khi so NEAT với GA, CMA-ES (L34).
+    Đây cũng là lịch học chung nên dùng khi so NEAT với GA (L34).
     """
 
     name = "uniform"

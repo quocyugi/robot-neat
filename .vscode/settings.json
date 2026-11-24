@@ -1,0 +1,9 @@
+// Cài đặt VS Code cho dự án (chỉ áp dụng khi mở đúng thư mục gốc repo).
+{
+  // môi trường ảo .venv trong thư mục dự án (tạo theo docs/huong_dan_demo_vscode.md)
+  "python.defaultInterpreterPath": "${workspaceFolder}/.venv/Scripts/python.exe",
+  "python.terminal.activateEnvironment": true,
+  // terminal tích hợp: Python dùng UTF-8 (in tiếng Việt, đọc .ini/.json không lỗi)
+  "terminal.integrated.env.windows": {"PYTHONUTF8": "1"},
+  "files.encoding": "utf8"
+}

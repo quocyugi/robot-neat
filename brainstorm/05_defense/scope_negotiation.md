@@ -5,7 +5,7 @@
 
 ---
 
-## 1. Câu hỏi gốc tôi đã hỏi LLM
+## 1. Câu hỏi gốc
 > "Chiến lược bảo vệ phạm vi đề tài trước hội đồng: cách lập luận thuyết phục lý do chọn mô phỏng 2D Vectorized thay vì 3D/Robot thật, và lý do chọn NeuroEvolution (NEAT) thay vì Deep Reinforcement Learning (PPO/SAC)."
 
 ---

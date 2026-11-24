@@ -20,7 +20,7 @@ Slide TTTH/
 │   ├── _decisions.md                    # ★ FILE QUAN TRỌNG NHẤT: tổng hợp mọi quyết định
 │   │
 │   ├── 01_env/                          # Nhóm 1: Môi trường & Mô phỏng
-│   │   ├── observation_space.md         # Thiết kế 15D input, review từ LLM
+│   │   ├── observation_space.md         # Thiết kế 15D input
 │   │   ├── ray_casting.md              # Thuật toán ray-casting vector hóa
 │   │   ├── map_generator.md            # Pipeline sinh bản đồ, tortuosity thresholds
 │   │   └── gymnasium_api.md            # Thiết kế RobotNavEnv class
@@ -64,16 +64,16 @@ Mỗi file nên có cấu trúc sau:
 > **Trạng thái**: [OPEN] / [DECIDED] / [NEEDS_CODE]
 > **Liên quan**: overview.md phần X.X
 
-## Câu hỏi gốc tôi đã hỏi LLM
-> (Copy nguyên văn prompt đã gửi)
+## Câu hỏi gốc
+> (Ghi nguyên văn câu hỏi)
 
-## Tóm tắt câu trả lời (3-5 dòng)
+## Tóm tắt kết luận (3-5 dòng)
 - Điểm chính 1
 - Điểm chính 2
 - Điểm chính 3
 
 ## Chi tiết đầy đủ
-(Paste toàn bộ câu trả lời của LLM ở đây)
+(Ghi đầy đủ phân tích, công thức và nguồn tham khảo ở đây)
 
 ## Quyết định của tôi
 - [x] Chọn phương án A vì ...
@@ -81,7 +81,7 @@ Mỗi file nên có cấu trúc sau:
 
 ## TODO tiếp theo
 - [ ] Code hàm XYZ theo thiết kế này
-- [ ] Hỏi thêm LLM về vấn đề phụ ...
+- [ ] Tìm hiểu thêm vấn đề phụ ...
 ```
 
 ---
@@ -118,8 +118,8 @@ Mỗi file nên có cấu trúc sau:
 
 ```
  ┌──────────────┐     ┌──────────────┐     ┌──────────────┐
- │  Mở chat LLM │────>│  Hỏi 1 chủ  │────>│  Lưu file .md│
- │  + đính kèm  │     │  đề cụ thể   │     │  vào đúng    │
+ │  Tra tài liệu│────>│  Hỏi 1 chủ  │────>│  Lưu file .md│
+ │  + đối chiếu │     │  đề cụ thể   │     │  vào đúng    │
  │  overview.md  │     │              │     │  thư mục     │
  └──────────────┘     └──────────────┘     └──────┬───────┘
                                                    │
@@ -143,10 +143,10 @@ Mỗi file nên có cấu trúc sau:
 
 ## Mẹo thực tế
 
-1. **Khi LLM cho code**: Lưu code snippet vào file brainstorm, nhưng khi quyết định dùng
+1. **Khi có code mẫu**: Lưu code snippet vào file brainstorm, nhưng khi quyết định dùng
    thì copy sang `src/` và chỉnh sửa — KHÔNG code trực tiếp trong thư mục brainstorm.
 
-2. **Khi LLM cho nhiều phương án**: Ghi hết vào file, đánh dấu `[OPTION A]`, `[OPTION B]`,
+2. **Khi có nhiều phương án**: Ghi hết vào file, đánh dấu `[OPTION A]`, `[OPTION B]`,
    sau đó ghi rõ `[DECIDED]: Option A` khi đã chọn.
 
 3. **Khi brainstorm nhiều lần cùng 1 chủ đề**: Thêm ngày vào cuối file (append),

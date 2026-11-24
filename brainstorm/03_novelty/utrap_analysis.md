@@ -5,7 +5,7 @@
 
 ---
 
-## 1. Câu hỏi gốc tôi đã hỏi LLM
+## 1. Câu hỏi gốc
 > "Phân tích hình học bẫy chữ U, bản chất toán học của hiện tượng Deceptive Gradient, cơ chế khuếch tán hành vi (Behavioral Diffusion) của Novelty Search, và cách trực quan hóa so sánh trực diện trên Slide báo cáo."
 
 ---

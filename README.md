@@ -24,8 +24,8 @@ Dự án sử dụng thuật toán **NEAT (NeuroEvolution of Augmenting Topologi
 ```
 robot-neat/
 ├── configs/                    # Cấu hình NEAT (feedforward & recurrent)
-├── data/raw/                   # Dữ liệu gốc tải về (BARN, mê cung Lehman) — không đưa lên git
-├── data/maps/                  # Bản đồ đã xử lý (có sẵn trong repo): train/val/test, test_barn, test_lehman, manifest.csv
+├── data/raw/                   # Dữ liệu gốc tải về (BARN) — không đưa lên git
+├── data/maps/                  # Bản đồ đã xử lý (có sẵn trong repo): train/val/test, test_barn, barn_all, manifest.csv
 ├── src/
 │   ├── env/                    # Môi trường Gymnasium 2D
 │   │   ├── kinematics.py       #   Hằng số vật lý & động học vi sai
@@ -39,7 +39,7 @@ robot-neat/
 │   │   ├── utrap.py            #   Sinh bẫy chữ U/L
 │   │   ├── validator.py        #   A* connectivity + tortuosity (+ làm mượt đường)
 │   │   ├── map_metrics.py      #   Chỉ số độ khó: τ, khe hẹp nhất, độ sâu bẫy...
-│   │   └── public_maps.py      #   Đọc/chuyển BARN & mê cung Lehman–Stanley
+│   │   └── public_maps.py      #   Đọc/chuyển bản đồ BARN
 │   ├── neat_engine/            # Engine tiến hóa
 │   │   ├── evaluator.py        #   Hàm fitness 5 thành phần
 │   │   ├── novelty.py          #   NoveltyArchive + AdaptiveHybridManager
@@ -49,21 +49,19 @@ robot-neat/
 │   │   └── runner.py           #   Vòng lặp tiến hóa chính (orchestrator)
 │   ├── baselines/              # Phương pháp đối chuẩn
 │   │   ├── fixed_ga.py         #   B1/B2: Fixed MLP + GA
-│   │   ├── random_search.py    #   B3: Tìm kiếm ngẫu nhiên
-│   │   ├── rule_based.py       #   B4: Điều khiển phản xạ
-│   │   └── apf.py              #   B5: Trường thế nhân tạo
-│   └── experiments/            # Thực nghiệm & thống kê
-│       ├── metrics.py          #   SR, SPL, MTT, Collision Rate
-│       ├── stats.py            #   Mann-Whitney U + Boxplot
-│       ├── evaluation.py       #   Chấm bộ điều khiển trên các tập test
-│       └── run_ablation.py     #   Chạy Ablation M1–M6
+│   ├── experiments/            # Thực nghiệm & thống kê
+│   │   ├── metrics.py          #   SR, SPL, MTT, Collision Rate
+│   │   ├── stats.py            #   Mann-Whitney U + Boxplot
+│   │   ├── evaluation.py       #   Chấm bộ điều khiển trên các tập test
+│   │   └── run_ablation.py     #   Chạy Ablation M1–M6
+│   └── visual_report.py        # Ảnh bảng, ảnh biểu đồ (PNG) và trang HTML của các kết quả
 ├── scripts/                    # Entry points
-│   ├── download_public_data.py #   Tải BARN + mê cung Lehman–Stanley
+│   ├── download_public_data.py #   Tải BARN (300 môi trường)
 │   ├── pregenerate_maps.py     #   Sinh 1,300 bản đồ
 │   ├── preprocess_data.py      #   Tiền xử lý + kiểm tra chất lượng dữ liệu
 │   ├── train_neat.py           #   Huấn luyện NEAT
 │   ├── evaluate.py             #   Chấm champion trên tập test
-│   ├── run_baselines.py        #   Huấn luyện + chấm baseline B1–B5
+│   ├── run_baselines.py        #   Huấn luyện + chấm baseline GA B1, B2
 │   ├── summarize_results.py    #   Gom seed, kiểm định, boxplot
 │   └── visualize.py            #   Replay genome trên Pygame
 ├── tests/                      # Kiểm thử các bản sửa lỗi
@@ -71,8 +69,6 @@ robot-neat/
 ├── docs/tien_xu_ly_du_lieu.md  # Báo cáo phần tiền xử lý dữ liệu
 ├── docs/sua_loi_code.md        # Các lỗi đã sửa (mã L01–L34) và cách kiểm
 ├── docs/sua_cau_hinh_NEAT_GA.md # Cấu hình NEAT/GA đã sửa và kết quả kiểm thử
-├── reports/                    # Báo cáo khả thi (Word) và các báo cáo khảo sát
-├── kiem_thu/                   # Script và kết quả kiểm thử của báo cáo
 ├── reports/data/               # Thống kê + hình của bộ dữ liệu
 ├── overview.md                 # Tài liệu thiết kế chi tiết
 └── requirements.txt            # Dependencies
@@ -100,20 +96,21 @@ pip install -r requirements.txt
 Với Python 3.14, `pygame` chưa có bản cài sẵn: dùng `pip install pygame-ce` (bản thay thế, code vẫn `import pygame`).
 
 ### 2. Chuẩn bị dữ liệu bản đồ
-Bộ bản đồ đã xử lý (1.602 bản đồ, ~12 MB) **có sẵn trong `data/maps/`**, clone về là dùng được ngay.
+Bộ bản đồ đã xử lý (1.600 bản đồ, ~12 MB) **có sẵn trong `data/maps/`**, clone về là dùng được ngay.
 Các lệnh dưới đây chỉ cần khi muốn tạo lại từ đầu. Chi tiết từng bước: [docs/tien_xu_ly_du_lieu.md](docs/tien_xu_ly_du_lieu.md)
 ```bash
-# 2a. Tải dữ liệu công khai: BARN (300 môi trường) + 2 mê cung Lehman & Stanley
+# 2a. Tải dữ liệu công khai: BARN (300 môi trường)
 python scripts/download_public_data.py
 
 # 2b. Sinh bộ bản đồ tự sinh: 1,000 train + 100 val + 200 test, 4 cấp độ khó
 python scripts/pregenerate_maps.py --data-dir data/maps
 
-# 2c. Tiền xử lý: chuyển BARN/Lehman về schema dự án, kiểm tra chất lượng, manifest, hình
+# 2c. Tiền xử lý: chuyển BARN về schema dự án, kiểm tra chất lượng, manifest, hình
 python scripts/preprocess_data.py
 ```
 Kết quả: `data/maps/{train,val,test}/level_k/`, `data/maps/test_barn/` (50 bản đồ BARN),
-`data/maps/test_lehman/` (2 mê cung), `data/maps/manifest.csv` và `reports/data/`.
+`data/maps/barn_all/` (đủ 300 bản đồ BARN), `data/maps/manifest.csv` và `reports/data/`.
+Tập test 2 mê cung Lehman & Stanley (`test_lehman`) đã bỏ khỏi code và dữ liệu ngày 24/11/2026 theo yêu cầu của nhóm.
 
 Bản đồ cấp 3 đã được sinh lại với tường dày 0,20 m nối liền tường biên (lỗi L27, xem
 [docs/sua_loi_code.md](docs/sua_loi_code.md)). `manifest.csv` và `reports/data/` vẫn ghi số của bộ cấp 3 cũ;
@@ -133,7 +130,9 @@ python scripts/train_neat.py --config configs/neat_feedforward.ini \
 Kiểu mạng (hồi quy hay truyền thẳng) suy ra từ `feed_forward` của file config. Mỗi thế hệ dùng chung
 8 bản đồ cho cả quần thể; fitness đo tiến độ theo đường đi thật (trường geodesic, lưu đệm ở `output/geo_cache/`).
 Kết quả trong `output/train/`: `champion_genome.pkl` (genome có SR cao nhất trên bản đồ val của cả 4 cấp),
-`summary.json` (cấp cao nhất đã học, các lần lên cấp, SR val của champion), `training_history.json`, `neat_config.ini`.
+`summary.json` (cấp cao nhất đã học, các lần lên cấp, SR val của champion), `training_history.json`, `neat_config.ini`,
+và log huấn luyện dạng hình: `training_history_bieu_do.png` (biểu đồ theo thế hệ), `training_history_bang.png`
+(bảng), `training_history.html` (trang mở bằng trình duyệt).
 
 ### 4. Chấm trên tập test và xem kết quả
 ```bash
@@ -141,11 +140,14 @@ python scripts/evaluate.py --run-dir output/train          # SR, CR, hết giờ
 python scripts/visualize.py --genome output/train/champion_genome.pkl \
     --map data/maps/test/level_4/map_200000.json
 ```
+`evaluate.py` ghi `test_results.json` và, cạnh nó, `test_results_bang.png`, `test_results_bieu_do.png`,
+`test_results.html` (bảng và biểu đồ TỚI ĐÍCH / VA CHẠM / HẾT GIỜ từng tập; `--no-visual` để bỏ). Các ảnh và trang
+HTML của buổi demo: [docs/huong_dan_demo_vscode.md](docs/huong_dan_demo_vscode.md), mục *Kết quả dạng hình*.
 
 ### 5. Chạy Ablation Study (10 seeds × 6 cấu hình) và baseline
 ```bash
 python -m src.experiments.run_ablation --seeds 10 --workers 4          # output/ablation/M*/seed_*/
-python scripts/run_baselines.py --baseline ga_b1 --seed 0 --workers 4   # cũng có ga_b2, random, rule, apf
+python scripts/run_baselines.py --baseline ga_b1 --seed 0 --workers 4   # cũng có ga_b2
 python scripts/evaluate.py --run-dir output/ablation/M6/seed_0
 python scripts/summarize_results.py --runs M6=output/ablation/M6 GA=output/baselines/ga_b1 --set test/level_3
 ```
@@ -193,11 +195,6 @@ python tests/test_reproducible.py   # cùng seed cho cùng log với 1 hay 4 wor
 ### Baselines đối chuẩn
 - **B1**: Fixed MLP 1×8 + GA
 - **B2**: Fixed MLP 2×16-8 + GA
-- **B3**: Random Search
-- **B4**: Heuristic Rule-based
-- **B5**: Artificial Potential Field (APF)
-- **B6**: A* + DWA (Oracle — có bản đồ toàn cục)
-- **B7**: Deep RL PPO/SAC (tùy chọn nâng cao)
 
 ---
 

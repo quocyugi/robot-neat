@@ -1,6 +1,6 @@
 # Các lỗi code đã sửa (12/11/2026)
 
-Tài liệu này ghi lại các sửa đổi trong code huấn luyện, môi trường, bản đồ và baseline, theo mã lỗi của báo cáo khả thi (`reports/Bao_cao_pipeline_NEAT_robot.docx`, mục 9). Phần cấu hình NEAT và GA nằm ở [sua_cau_hinh_NEAT_GA.md](sua_cau_hinh_NEAT_GA.md).
+Tài liệu này ghi lại các sửa đổi trong code huấn luyện, môi trường, bản đồ và baseline, theo mã lỗi của báo cáo khả thi (file Word `Bao_cao_pipeline_NEAT_robot.docx` của nhóm, mục 9; file này không đưa lên repo). Phần cấu hình NEAT và GA nằm ở [sua_cau_hinh_NEAT_GA.md](sua_cau_hinh_NEAT_GA.md).
 
 ## Kiểm tra đã làm
 
@@ -13,7 +13,7 @@ Tài liệu này ghi lại các sửa đổi trong code huấn luyện, môi tr�
   - `summarize_results.py` có kiểm định và boxplot.
 - Số của hai bộ điều khiển không học khớp báo cáo: luật rẽ sau khi sửa dấu đạt 80% ở cấp 1, APF đạt 34% trên BARN.
 - Tốc độ: M6 (8 bản đồ huấn luyện và 4 bản đồ probe mỗi thế hệ) mất khoảng 10 giây mỗi thế hệ với 6 worker trên i5-14400F, tức khoảng 50 phút cho 300 thế hệ.
-- Chưa chạy lượt dài bằng `runner.py`. Các số trong báo cáo đến từ bộ mô phỏng nhanh có cùng logic (kiểm thử trong `kiem_thu/`).
+- Chưa chạy lượt dài bằng `runner.py`. Các số trong báo cáo đến từ bộ mô phỏng nhanh có cùng logic (script kiểm thử riêng, không đưa lên repo).
 
 ## Lỗi chặn thí nghiệm
 

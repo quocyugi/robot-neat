@@ -5,7 +5,7 @@
 
 ---
 
-## 1. Câu hỏi gốc tôi đã hỏi LLM
+## 1. Câu hỏi gốc
 > "Thiết kế cơ chế lai ghép Hybrid Fitness-Novelty: chuẩn hóa thang đo Min-Max, chính sách trọng số lambda thích nghi theo Stagnation (Adaptive Lambda), và tiêu chuẩn sinh tồn tối thiểu (Minimal Criteria Novelty Search - MCNS)."
 
 ---

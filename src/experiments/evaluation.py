@@ -1,13 +1,13 @@
 """
 Test-set Evaluation Helpers (sửa lỗi L04)
 ==========================================
-Chấm một bộ điều khiển (champion NEAT, vector trọng số GA, APF, luật) trên các
+Chấm một bộ điều khiển (champion NEAT hoặc vector trọng số GA) trên các
 tập test và tính SR, CR, tỉ lệ hết giờ, SPL, MTT cho từng tập. Dùng chung cho
 scripts/evaluate.py và scripts/run_baselines.py.
 
-Tập test mặc định: test/level_1 … test/level_4, test_barn, test_lehman (tập nào
-có trong data_dir thì chấm tập đó). Mọi bộ điều khiển chạy cùng một env, cùng
-bản đồ, nên số liệu so được trực tiếp.
+Tập test mặc định: test/level_1 … test/level_4 và test_barn (tập nào có trong
+data_dir thì chấm tập đó). Mọi bộ điều khiển chạy cùng một env, cùng bản đồ, nên
+số liệu so được trực tiếp.
 """
 
 from __future__ import annotations
@@ -19,7 +19,7 @@ import numpy as np
 
 from src.neat_engine.parallel import ParallelEvaluator, summarize
 
-DEFAULT_SETS = ("test/level_1", "test/level_2", "test/level_3", "test/level_4", "test_barn", "test_lehman")
+DEFAULT_SETS = ("test/level_1", "test/level_2", "test/level_3", "test/level_4", "test_barn")
 
 
 def find_sets(data_dir: str | Path, names=DEFAULT_SETS) -> dict[str, list[str]]:

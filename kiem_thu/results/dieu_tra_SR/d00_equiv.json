@@ -1,7 +1,0 @@
-{
- "episodes_compared": 768,
- "mismatches": 0,
- "max_fitness_difference": 0.0,
- "batch_150_envs_steps_per_s_one_process": 66209,
- "batch_mlp_steps_per_s_one_process": 70967
-}

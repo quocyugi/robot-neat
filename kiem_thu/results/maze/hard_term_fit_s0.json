@@ -1,1 +1,0 @@
-{"maze": "hard", "method": "fit", "env": "terminate", "steps": 500, "seed": 0, "pop": 150, "gens_limit": 400, "solved": false, "solved_gen": null, "evals_used": 60000, "best_min_dist": 1.171, "archive_size": 0, "seconds": 4497.8}

@@ -1,3 +1,0 @@
-{
- "neat_h8": ["--algo", "neat", "--net", "rnn", "--fitness", "geo", "--schedule", "curriculum", "--k", "8", "--gens", "150", "--thr", "2.0", "--survival", "0.5", "--replace", "0.02", "--num-hidden", "8", "--init-conn", "full_nodirect", "--weight-power", "0.3", "--workers", "3"]
-}

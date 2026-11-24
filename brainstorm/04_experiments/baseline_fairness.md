@@ -5,7 +5,7 @@
 
 ---
 
-## 1. Câu hỏi gốc tôi đã hỏi LLM
+## 1. Câu hỏi gốc
 > "Thiết kế đối chuẩn công bằng giữa mô hình NEAT và 7 baselines (B1 - B7), nguyên tắc đồng nhất ngân sách đánh giá (Evaluations Budget), và phân định rạch ròi về thông tin đầu vào (Local Sensing vs Global Oracle)."
 
 ---

@@ -5,7 +5,7 @@
 
 ---
 
-## 1. Câu hỏi gốc tôi đã hỏi LLM
+## 1. Câu hỏi gốc
 > "Thiết kế cơ chế quản lý kho lưu trữ Archive trong Novelty Search: chính sách nạp cá thể, ngưỡng thích nghi rho_min (Adaptive Novelty Threshold), tối ưu truy vấn bằng cKDTree và giới hạn dung lượng Archive."
 
 ---

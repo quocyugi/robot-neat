@@ -5,7 +5,7 @@
 
 ---
 
-## 1. Câu hỏi gốc tôi đã hỏi LLM
+## 1. Câu hỏi gốc
 > "So sánh Feedforward NEAT và Recurrent NEAT: cơ chế bộ nhớ trong (internal memory), khả năng thoát bẫy chữ U, thiết kế ma trận thực nghiệm đối chuẩn (Ablation Study) và cách quản lý trạng thái kích hoạt trong neat-python."
 
 ---

@@ -1,0 +1,4 @@
+{
+  // VS Code gợi ý cài các extension này khi mở thư mục dự án
+  "recommendations": ["ms-python.python", "ms-python.debugpy"]
+}

@@ -83,12 +83,6 @@ def make_policy(spec: dict):
         net = FixedMLP(spec["layers"])
         net.set_params(spec["params"])
         return net
-    if kind == "apf":
-        from src.baselines.apf import APFController
-        return APFController()
-    if kind == "rule":
-        from src.baselines.rule_based import RuleBasedController
-        return RuleBasedController()
     raise ValueError(f"unknown policy kind: {kind}")
 
 

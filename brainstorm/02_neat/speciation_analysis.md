@@ -5,7 +5,7 @@
 
 ---
 
-## 1. Câu hỏi gốc tôi đã hỏi LLM
+## 1. Câu hỏi gốc
 > "Phân tích chi tiết cơ chế phân loài (Speciation), công thức khoảng cách tương thích di truyền delta, chuẩn hóa số gen N, cơ chế chia sẻ fitness và chính sách xử lý trì trệ (stagnation) trong NEAT."
 
 ---

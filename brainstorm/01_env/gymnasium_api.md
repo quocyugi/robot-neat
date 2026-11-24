@@ -5,7 +5,7 @@
 
 ---
 
-## 1. Câu hỏi gốc tôi đã hỏi LLM
+## 1. Câu hỏi gốc
 > "Thiết kế kiến trúc lớp RobotNavEnv chuẩn Gymnasium API, cơ chế phân định terminated vs truncated, thuật toán phát hiện va chạm hình học và cơ chế render đồ họa."
 
 ---

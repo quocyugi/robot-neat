@@ -1,8 +1,7 @@
 """
-Run Baselines — B1, B2 (GA mạng cố định), B3 (random search), B4 (luật), B5 (APF)
+Run Baselines — GA B1, GA B2 (GA chỉ tiến hóa trọng số của mạng cố định)
 ====================================================================================
-Sửa lỗi L04: trước đây SimpleGA, random_search, RuleBasedController, APFController
-không được gọi ở đâu. Script này huấn luyện và chấm các baseline theo CÙNG giao
+Sửa lỗi L04: trước đây SimpleGA không được gọi ở đâu. Script này huấn luyện và chấm các baseline theo CÙNG giao
 thức với NEATRunner, để phép so Q1 công bằng:
   - cùng lịch học (--schedule uniform|curriculum, cùng lớp với NEAT, L34),
   - cùng số bản đồ mỗi thế hệ, dùng chung cho cả quần thể,
@@ -14,9 +13,6 @@ Usage
 -----
     python scripts/run_baselines.py --baseline ga_b1 --seed 0 --generations 150 --workers 4
     python scripts/run_baselines.py --baseline ga_b2 --seed 0
-    python scripts/run_baselines.py --baseline random --seed 0      # B3: mỗi thế hệ một quần thể ngẫu nhiên mới
-    python scripts/run_baselines.py --baseline rule                 # B4: không học, chỉ chấm
-    python scripts/run_baselines.py --baseline apf                  # B5: không học, chỉ chấm
 
 Kết quả: output/baselines/<baseline>/seed_<seed>/ gồm champion_params.npz,
 summary.json, training_history.json, test_results.json.
@@ -40,7 +36,7 @@ from src.experiments.evaluation import evaluate_sets, find_sets, format_report  
 from src.neat_engine.curriculum import CurriculumManager, UniformSchedule  # noqa: E402
 from src.neat_engine.parallel import ParallelEvaluator, mlp_spec  # noqa: E402
 
-LAYERS = {"ga_b1": [15, 8, 2], "ga_b2": [15, 16, 8, 2], "random": [15, 8, 2]}
+LAYERS = {"ga_b1": [15, 8, 2], "ga_b2": [15, 16, 8, 2]}
 
 
 def train(args, ev: ParallelEvaluator, out_dir: Path) -> tuple[np.ndarray, list[int], dict]:
@@ -62,8 +58,6 @@ def train(args, ev: ParallelEvaluator, out_dir: Path) -> tuple[np.ndarray, list[
     history, episodes, t_start = [], 0, time.time()
     for gen in range(1, args.generations + 1):
         t0 = time.time()
-        if args.baseline == "random" and gen > 1:
-            ga.population = rng.standard_normal(ga.population.shape) * 0.2   # B3: quần thể ngẫu nhiên mới
         maps = schedule.get_train_maps(args.maps_per_eval)
         schedule.tick()
         res = ev.map([(mlp_spec(p, layers), maps, opts) for p in ga.population])
@@ -98,8 +92,7 @@ def train(args, ev: ParallelEvaluator, out_dir: Path) -> tuple[np.ndarray, list[
         print(f"  Gen {gen:4d} | L{schedule.current_level} | best={fit.max():.2f} mean={fit.mean():.2f} "
               f"solved={solved.max():.2f}" + (f"  PROMOTED ({promotion})" if promotion else "")
               + (f"  val_SR={check:.2f}" if check is not None else "") + f" | {time.time() - t0:.1f}s", flush=True)
-        if args.baseline != "random":
-            ga.evolve()
+        ga.evolve()
 
     np.savez(out_dir / "champion_params.npz", params=champion, layers=np.array(layers))
     summary = {"baseline": args.baseline, "layers": layers, "seed": args.seed, "schedule": schedule.name,
@@ -116,8 +109,8 @@ def train(args, ev: ParallelEvaluator, out_dir: Path) -> tuple[np.ndarray, list[
 def main():
     from src.console import utf8_stdout
     utf8_stdout()
-    ap = argparse.ArgumentParser(description="Huấn luyện và chấm các baseline B1–B5")
-    ap.add_argument("--baseline", required=True, choices=["ga_b1", "ga_b2", "random", "rule", "apf"])
+    ap = argparse.ArgumentParser(description="Huấn luyện và chấm baseline GA B1, GA B2")
+    ap.add_argument("--baseline", required=True, choices=["ga_b1", "ga_b2"])
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--generations", type=int, default=150)
     ap.add_argument("--pop", type=int, default=150)
@@ -130,17 +123,13 @@ def main():
     ap.add_argument("--output-dir", default=None)
     args = ap.parse_args()
 
-    trained = args.baseline in LAYERS
-    out_dir = Path(args.output_dir or (f"output/baselines/{args.baseline}" + (f"/seed_{args.seed}" if trained else "")))
+    out_dir = Path(args.output_dir or f"output/baselines/{args.baseline}/seed_{args.seed}")
     out_dir.mkdir(parents=True, exist_ok=True)
     sets = find_sets(args.data_dir)
 
     with ParallelEvaluator(args.workers) as ev:
-        if trained:
-            params, layers, summary = train(args, ev, out_dir)
-            spec = mlp_spec(params, layers)
-        else:
-            spec, summary = {"kind": args.baseline}, {"baseline": args.baseline}
+        params, layers, summary = train(args, ev, out_dir)
+        spec = mlp_spec(params, layers)
         report = evaluate_sets(spec, sets, evaluator=ev)
         ev.close()
 

@@ -5,7 +5,7 @@
 
 ---
 
-## 1. Câu hỏi gốc tôi đã hỏi LLM
+## 1. Câu hỏi gốc
 > "Phân tích các trường hợp thất bại (Failure Mode Analysis), giới hạn cơ học của robot trong các góc hẹp cực đoan, cách trình bày khoa học và trung thực trên Slide báo cáo, và thiết kế bài kiểm thử độ bền (Robustness Test) với nhiễu cảm biến Sim-to-Real."
 
 ---

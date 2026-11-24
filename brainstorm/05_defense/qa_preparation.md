@@ -5,7 +5,7 @@
 
 ---
 
-## 1. Câu hỏi gốc tôi đã hỏi LLM
+## 1. Câu hỏi gốc
 > "Xây dựng ngân hàng câu hỏi phản biện của hội đồng chấm điểm, kịch bản ứng khẩu sắc bén, cấu trúc các slide phụ Backup Q&A, và chiến lược định hướng Future Work."
 
 ---

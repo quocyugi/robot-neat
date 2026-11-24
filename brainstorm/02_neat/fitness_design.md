@@ -5,7 +5,7 @@
 
 ---
 
-## 1. Câu hỏi gốc tôi đã hỏi LLM
+## 1. Câu hỏi gốc
 > "Phân tích các trường hợp biên của hàm Fitness 5 thành phần, cách khắc phục hành vi gian lận (đứng im, quay vòng), và kỹ thuật xử lý giá trị Fitness không âm trong neat-python."
 
 ---

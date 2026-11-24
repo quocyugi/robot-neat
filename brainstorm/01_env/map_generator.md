@@ -5,7 +5,7 @@
 
 ---
 
-## 1. Câu hỏi gốc tôi đã hỏi LLM
+## 1. Câu hỏi gốc
 > "Thiết kế Pipeline sinh bản đồ tự động 4 cấp độ & Thuật toán kiểm tra tính liên thông A*, cơ chế sinh bẫy chữ U và chiến lược lưu trữ dữ liệu."
 
 ---

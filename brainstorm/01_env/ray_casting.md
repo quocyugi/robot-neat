@@ -5,7 +5,7 @@
 
 ---
 
-## 1. Câu hỏi gốc tôi đã hỏi LLM
+## 1. Câu hỏi gốc
 > "Tối ưu thuật toán Ray-casting 12 tia LiDAR bằng NumPy vectorization & kiểm tra tính hợp lệ của 15D input."
 
 ---

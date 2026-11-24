@@ -14,7 +14,7 @@ Sửa lỗi L26 (tiến độ đo theo đường chim bay)
 Khi môi trường có trường geodesic (src.env.geodesic), tiến độ đo theo đường đi
 thật: (g0 - g_min) / g0, trọng số W_PROGRESS_GEO = 10 và không giảm nửa khi va
 chạm. Đây đúng là fitness "geo" đã dùng cho mọi kết quả ở mục 8.10–8.14 của báo
-cáo; cùng CMA-ES, nó cho SR cấp 3 và 4 cao hơn hẳn kiểu đo cũ. Kiểu đo cũ vẫn
+cáo; nó cho SR cấp 3 và 4 cao hơn hẳn kiểu đo cũ. Kiểu đo cũ vẫn
 chọn được bằng progress="euclid" (để làm ablation).
 """
 

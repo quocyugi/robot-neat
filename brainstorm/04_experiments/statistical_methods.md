@@ -5,7 +5,7 @@
 
 ---
 
-## 1. Câu hỏi gốc tôi đã hỏi LLM
+## 1. Câu hỏi gốc
 > "Quy chuẩn thống kê khoa học trong đánh giá giải thuật tiến hóa: tại sao dùng Median/IQR thay cho Mean/Std, thiết kế 10 seeds độc lập, kiểm định phi tham số Mann-Whitney U Test và hiệu chỉnh Bonferroni."
 
 ---

@@ -1,9 +1,0 @@
-{
- "ga_euclid_curr": ["--algo", "ga", "--fitness", "euclid", "--schedule", "curriculum", "--k", "8", "--gens", "150", "--workers", "3"],
- "ga_geo_curr": ["--algo", "ga", "--fitness", "geo", "--schedule", "curriculum", "--k", "8", "--gens", "150", "--workers", "3"],
- "ga_geo_uni": ["--algo", "ga", "--fitness", "geo", "--schedule", "uniform", "--k", "8", "--gens", "150", "--workers", "3"],
- "ga_euclid_uni": ["--algo", "ga", "--fitness", "euclid", "--schedule", "uniform", "--k", "8", "--gens", "150", "--workers", "3"],
- "cma_geo_uni": ["--algo", "cma", "--fitness", "geo", "--schedule", "uniform", "--k", "8", "--pop", "60", "--gens", "375", "--workers", "3"],
- "neat_geo_uni": ["--algo", "neat", "--net", "rnn", "--fitness", "geo", "--schedule", "uniform", "--k", "8", "--gens", "150", "--thr", "2.0", "--survival", "0.5", "--replace", "0.02", "--workers", "3"],
- "neat_euclid_uni": ["--algo", "neat", "--net", "rnn", "--fitness", "euclid", "--schedule", "uniform", "--k", "8", "--gens", "150", "--thr", "2.0", "--survival", "0.5", "--replace", "0.02", "--workers", "3"]
-}

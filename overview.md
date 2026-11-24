@@ -2,7 +2,7 @@
 > **Học phần**: Tính toán tiến hóa (Evolutionary Computation)  
 > **Đề tài**: Điều hướng robot tự hành trong môi trường có vật cản bằng Neuroevolution (NEAT)  
 > **Nhóm**: Nhóm 3  
-> **Mục đích tài liệu**: Cung cấp toàn bộ bối cảnh học thuật, mô hình toán, kiến trúc hệ thống, dữ liệu, thiết kế thực nghiệm và các câu hỏi mở để phục vụ **brainstorming, phản biện và đồng phát triển cùng LLM**.
+> **Mục đích tài liệu**: Cung cấp toàn bộ bối cảnh học thuật, mô hình toán, kiến trúc hệ thống, dữ liệu, thiết kế thực nghiệm và các câu hỏi mở để phục vụ **brainstorming, phản biện và phát triển tiếp dự án**.
 
 ---
 
@@ -174,7 +174,7 @@ $$F = \max(F_{\text{raw}} + 3.0, \; 0.01)$$
   * **Tập Train**: Sinh mới ngẫu nhiên mỗi thế hệ bằng dải seed `0 – 99,999` (chống học vẹt).
   * **Tập Validation**: Cố định 100 bản đồ (25 bản đồ/cấp, seed `100,000 – 100,099`) dùng để kiểm tra điều kiện thăng cấp trong Curriculum Learning.
   * **Tập Test**: Cố định 200 bản đồ độc lập (50 bản đồ/cấp, seed `200,000 – 200,199`), chỉ chạy kiểm thử 1 lần duy nhất để báo cáo kết quả.
-  * **Tập Test đặc biệt**: 2 mê cung Lehman & Stanley + 50 bản đồ trích từ BARN.
+  * **Tập Test đặc biệt**: 50 bản đồ trích từ BARN. (Thiết kế ban đầu có thêm 2 mê cung Lehman & Stanley; tập này đã bỏ khỏi code ngày 24/11/2026 theo yêu cầu của nhóm.)
 
 ### 5.3. Chiến lược Học theo Giáo trình (Curriculum Learning)
 * Quần thể bắt đầu tiến hóa ở **Cấp 1**.
@@ -190,14 +190,9 @@ $$F = \max(F_{\text{raw}} + 3.0, \; 0.01)$$
 * **Q2 (Novelty Search vs. Deceptive Fitness)**: Trên các bản đồ có bẫy chữ U, Novelty Search có giải quyết thành công ở số lượng run vượt trội so với hàm fitness khoảng cách truyền thống?
 * **Q3 (Generalization & Zero-Shot Transfer)**: Bộ điều khiển học trên bản đồ tự sinh có khả năng tổng quát hóa thành công sang bản đồ BARN chưa từng thấy?
 
-### 6.2. Danh mục 7 Baseline Đối chuẩn (B1 – B7)
+### 6.2. Danh mục Baseline Đối chuẩn (B1, B2)
 1. **B1**: Fixed MLP (1 tầng ẩn, 8 nút) tiến hóa bằng GA truyền thống.
 2. **B2**: Fixed MLP (2 tầng ẩn, 16-8 nút) tiến hóa bằng GA.
-3. **B3**: Random Search (Kiểm tra tính không tầm thường của bài toán).
-4. **B4**: Heuristic Rule-based (Quy tắc phản xạ nếu-thì né tường đơn giản).
-5. **B5**: Artificial Potential Field (APF - Trường thế nhân tạo).
-6. **B6**: $A^* + \text{DWA}$ (Dynamic Window Approach - Quy hoạch cổ điển có bản đồ toàn cục).
-7. **B7**: Deep RL (PPO/SAC) chạy trên cùng môi trường Gymnasium (Baseline tùy chọn nâng cao).
 
 ### 6.3. Tiêu chuẩn Đánh giá & Thống kê Khoa học
 * **Các chỉ số chính**:
@@ -240,7 +235,7 @@ Slide TTTH/
 ├── Slide_NEAT.pptx                  # Slide báo cáo chính thức (18 slides)
 ├── đề tài tính toán tiến hoá.pdf    # Đề cương đề tài gốc chi tiết
 ├── SCRIPT_THUYET_TRINH_NEAT_ROBOT.md# Toàn văn lời thoại thuyết trình & Q&A
-├── overview.md                      # [Tài liệu hiện tại] Bản tổng lược cho LLM Brainstorm
+├── overview.md                      # [Tài liệu hiện tại] Bản tổng lược dự án
 └── src/ (Cấu trúc mã nguồn đề xuất)
     ├── env/
     │   ├── robot_env.py             # Môi trường 2D chuẩn Gymnasium (Vectorized Ray-casting)
@@ -251,9 +246,7 @@ Slide TTTH/
     │   ├── novelty_search.py        # Module tính Novelty score & Archive
     │   └── curriculum.py            # Quản lý thăng cấp độ khó theo dõi Validation SR
     ├── baselines/
-    │   ├── fixed_ga.py              # Baseline mạng cố định (B1, B2)
-    │   ├── apf_controller.py        # Baseline trường thế nhân tạo (B5)
-    │   └── astar_dwa.py             # Mốc tham chiếu cổ điển (B6)
+    │   └── fixed_ga.py              # Baseline mạng cố định (B1, B2)
     ├── configs/
     │   ├── config_feedforward.txt   # File cấu hình NEAT chuẩn
     │   └── config_recurrent.txt     # File cấu hình Recurrent NEAT
@@ -266,9 +259,9 @@ Slide TTTH/
 
 ---
 
-## 9. CÁC ĐỀ MỤC MỞ CẦN BRAINSTORM CÙNG LLM (DISCUSSION TOPICS)
+## 9. CÁC ĐỀ MỤC MỞ CẦN THẢO LUẬN (DISCUSSION TOPICS)
 
-Dưới đây là các chủ đề trọng tâm bạn có thể đào sâu thảo luận với LLM:
+Dưới đây là các chủ đề trọng tâm nhóm có thể đào sâu thảo luận:
 
 ### 💡 Chủ đề 1: Tối ưu hóa hàm Fitness & Tránh hành vi gian lận (Reward Exploits)
 * *Câu hỏi gợi mở*: Hiện tại hàm fitness đã phạt va chạm và phạt quay tròn. Liệu robot có thể phát hiện hành vi gian lận khác (ví dụ: tiến lùi liên tục tại chỗ, hoặc chạy vòng tròn rộng quanh vạch xuất phát)? Có nên tích hợp thêm thành phần phạt độ mượt của tay lái (smoothness penalty) $\Delta \omega = |\omega_t - \omega_{t-1}|$ không?

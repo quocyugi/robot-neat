@@ -9,7 +9,10 @@ Usage
     python scripts/train_neat.py --config configs/neat_feedforward.ini --no-novelty --no-curriculum
 
 Kết quả trong --output-dir: champion_genome.pkl (genome tốt nhất trên val),
-summary.json, training_history.json, neat_config.ini. Chấm trên tập test bằng
+summary.json, training_history.json, neat_config.ini. Log huấn luyện dạng hình ghi thêm
+vào cùng thư mục: training_history_bang.png (ảnh bảng), training_history_bieu_do.png
+(ảnh biểu đồ fitness, tỉ lệ tới đích, SR val, số loài theo thế hệ) và training_history.html
+(trang mở bằng trình duyệt); --no-visual để bỏ. Chấm trên tập test bằng
     python scripts/evaluate.py --run-dir output/train
 """
 
@@ -52,7 +55,7 @@ def main():
         "--curriculum", dest="curriculum", action="store_true", default=True,
     )
     parser.add_argument("--no-curriculum", dest="curriculum", action="store_false",
-                        help="học đều trên cả 4 cấp (lịch học chung để so với GA, CMA-ES)")
+                        help="học đều trên cả 4 cấp (lịch học chung để so với GA)")
     parser.add_argument("--recurrent", dest="recurrent", action="store_true", default=None,
                         help="mặc định suy ra từ feed_forward của config")
     parser.add_argument("--no-recurrent", dest="recurrent", action="store_false")
@@ -64,6 +67,8 @@ def main():
     parser.add_argument("--val-every", type=int, default=10)
     parser.add_argument("--max-gens-per-level", type=int, default=None,
                         help="curriculum: số thế hệ tối đa mỗi cấp (mặc định generations/5)")
+    parser.add_argument("--no-visual", action="store_true",
+                        help="không ghi ảnh bảng, ảnh biểu đồ và trang HTML của log huấn luyện")
 
     args = parser.parse_args()
 
@@ -97,6 +102,12 @@ def main():
 
     runner.run()
     print(f"\nTraining complete. Champion saved to {args.output_dir}/champion_genome.pkl")
+    if not args.no_visual:
+        from src.visual_report import print_written, training_report, warn_failed
+        try:
+            print_written(training_report(args.output_dir))
+        except Exception as e:  # noqa: BLE001  (ảnh là phần thêm: champion và log JSON đã ghi xong)
+            warn_failed("ảnh và trang HTML của log huấn luyện", e)
 
 
 if __name__ == "__main__":

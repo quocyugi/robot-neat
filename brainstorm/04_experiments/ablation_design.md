@@ -5,7 +5,7 @@
 
 ---
 
-## 1. Câu hỏi gốc tôi đã hỏi LLM
+## 1. Câu hỏi gốc
 > "Thiết kế ma trận Ablation Study bóc tách 3 trục thành phần (Kiến trúc Recurrent, Cơ chế Novelty Search, và Curriculum Learning), và phương pháp tính toán chỉ số chất lượng đường đi chuẩn quốc tế SPL (Success weighted by Path Length)."
 
 ---

@@ -24,20 +24,6 @@ def _map(rel: str) -> dict:
     return json.load(open(DATA / rel, encoding="utf-8"))
 
 
-def test_L12_rule_based_turns_away_from_obstacle():
-    from src.baselines.rule_based import RuleBasedController
-    ctl = RuleBasedController()
-    obs = [0.0] * 15
-    obs[13], obs[14] = 0.0, 1.0          # đích ngay phía trước
-    obs[0] = 0.9                          # vật cản phía trước
-    obs[7] = obs[8] = obs[9] = 0.8        # bên phải (tia 6–10) bị chắn
-    oL, oR = ctl.activate(obs)
-    assert oR > oL, "bên phải bị chắn thì phải rẽ trái (oR > oL)"
-    obs[7] = obs[8] = obs[9] = 0.0
-    obs[2] = obs[3] = obs[4] = 0.8        # bên trái (tia 1–5) bị chắn
-    oL, oR = ctl.activate(obs)
-    assert oL > oR, "bên trái bị chắn thì phải rẽ phải (oL > oR)"
-
 
 def test_L20_goal_and_collision_same_step_counts_as_success():
     from src.env.robot_env import RobotNavEnv

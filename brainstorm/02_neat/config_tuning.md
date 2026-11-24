@@ -5,7 +5,7 @@
 
 ---
 
-## 1. Câu hỏi gốc tôi đã hỏi LLM
+## 1. Câu hỏi gốc
 > "Tinh chỉnh các siêu tham số trong file config của neat-python: quy mô quần thể, cơ chế kiểm soát số lượng loài, tỉ lệ đột biến cấu trúc và hàm kích hoạt."
 
 ---
