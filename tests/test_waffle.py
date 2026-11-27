@@ -1,14 +1,14 @@
 """
-Kiểm thử robot Waffle và cảm biến (c) sector:12, (e) sector:e32 (đợt 11, bản rút gọn)
-======================================================================================
-Chạy:  python -B -X utf8 tests/test_waffle.py            (khoảng 1–2 phút, không cần pytest)
+Kiểm thử robot Waffle và cảm biến (c) sector:12, (e) sector:e32 (bản rút gọn)
+==============================================================================
+Chạy:  python -B -X utf8 tests/test_waffle.py            (dưới 1 phút; chạy bằng python như trên, không qua pytest)
 
 Robot và cảm biến đọc từ biến môi trường lúc import src (src/env/kinematics.py), nên mỗi cấu hình chạy
 trong một tiến trình con riêng (python tests/test_waffle.py --inner <cấu hình>):
   waffle_c   NEAT_ROBOT=waffle NEAT_LIDAR_MODE=sector NEAT_LIDAR_N=12
   waffle_e   NEAT_ROBOT=waffle NEAT_LIDAR_MODE=sector NEAT_LIDAR_N=32 NEAT_SECTOR_LAYOUT=e32
   old        NEAT_ROBOT=old (robot cũ, cảm biến mặc định 12 tia)
-  old_sec    NEAT_ROBOT=old NEAT_LIDAR_MODE=sector NEAT_LIDAR_N=12 (nhánh E4 B1)
+  old_sec    NEAT_ROBOT=old NEAT_LIDAR_MODE=sector NEAT_LIDAR_N=12 (robot cũ, 12 quạt đều)
 Mỗi hàm test_* ghi các cấu hình nó áp dụng trong thuộc tính CONFIGS (mặc định: mọi cấu hình).
 """
 
@@ -176,7 +176,7 @@ def test_wheel_clamp_examples():
     assert vr == Fraction("0.26669137") and vl == Fraction("0.26") - Fraction("0.1435") * Fraction("1.82")
     assert abs(float(v) - 0.13276067) < 1e-7 and abs(float(w) - 0.93331486) < 1e-7, (v, w)
     assert abs(float(v) - float(ve)) < 1e-7 and abs(float(w) - float(we)) < 1e-6
-    # ví dụ (0,13335; 0,9293) của bản tóm tắt ứng với bánh trái = 0; thực tế bánh trái = -0,00117 m/s
+    # (0,13335; 0,9293) là kết quả khi coi bánh trái = 0; thực tế bánh trái = -0,00117 m/s
     assert abs(float(v) - 0.13335) > 5e-4 and abs(float(w) - 0.9293) > 3e-3
     # (1; 0,1): bánh phải bão hòa
     v, w = cmd(1.0, 0.1)
@@ -335,7 +335,7 @@ def test_e32_edges():
 
 
 def test_uniform_12_layout_unchanged():
-    """Quạt đều 12 (mã (c)): cạnh = linspace(0, 2 pi, 12) - pi/12 như E4, quạt 0 giữa hướng trước."""
+    """Quạt đều 12 (mã (c)): cạnh = linspace(0, 2 pi, 12) - pi/12 như robot cũ, quạt 0 giữa hướng trước."""
     from src.env.lidar import FastLiDAR2D
     lid = FastLiDAR2D(12, 3.5, "sector")
     assert np.array_equal(lid.sector_edges, np.linspace(0, 2 * np.pi, 12, endpoint=False) - np.pi / 12)
@@ -429,7 +429,7 @@ def test_apf_rejects_other_sensors_for_waffle_e32():
     from src.env import kinematics as KM
     from src.baselines.apf import APFController, apf_unsupported_reason
     if KM.ROBOT == "old" and not KM.SECTOR_LAYOUT:
-        assert apf_unsupported_reason() is None and APFController().vw is False   # robot cũ: như E4
+        assert apf_unsupported_reason() is None and APFController().vw is False   # robot cũ: đầu ra hai bánh
         return
     try:
         APFController()

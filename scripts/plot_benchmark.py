@@ -67,7 +67,7 @@ METRICS = {
             "better": "Cao hơn là tốt hơn"},
     "timeout": {"name": "Tỉ lệ hết giờ", "axis": "Tỉ lệ hết giờ (%)", "better": "Thấp hơn là tốt hơn"},
 }
-SET_LABELS = {"test_barn": "BARN", "test_lehman": "Lehman", MEAN_SET: "TB cấp 1–4"}
+SET_LABELS = {"test_barn": "BARN", "test_barn2": "BARN (tập 2)", "test_lehman": "Lehman", MEAN_SET: "TB cấp 1–4"}
 
 # Light chart palette. The 8 categorical slots keep a fixed order: adjacent pairs stay
 # apart under protan/deutan simulation (worst OKLab dE 9.1) and for normal vision

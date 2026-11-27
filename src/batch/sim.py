@@ -50,6 +50,9 @@ FAR = 1.0e6                       # tọa độ đoạn đệm (luôn bị che b
 LIDAR_ELEMS = 1 << 15             # số phần tử tối đa của một mảng tạm LiDAR (lượt x (N+1) x đoạn), ~256 KB
 # (trước 27/11/2026 là 1 << 19, ~4 MB). Khúc nhỏ nằm gọn trong cache nên LiDAR của hàng batch nhanh hơn; kết quả
 # không đổi vì khúc chỉ chia theo lượt, mỗi lượt vẫn tính đúng các phép như cũ.
+# Giá trị 1 << 15 chọn cho NumPy (CPU). Đường gpu exact mặc định (lai) dùng kernel CUDA, không dùng hằng này;
+# HostGeometry chạy trên CuPy (chế độ gpu-device không exact, biến thể gpu-full) cũng chia khúc theo hằng này
+# nên có thể chậm hơn so với 1 << 19 (kết quả không đổi).
 F32 = np.float32
 VMAX32, L32, DT32, TWO32 = F32(KM.V_MAX), F32(KM.WHEEL_BASE), F32(KM.DT), F32(2.0)
 _SPIN = inspect.signature(KM.is_spinning).parameters

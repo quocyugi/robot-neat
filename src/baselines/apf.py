@@ -10,8 +10,8 @@ Chạy với mọi số hướng cảm biến N (NEAT_LIDAR_N): N = len(obs) - 3
 so với hướng robot (với hình quạt là tâm hình quạt). Với N = 12 mọi phép tính trùng từng
 bit với bản chỉ có 12 tia (obs[:12], obs[13], obs[14], linspace(0, 2*pi, 12)).
 
-Waffle (NEAT_ROBOT=waffle, đợt 11 bản rút gọn)
------------------------------------------------
+Waffle (NEAT_ROBOT=waffle, bản rút gọn)
+----------------------------------------
 - Tầm nhìn cố định: 12 quạt chính xác đều 30 độ (NEAT_LIDAR_MODE=sector, NEAT_LIDAR_N=12, bố cục
   đều; quạt i có tâm ở 2*pi*i/12), tầm R = 3,5 m (LIDAR_MAX_RANGE của Waffle), bất kể mã hóa
   của NEAT / GA. Gọi với cảm biến khác thì báo lỗi ngay khi dựng (apf_unsupported_reason).

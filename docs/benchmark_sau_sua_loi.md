@@ -1,6 +1,6 @@
 # Benchmark sau khi sửa lỗi (đợt 5)
 
-Benchmark chạy lại toàn bộ ma trận thí nghiệm trên code đã sửa (commit `56f4204`) từ ngày 23 đến 24/11/2026;
+Benchmark chạy lại toàn bộ ma trận thí nghiệm trên code đã sửa (commit `fafdbd9`) từ ngày 23 đến 24/11/2026;
 lượt cuối cùng xong lúc 12:12 ngày 24/11/2026. Mọi số dưới đây tính từ `test_results.json` và `summary.json` của
 từng lượt chạy (`<bench>/<phương pháp>/seed_<k>/`) sau khi mọi lượt đã xong. Bảng và biểu đồ do script ghi:
 `docs/benchmark/benchmark_SR.md`, `docs/benchmark/benchmark_SR.png` (biểu đồ), `docs/benchmark/benchmark_SR_bang.png`
@@ -10,9 +10,9 @@ của `docs/huong_dan_demo_vscode.md`).
 
 ## 1. Giao thức
 
-- **Code:** bản sao đóng băng của commit `56f4204`. Code trong repo hiện là bản này sau khi bỏ B3, B4 và thêm các
+- **Code:** bản sao đóng băng của commit `fafdbd9`. Code trong repo hiện là bản này sau khi bỏ B3, B4 và thêm các
   tùy chọn mặc định tắt (`novelty_rule="lehman"` cho LNS và LNS_ref, `val_key="per_level"`, `--levels`, cảm biến
-  hình quạt); khi các tùy chọn này tắt, code hiện tại cho kết quả trùng từng bit với code `56f4204` (kiểm ngày
+  hình quạt); khi các tùy chọn này tắt, code hiện tại cho kết quả trùng từng bit với code `fafdbd9` (kiểm ngày
   25/11/2026 bằng lượt ngắn 3 thế hệ, seed 0: R0, M4, M6, GA B1 và APF trước khi thêm cảm biến hình quạt, R0 và
   GA B1 sau khi thêm). Huấn luyện bằng `NEATRunner` (NEAT) và `scripts/run_baselines.py` (các baseline), chấm test
   bằng `src/experiments/evaluation.py` (như `scripts/evaluate.py`).

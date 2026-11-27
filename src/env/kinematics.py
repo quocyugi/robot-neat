@@ -29,21 +29,21 @@ thừa hưởng biến và đọc lại khi import; ParallelEvaluator báo lỗi
 tiến trình cha đã import). Config NEAT phải có num_inputs = N + 3 (configs/neat_*_n{N}.ini,
 sinh bằng scripts/make_sensor_configs.py); summary.json ghi "sensor" khi khác mặc định.
 
-Robot và bố cục hình quạt (đợt 11, bản rút gọn; đọc cùng lúc, cùng quy tắc)
-----------------------------------------------------------------------------
-- NEAT_ROBOT = "old" (mặc định, rỗng cũng là "old"): robot đĩa của E4, mọi hằng và mọi đường
+Robot và bố cục hình quạt (bản rút gọn; đọc cùng lúc, cùng quy tắc)
+--------------------------------------------------------------------
+- NEAT_ROBOT = "old" (mặc định, rỗng cũng là "old"): robot đĩa cũ, mọi hằng và mọi đường
   chạy giữ nguyên từng bit. "waffle": TurtleBot3 Waffle Pi (bản rút gọn):
   * lệnh: o1, o2 kẹp về [-1; 1]; v_c = 0,26 max(o1; 0) (không lùi), w_c = 1,82 o2; bánh
     v_L = v_c - 0,1435 w_c, v_R = v_c + 0,1435 w_c, kẹp mỗi bánh về +-0,26669137 m/s
     (337 / 1263,632956882 của firmware OpenCR ROS 2); v = (v_L + v_R)/2, w = (v_R - v_L)/0,287;
-    tích phân như E4 (theta' = theta + w dt; x' = x + v cos theta' dt; ...), float32 với hằng
+    tích phân như robot cũ (theta' = theta + w dt; x' = x + v cos theta' dt; ...), float32 với hằng
     float32 tường minh (waffle_step, dùng chung cho đường từng lượt và đường theo lô);
   * thân: đĩa bao r = 0,2077 m đặt ở tâm thân, lùi 0,064 m sau tâm quay theo hướng thân;
-    kiểm va chạm cuối mỗi bước như E4 (khoảng cách tâm thân tới đoạn <= r);
+    kiểm va chạm cuối mỗi bước như robot cũ (khoảng cách tâm thân tới đoạn <= r);
   * LiDAR: gốc quét ở tâm thân, tầm R = 3,5 m, chỉ kiểu "sector" (quạt chính xác);
   * đích: tâm quay cách đích <= 0,30 m; lượt 1.000 bước (100 s); xoay tại chỗ khi
     |v| < 0,025 m/s và |w| > 0,5 rad/s (trên (v, w) thật sau kẹp bánh).
-- NEAT_SECTOR_LAYOUT = "" (mặc định: N quạt đều, quạt 0 giữa hướng trước như E4) hoặc "e32":
+- NEAT_SECTOR_LAYOUT = "" (mặc định: N quạt đều, quạt 0 giữa hướng trước như robot cũ) hoặc "e32":
   30 quạt 9 độ trên 270 độ phía trước (từ phải sang trái, hướng trước là cạnh giữa quạt 14 và
   15) + quạt sau trái [135; 180] độ + quạt sau phải [-180; -135] độ; cần NEAT_LIDAR_MODE=sector
   và NEAT_LIDAR_N=32 (config neat_recurrent_n32.ini, 35 đầu vào).
@@ -96,10 +96,10 @@ OBS_DIM: int = LIDAR_NUM_RAYS + 3   # N độ gần + rho, sin(phi), cos(phi)
 
 # ── Robot (NEAT_ROBOT) và bố cục hình quạt (NEAT_SECTOR_LAYOUT) ─────────────
 ROBOTS: tuple[str, ...] = ("old", "waffle")
-SECTOR_LAYOUTS: tuple[str, ...] = ("", "e32")      # "" = N quạt đều (E4)
+SECTOR_LAYOUTS: tuple[str, ...] = ("", "e32")      # "" = N quạt đều (như robot cũ)
 E32_NUM_SECTORS: int = 32
 
-# TurtleBot3 Waffle Pi (bản rút gọn của đợt 11; nguồn: ke_hoach_dot11.md mục 2–3)
+# TurtleBot3 Waffle Pi (bản rút gọn): kích thước, tốc độ, LiDAR theo hãng ROBOTIS; trần bánh theo firmware OpenCR
 WAFFLE_V_MAX: float = 0.26            # m/s, tốc độ tiến lớn nhất (thông số hãng)
 WAFFLE_W_MAX: float = 1.82            # rad/s, tốc độ quay lớn nhất (thông số hãng)
 WAFFLE_HALF_SEP: float = 0.1435       # m, nửa khoảng cách hai bánh
@@ -144,7 +144,7 @@ if ROBOT == "waffle":
     LIDAR_MAX_RANGE = WAFFLE_LIDAR_RANGE
     COLL_RADIUS: float = WAFFLE_COLL_RADIUS
     BODY_OFFSET: float = WAFFLE_BODY_OFFSET
-else:                                     # robot cũ: mọi hằng như E4
+else:                                     # robot cũ: mọi hằng giữ nguyên
     COLL_RADIUS = ROBOT_RADIUS
     BODY_OFFSET = 0.0
 
@@ -180,7 +180,7 @@ def waffle_step(xp, cosf, sinf, x, y, th32, a32):
 
     x, y: float64 (A,) tâm quay; th32: hướng float32 (A,) (bước 1: float32 của hướng xuất phát);
     a32: đầu ra (A, 2) float32; cosf, sinf: cos, sin trên mảng float32 (np.cos / be.cos).
-    Tích phân như E4: th = th32 + w dt; x + v cos(th) dt; y + v sin(th) dt (float32 rồi float64 + float32)."""
+    Tích phân như robot cũ: th = th32 + w dt; x + v cos(th) dt; y + v sin(th) dt (float32 rồi float64 + float32)."""
     v, w = waffle_command(xp, a32)
     spin = (xp.abs(v) < W_SPIN_V32) & (xp.abs(w) > W_SPIN_W32)
     th = th32 + w * W_DT32

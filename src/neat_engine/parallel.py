@@ -12,8 +12,9 @@ Thiết kế (theo bảng "Biến cố có thể gặp" của báo cáo):
   Mỗi worker tự nạp config NEAT, bản đồ và trường geodesic rồi giữ trong bộ nhớ,
   không pickle cả config (pickle config làm lệch bộ đếm khóa nút).
 - Lượt chạy tất định (không có nhiễu), nên kết quả không phụ thuộc số worker.
-- Worker đọc lại cảm biến (NEAT_LIDAR_MODE / NEAT_LIDAR_N) khi import src, nên Pool chỉ
-  được dựng khi biến môi trường còn khớp cảm biến mà tiến trình cha đã import.
+- Worker đọc lại robot và cảm biến (NEAT_ROBOT, NEAT_LIDAR_MODE, NEAT_LIDAR_N,
+  NEAT_SECTOR_LAYOUT) khi import src, nên Pool chỉ được dựng khi bốn biến môi trường còn
+  khớp robot / cảm biến mà tiến trình cha đã import.
 - make_evaluator(workers, backend) chọn cách đánh giá: "cpu" (mặc định) là ParallelEvaluator
   này, không đổi gì; "batch" (NumPy) và "gpu" (CuPy) chạy nhiều lượt cùng lúc theo lô
   (src/batch), kết quả trùng từng bit với đường từng lượt.

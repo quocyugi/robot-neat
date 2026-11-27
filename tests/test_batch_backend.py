@@ -11,7 +11,9 @@ thẳng, genome có chu trình) so với net.activate, rồi BatchEvaluator.map 
 (cùng dict, cùng thứ tự khóa, cùng kiểu, float trùng từng bit kể cả dấu của số 0) trên vài bản đồ mỗi cấp 1–4,
 BARN, mê cung Lehman, tiến độ geodesic và euclid, với champion demo, genome hồi quy / truyền thẳng, genome đột
 biến có chu trình, GA B1/B2, APF; genome có trọng số kiểu np.float64 phải chạy bằng eval_task.
-Cảm biến theo NEAT_LIDAR_MODE / NEAT_LIDAR_N như mọi script (mặc định 12 tia).
+Robot và cảm biến theo NEAT_ROBOT, NEAT_LIDAR_MODE, NEAT_LIDAR_N, NEAT_SECTOR_LAYOUT như mọi script (mặc định
+robot cũ, 12 tia); N khác 12 dùng configs/neat_*_n{N}.ini. Kịch bản APF được bỏ qua khi APF không chạy được với
+robot / cảm biến đó (src/baselines/apf.py, apf_unsupported_reason; ví dụ bố cục e32).
 NEAT_GEO_CACHE (nếu đặt) là thư mục đệm geodesic; không đặt thì trường geodesic được tính trong bộ nhớ.
 Kiểm đầy đủ (nhiều genome, mọi tập, cả hai kiểu cảm biến, NumPy và GPU): tests/verify_batch_full.py.
 """
@@ -194,7 +196,12 @@ def scenarios() -> list[tuple[str, list]]:
     for name, layers in (("GA B1", [KM.OBS_DIM, 8, 2]), ("GA B2", [KM.OBS_DIM, 16, 8, 2])):
         npar = FixedMLP(layers).num_params
         out.append((name, [(PAR.mlp_spec(rng.normal(0.0, 0.3, npar), layers), M, GEO_OPTS) for _ in range(2)]))
-    out.append(("APF, kiểu chấm test", [({"kind": "apf"}, [p], EUC_OPTS) for p in M]))
+    from src.baselines.apf import apf_unsupported_reason
+    reason = apf_unsupported_reason()
+    if reason is None:
+        out.append(("APF, kiểu chấm test", [({"kind": "apf"}, [p], EUC_OPTS) for p in M]))
+    else:
+        print(f"        (bỏ qua kịch bản APF: {reason})")
     return out
 
 
@@ -337,6 +344,7 @@ def test_unsupported_tasks_fall_back_to_eval_task():
     M = sample_maps()[:2]
     spec, champ = demo_spec() if KM.LIDAR_NUM_RAYS == 12 else (None, None)
     if champ is None:
+        print("        (bỏ qua: champion demo chỉ chạy với N = 12)")
         return
     g = copy.deepcopy(champ)
     for nd in g.nodes.values():
@@ -418,7 +426,12 @@ def test_numerics_mismatch_falls_back_to_default():
 
 
 def test_evaluate_sets_backend_batch_equals_default():
+    from src.baselines.apf import apf_unsupported_reason
     from src.experiments.evaluation import evaluate_sets
+    reason = apf_unsupported_reason()
+    if reason is not None:
+        print(f"        (bỏ qua: {reason})")
+        return
     M = sample_maps()
     sets = {"test/level_1": M[:2], "test/level_3": M[2:4], "test_barn": M[4:5]}
     a = evaluate_sets({"kind": "apf"}, sets, evaluator=PAR.ParallelEvaluator(1))
@@ -529,7 +542,9 @@ def test_gpu_backend():
 def main():
     from src.console import utf8_stdout
     utf8_stdout()
-    print(f"cảm biến {KM.LIDAR_MODE}:{KM.LIDAR_NUM_RAYS}, numpy {np.__version__}, đệm geodesic {GEO or '(trong bộ nhớ)'}")
+    tag = (f"{KM.LIDAR_MODE}:{KM.LIDAR_NUM_RAYS}" + (f" {KM.SECTOR_LAYOUT}" if KM.SECTOR_LAYOUT else "")
+           + (f", robot {KM.ROBOT}" if KM.ROBOT != "old" else ""))
+    print(f"cảm biến {tag}, numpy {np.__version__}, đệm geodesic {GEO or '(trong bộ nhớ)'}")
     tests = [(k, v) for k, v in globals().items() if k.startswith("test_") and callable(v)]
     failed = 0
     t_all = time.perf_counter()

@@ -79,7 +79,7 @@ BLUE_RAMP = ("#cde2fb", "#b7d3f6", "#9ec5f4", "#86b6ef", "#6da7ec", "#5598e7", "
              "#2a78d6", "#256abf", "#1c5cab", "#184f95", "#104281", "#0d366b")
 
 MEAN_SET = "mean_levels_1_4"
-SET_ORDER = ("test/level_1", "test/level_2", "test/level_3", "test/level_4", "test_barn", "test_lehman")
+SET_ORDER = ("test/level_1", "test/level_2", "test/level_3", "test/level_4", "test_barn", "test_barn2", "test_lehman")
 
 
 # ════════════════════════════════════════════════════════════════════════
@@ -124,7 +124,8 @@ def set_label(name: str) -> str:
     m = re.fullmatch(r"(train|val|test)/level_(\d+)", name)
     if m:
         return f"Cấp {m.group(2)}" if m.group(1) == "test" else f"Cấp {m.group(2)} ({m.group(1)})"
-    return {"test_barn": "BARN", "test_lehman": "Lehman", MEAN_SET: "TB cấp 1–4"}.get(name, name)
+    return {"test_barn": "BARN", "test_barn2": "BARN (tập 2)", "test_lehman": "Lehman",
+            MEAN_SET: "TB cấp 1–4"}.get(name, name)
 
 
 def display_path(p: Path | str) -> str:
@@ -987,11 +988,19 @@ def html_page(path: Path, title: str, subtitle: str, images: Sequence[tuple[str,
 # ════════════════════════════════════════════════════════════════════════
 #  1. Chấm trên tập test (scripts/evaluate.py, cấu hình 4)
 # ════════════════════════════════════════════════════════════════════════
-OUTCOME_DEF = ("TỚI ĐÍCH: tới vùng đích (SR); VA CHẠM: chạm tường hoặc vật cản (CR); HẾT GIỜ: dùng hết "
-               "500 bước (50 giây) mà chưa tới đích.")
 METRIC_DEF = ("SPL (0–1): vừa tới đích vừa đi ngắn, bằng độ dài đường tối ưu chia độ dài đường đi thật, lượt "
               "không tới đích tính 0. MTT: thời gian trung bình của các lượt tới đích.")
-OUTCOME_NOTE = OUTCOME_DEF + " " + METRIC_DEF
+
+
+def outcome_def(max_steps: Optional[int] = None, dt: Optional[float] = None) -> str:
+    """Định nghĩa TỚI ĐÍCH / VA CHẠM / HẾT GIỜ. Số bước tối đa và dt không truyền vào thì lấy từ
+    src.env.kinematics của tiến trình này (robot cũ: 500 bước, 50 giây; NEAT_ROBOT=waffle: 1.000 bước, 100 giây)."""
+    if max_steps is None or dt is None:
+        from src.env import kinematics as KM
+        max_steps = KM.MAX_STEPS if max_steps is None else max_steps
+        dt = KM.DT if dt is None else dt
+    return ("TỚI ĐÍCH: tới vùng đích (SR); VA CHẠM: chạm tường hoặc vật cản (CR); HẾT GIỜ: dùng hết "
+            f"{vn_int(max_steps)} bước ({vn_tick(max_steps * dt)} giây) mà chưa tới đích.")
 
 
 def _ordered_sets(results: dict) -> list[str]:
@@ -1000,11 +1009,14 @@ def _ordered_sets(results: dict) -> list[str]:
     return known + [s for s in sets if s not in known]
 
 
-def eval_report(results: dict, policy: str, base: Path | str, source: str = "") -> list[Path]:
+def eval_report(results: dict, policy: str, base: Path | str, source: str = "",
+                max_steps: Optional[int] = None, dt: Optional[float] = None) -> list[Path]:
     """Ảnh bảng, ảnh biểu đồ và trang HTML cho kết quả của scripts/evaluate.py.
 
     results: mục "results" của test_results.json (tập -> {n, SR, CR, timeout, SPL, MTT}).
+    max_steps, dt: giới hạn bước và bước thời gian ghi trong định nghĩa HẾT GIỜ (mặc định: của tiến trình này).
     """
+    odef = outcome_def(max_steps, dt)
     table_path, chart_path, html_path = outputs_for(base)
     sets = _ordered_sets(results)
     if not sets:
@@ -1061,7 +1073,7 @@ def eval_report(results: dict, policy: str, base: Path | str, source: str = "") 
                          Cell(vn_num(spl_mean, 2) if spl_mean is not None else "—"),
                          Cell(vn_num(mean["MTT"], 1) if mean.get("MTT") is not None else "—")],
                         rule_above=True, bold=True))
-    notes = [OUTCOME_NOTE]
+    notes = [odef + " " + METRIC_DEF]
     if mean:
         notes.append("TB cấp 1–4: SR, CR, hết giờ, SPL là trung bình cộng của 4 cấp; TC là tổng của 4 cấp; "
                      "MTT tính trên mọi lượt tới đích của 4 cấp; không gồm BARN"
@@ -1085,7 +1097,7 @@ def eval_report(results: dict, policy: str, base: Path | str, source: str = "") 
     chart = HBarChart(bars, 100, [0, 20, 40, 60, 80, 100], "Tỉ lệ số lượt (%)")
     hdr = Header("Tỉ lệ TỚI ĐÍCH, VA CHẠM, HẾT GIỜ trên từng tập test", subtitle, legend=legend)
     _compose(chart_path, [hdr, chart, Notes(["Số trong thanh là tỉ lệ số lượt; đoạn quá hẹp không ghi số "
-                                             "(xem ảnh bảng). " + OUTCOME_DEF])])
+                                             "(xem ảnh bảng). " + odef])])
 
     html_page(html_path, "Kết quả chấm trên tập test", subtitle,
               [("Biểu đồ: kết quả từng tập", chart_path), ("Bảng số liệu", table_path)],

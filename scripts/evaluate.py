@@ -22,10 +22,13 @@ thì ghi thêm, cạnh nó: <tên>_bang.png (ảnh bảng), <tên>_bieu_do.png (
 VA CHẠM / HẾT GIỜ từng tập) và <tên>.html (một trang mở bằng trình duyệt, ảnh nhúng sẵn);
 --no-visual để bỏ. Đường dẫn các file in ở cuối terminal.
 
-Lượt chạy với cảm biến khác mặc định (NEAT_LIDAR_MODE / NEAT_LIDAR_N, src/env/kinematics.py)
-ghi "sensor" trong summary.json; chấm lại phải đặt đúng hai biến đó trước khi chạy script,
-ví dụ PowerShell: $env:NEAT_LIDAR_MODE = "sector"; $env:NEAT_LIDAR_N = "24". Với --run-dir và
---mlp-params, script dừng nếu cảm biến hiện tại khác "sensor" đã ghi.
+Lượt chạy với robot hoặc cảm biến khác mặc định (NEAT_ROBOT, NEAT_LIDAR_MODE, NEAT_LIDAR_N,
+NEAT_SECTOR_LAYOUT; src/env/kinematics.py) ghi "sensor" trong summary.json; chấm lại phải đặt đúng
+bốn biến đó như lúc huấn luyện trước khi chạy script, ví dụ PowerShell: $env:NEAT_LIDAR_MODE = "sector";
+$env:NEAT_LIDAR_N = "24". Với --run-dir và --mlp-params, script dừng nếu robot / cảm biến hiện tại
+khác "sensor" đã ghi, và dừng nếu lượt chạy không ghi "sensor" (robot cũ mặc định) mà tiến trình này
+là Waffle; lượt không ghi "sensor" chấm bằng robot cũ với cảm biến khác mặc định thì chỉ cảnh báo.
+Số bước tối đa ghi trên ảnh và trang HTML lấy từ robot của tiến trình này (500 hoặc 1.000 bước).
 
 --backend batch | gpu chạy các lượt theo lô (src/batch); kết quả trùng từng bit với mặc định cpu (chế độ exact).
 File kết quả ghi thêm "backend" khi khác mặc định (ví dụ "gpu-device" với --inexact: số KHÔNG trùng bit, không
@@ -43,16 +46,17 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 import neat  # noqa: E402
 import numpy as np  # noqa: E402
 
-from src.env.kinematics import sensor_summary  # noqa: E402
+from src.env.kinematics import DT, MAX_STEPS, sensor_summary  # noqa: E402
 from src.experiments.evaluation import DEFAULT_SETS, evaluate_sets, find_sets, format_report  # noqa: E402
 from src.neat_engine.parallel import (EVAL_BACKENDS, backend_label, make_evaluator, mlp_spec, neat_spec,  # noqa: E402
                                       resolve_backend)
 
 
 def check_sensor(summary_path: Path) -> None:
-    """Dừng nếu summary.json ghi "sensor" (lượt chạy với cảm biến khác mặc định) mà cảm biến hiện tại
-    khác; chỉ cảnh báo nếu không ghi "sensor" (lượt chạy mặc định, hoặc code cũ chưa ghi) mà cảm biến
-    hiện tại khác mặc định. Không có summary.json thì bỏ qua."""
+    """Dừng nếu summary.json ghi "sensor" (lượt chạy với robot hoặc cảm biến khác mặc định) mà robot / cảm
+    biến hiện tại khác. Nếu không ghi "sensor" (lượt chạy robot cũ mặc định, hoặc code cũ chưa ghi): dừng khi
+    tiến trình này là Waffle (lượt Waffle luôn ghi "sensor"), chỉ cảnh báo khi tiến trình này là robot cũ với
+    cảm biến khác mặc định. Không có summary.json thì bỏ qua."""
     if not summary_path.exists():
         return
     with open(summary_path, encoding="utf-8") as f:
@@ -60,12 +64,21 @@ def check_sensor(summary_path: Path) -> None:
     have = sensor_summary()
 
     def name(s):
-        return "12 tia điểm (mặc định)" if s is None else f"{s['mode']}, N = {s['n']}"
+        if s is None:
+            return "robot old, 12 tia điểm (mặc định)"
+        return (f"robot {s.get('robot', 'old')}, {s['mode']}, N = {s['n']}"
+                + (f", bố cục {s['layout']}" if s.get("layout") else ""))
 
     if "sensor" in summary and summary["sensor"] != have:
-        raise SystemExit(f"{summary_path}: lượt chạy dùng cảm biến {name(summary['sensor'])}, tiến trình này dùng "
-                         f"{name(have)}. Đặt NEAT_LIDAR_MODE và NEAT_LIDAR_N theo \"sensor\" rồi chạy lại.")
+        run, now = name(summary["sensor"]), name(have)
+        extra = " (khác ở các hằng của robot: lượt chạy từ bản mã khác)" if run == now else ""
+        raise SystemExit(f"{summary_path}: lượt chạy dùng {run}, tiến trình này dùng {now}{extra}. Đặt NEAT_ROBOT, "
+                         f"NEAT_LIDAR_MODE, NEAT_LIDAR_N, NEAT_SECTOR_LAYOUT theo \"sensor\" rồi chạy lại.")
     if "sensor" not in summary and have is not None:
+        if have.get("robot") == "waffle":
+            raise SystemExit(f"{summary_path} không ghi \"sensor\": lượt chạy dùng robot cũ, 12 tia điểm (mặc định), "
+                             f"tiến trình này dùng {name(have)}. Bỏ cả bốn biến NEAT_ROBOT, NEAT_LIDAR_MODE, "
+                             f"NEAT_LIDAR_N, NEAT_SECTOR_LAYOUT rồi chạy lại.")
         print(f"Cảnh báo: {summary_path} không ghi \"sensor\" (lượt chạy 12 tia điểm mặc định?), "
               f"tiến trình này dùng {name(have)}.")
 
@@ -166,7 +179,8 @@ def main():
             from src.visual_report import eval_report, print_written, short_path, warn_failed
             try:
                 print_written(eval_report(report, display_name(args, spec), Path(out).with_suffix(""),
-                                          source=f"{short_path(out)} (scripts/evaluate.py)"))
+                                          source=f"{short_path(out)} (scripts/evaluate.py)",
+                                          max_steps=MAX_STEPS, dt=DT))
             except Exception as e:  # noqa: BLE001  (ảnh là phần thêm: lỗi vẽ không làm mất file JSON)
                 warn_failed("ảnh và trang HTML", e)
 

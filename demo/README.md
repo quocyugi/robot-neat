@@ -11,7 +11,7 @@ chỉ định bộ điều khiển, và các cấu hình 2, 4, 7 và 9 trong `.v
 ## Champion hiện tại: M6 seed 1 của benchmark
 
 Champion đang để ở đây là champion của lượt benchmark **M6 seed 1** (mô hình đầy đủ: mạng hồi quy, novelty lai,
-curriculum; 150 thế hệ, 180.000 lượt đánh giá; code của commit 56f4204). Hai file được chép nguyên từ thư mục
+curriculum; 150 thế hệ, 180.000 lượt đánh giá; code của commit fafdbd9). Hai file được chép nguyên từ thư mục
 của lượt đó ngày 24/11/2026, theo mục *Lấy champion nào* và *Cách thay champion* dưới đây. Champion tạm trước đó
 (M6 chỉ huấn luyện 3 thế hệ) không còn dùng.
 

@@ -1,13 +1,18 @@
 # Hướng dẫn demo dự án bằng Visual Studio Code
 
 Tài liệu cho buổi trình bày với giáo viên: cài đặt một lần, tạo môi trường, kiểm tra nhanh, kịch bản
-demo 10–15 phút, các cấu hình **Run and Debug** có sẵn trong `.vscode/launch.json` và cách xử lý sự cố.
+demo 10–15 phút, các cấu hình **Run and Debug** trong `.vscode/launch.json` và cách xử lý sự cố.
+
+> **Thư mục `.vscode/` không có trong repo.** Các file `.vscode/launch.json`, `settings.json`, `extensions.json` nói
+> tới trong tài liệu này chỉ có trên máy làm demo (thư mục được liệt kê trong `.gitignore`). Máy khác vẫn chạy được
+> mọi bước bằng các lệnh `python scripts/demo.py ...` ở mục 7 và 8, hoặc tự tạo `.vscode/launch.json` theo bảng
+> cấu hình ở mục 6.
 
 > **Lưu ý về số liệu và mã nguồn.** Benchmark đã chạy xong ngày 24/11/2026. Champion trong thư mục `demo/` là
 > champion của benchmark (M6 seed 1, chọn theo SR val, xem `demo/README.md`); file
 > `docs/benchmark/benchmark_results.json` và báo cáo `docs/benchmark_sau_sua_loi.md` lấy từ chính lượt benchmark
 > đó. Mục 10: bước 1, 2, 3 và 5 làm ngày 24/11/2026; bước 4 (đưa lên GitHub) làm lần đầu ngày 25/11/2026 (commit
-> `82cd802`: 9 phương pháp, chưa có APF và cột mê cung Lehman); bước 2 làm lại ngày 25/11/2026 (10 phương pháp: R0,
+> `1edb8c2`: 9 phương pháp, chưa có APF và cột mê cung Lehman); bước 2 làm lại ngày 25/11/2026 (10 phương pháp: R0,
 > M1–M6, GA B1, GA B2, APF; có cột mê cung Lehman) và đi cùng lần đưa lên GitHub sau đó. Các kết quả cần trình
 > bày (cấu hình 2–9 và bảng benchmark) ghi thêm **ảnh bảng, ảnh biểu đồ và trang HTML** bên cạnh file JSON/MD:
 > mục *Kết quả dạng hình* ngay dưới bảng file.
@@ -95,6 +100,9 @@ Dự án đã kiểm thử với **Python 3.14.0**. Python 3.14 chưa có bản 
 1. Lấy mã nguồn về một chỗ cố định, ví dụ `D:\robot-neat`: `git clone https://github.com/quocyugi/robot-neat.git`
    (hoặc **Code → Download ZIP** trên trang GitHub rồi giải nén), hoặc chép **thư mục dự án do nhóm chuẩn bị**
    (file zip hoặc USB). Thư mục phải có đủ `.vscode\`, `demo\`, `scripts\demo.py` và `docs\huong_dan_demo_vscode.md`.
+   Khi nhánh `robot-waffle` chưa gộp vào `main`, mã ứng với hướng dẫn này (cấu hình 3 `--controller apf`, cấu hình 7
+   `--lehman`) và robot Waffle (README mục 9) nằm ở nhánh đó: lấy bằng
+   `git clone -b robot-waffle https://github.com/quocyugi/robot-neat.git` (Download ZIP thì chọn nhánh `robot-waffle` trước).
 2. Trong VS Code: **File > Open Folder...**, chọn **thư mục gốc repo**, tức thư mục chứa `README.md`, `src/`,
    `scripts/` và `.vscode/`.
 3. Lần đầu mở, VS Code hỏi *Do you trust the authors of the files in this folder?*: chọn
@@ -358,7 +366,7 @@ Mỗi lệnh in đường dẫn ảnh và trang HTML vừa ghi ở cuối (mục
 | Cấu hình 6 báo `không đọc được docs\benchmark\benchmark_results.json` | File này chỉ có sau khi lượt benchmark chạy xong (mục 10). |
 | `Lỗi: chưa có champion mặc định của demo` | Thiếu `demo/champion_genome.pkl` hoặc `demo/neat_config.ini`: chép lại theo `demo/README.md`. |
 | `Cảnh báo: không ghi được ảnh và trang HTML ...` ở cuối terminal | Phần vẽ ảnh gặp lỗi (thường do thiếu `matplotlib` hoặc thư mục `output/demo/` đang bị khóa); các kết quả chính (bảng ở terminal, file JSON, GIF, champion) vẫn ghi bình thường. Cài lại `requirements.txt`, rồi chạy lại cấu hình đó. |
-| `demo.py: error: unrecognized arguments: --controller apf` (cấu hình 3) hoặc `--lehman` (cấu hình 7); `Cảnh báo: không có mê cung Lehman trong data/maps/test_lehman`; bảng của cấu hình 4 thiếu dòng `test_lehman` | Mã hoặc dữ liệu là bản cũ (commit 82cd802 tạm bỏ APF và 2 mê cung Lehman) còn `.vscode/launch.json` là bản mới. Lấy lại cả thư mục dự án từ cùng một bản mới nhất (mục 1.4). |
+| `demo.py: error: unrecognized arguments: --controller apf` (cấu hình 3) hoặc `--lehman` (cấu hình 7); `Cảnh báo: không có mê cung Lehman trong data/maps/test_lehman`; bảng của cấu hình 4 thiếu dòng `test_lehman` | Mã hoặc dữ liệu là bản cũ (commit 1edb8c2 tạm bỏ APF và 2 mê cung Lehman) còn `.vscode/launch.json` là bản mới. Lấy lại cả thư mục dự án từ cùng một bản mới nhất (mục 1.4). |
 
 Lệnh cài đúng các bản thư viện đã kiểm thử (chạy ở thư mục gốc repo; môi trường tên `venv` thì đổi `.venv` thành `venv`):
 
@@ -423,9 +431,10 @@ Các lệnh dưới đây chạy ở thư mục gốc repo.
    bỏ qua kèm cảnh báo: khi đó chờ benchmark xong rồi chạy lại.
 3. **Báo cáo:** viết `docs/benchmark_sau_sua_loi.md` (dùng bảng trong `docs/benchmark/benchmark_SR.md`) và kiểm
    tra ngân sách ghi ở mục 4 (150 thế hệ, 180.000 lượt đánh giá mỗi lượt chạy) khớp với báo cáo.
-4. **Đưa lên GitHub:** commit và push các file demo (`.vscode/`, `demo/`, `scripts/demo.py`,
-   `scripts/plot_benchmark.py`, `src/visual_report.py`, `docs/huong_dan_demo_vscode.md`), `docs/benchmark/` và
-   `docs/benchmark_sau_sua_loi.md` (lần đầu ngày 25/11/2026, commit `82cd802`); `README.md` có dòng dẫn tới tài liệu
-   này. Sau mỗi lần thay champion hoặc tạo lại `docs/benchmark/`, commit và push lại các file đã đổi.
+4. **Đưa lên GitHub:** commit và push các file demo (`demo/`, `scripts/demo.py`, `scripts/plot_benchmark.py`,
+   `src/visual_report.py`, `docs/huong_dan_demo_vscode.md`), `docs/benchmark/` và `docs/benchmark_sau_sua_loi.md`
+   (lần đầu ngày 25/11/2026, commit `1edb8c2`); `README.md` có dòng dẫn tới tài liệu này. Thư mục `.vscode/` giữ trên
+   máy làm demo, không đưa lên repo. Sau mỗi lần thay champion hoặc tạo lại `docs/benchmark/`, commit và push lại các
+   file đã đổi.
 5. Chạy lại cấu hình 4, 6 và 9 (chấm champion mới, vẽ biểu đồ, ghi lại GIF dự phòng) và sửa số đo thời gian ở
    mục 6 nếu khác nhiều.

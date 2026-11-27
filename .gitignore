@@ -16,3 +16,6 @@ output/
 *.docx
 ~$*
 reports/*.md
+
+# Cấu hình VS Code của máy làm demo: giữ ngoài repo
+.vscode/

@@ -8,8 +8,11 @@ Chạy lâu (khoảng 5–30 phút tùy tùy chọn): nên chạy nền ở mứ
     python -B tests/verify_batch_full.py --device cpu,gpu --workers 4 --timing --priority idle
 
 Tùy chọn:
-  --sensors rays:12,sector:12,sector:24   cảm biến cần kiểm; "current" = cảm biến của biến môi trường hiện tại,
-                                          chạy ngay trong tiến trình này
+  --sensors rays:12,sector:12,sector:24   cảm biến cần kiểm; "current" = robot và cảm biến của bốn biến môi
+                                          trường hiện tại (NEAT_ROBOT, NEAT_LIDAR_MODE, NEAT_LIDAR_N,
+                                          NEAT_SECTOR_LAYOUT), cách kiểm Waffle và bố cục e32; đứng một mình
+                                          thì chạy ngay trong tiến trình này, đứng chung danh sách thì chạy
+                                          trong tiến trình con với bốn biến giữ nguyên
   --device cpu[,gpu]                      gpu: BatchEvaluator(device="gpu") exact phải 0 lệch; chế độ device
                                           (không exact) chỉ in thống kê
   --gpu-full                              thêm biến thể "full" exact (mọi mảng trên CuPy, chậm; bản tham chiếu)
@@ -17,8 +20,11 @@ Tùy chọn:
   --timing                                đo một thế hệ kiểu huấn luyện (150 genome x 8 bản đồ, cấp 1–4 và BARN)
   --quick / --smoke                       ít genome / bản đồ hơn; --smoke rất nhỏ, chỉ để thử script
   --priority idle|below|normal            mức ưu tiên của tiến trình (Windows; tiến trình con thừa hưởng)
-Mỗi cảm biến chạy trong một tiến trình con (NEAT_LIDAR_MODE / NEAT_LIDAR_N được đọc lúc import src);
+Mỗi cảm biến dạng kiểu:N chạy trong một tiến trình con (NEAT_LIDAR_MODE / NEAT_LIDAR_N được đọc lúc import
+src). Tiến trình con này chạy robot cũ với quạt đều: NEAT_ROBOT và NEAT_SECTOR_LAYOUT bị bỏ khỏi môi trường của
+nó, nên rays:12 vẫn chạy được khi đang đặt NEAT_ROBOT=waffle. "current" giữ nguyên cả bốn biến.
 N khác 12 dùng configs/neat_*_n{N}.ini. NEAT_GEO_CACHE (nếu đặt) là thư mục đệm geodesic.
+Kịch bản APF được bỏ qua khi APF không chạy được với robot / cảm biến đó (apf_unsupported_reason, ví dụ e32).
 Mỗi kịch bản in: số lượt, số dict lệch (so tới từng bit: khóa, thứ tự khóa, kiểu, float kể cả dấu của số 0),
 số lượt đổi kết cục (tới đích / va chạm), max |Δfitness|, max |Δfinal_pos|, max |Δsteps|, số giá trị lệch kiểu, thời
 gian. Exact phải 0 lệch; mã thoát 1 nếu có lệch. GPU không dựng được (thiếu CuPy / driver, tự kiểm lệch) thì in lý do,
@@ -92,7 +98,9 @@ def run_suite(args) -> int:
     per_level = {"smoke": 1, "quick": 2, "full": 3}[size]
     n_gen = {"smoke": 2, "quick": 8, "full": 16}[size]
     n_mlp = {"smoke": 1, "quick": 6, "full": 10}[size]
-    print(f"\n=== cảm biến {KM.LIDAR_MODE}:{N} | numpy {np.__version__} | {size} | thiết bị {devices} ===", flush=True)
+    tag = (f"{KM.LIDAR_MODE}:{N}" + (f" {KM.SECTOR_LAYOUT}" if KM.SECTOR_LAYOUT else "")
+           + (f", robot {KM.ROBOT}" if KM.ROBOT != "old" else ""))
+    print(f"\n=== cảm biến {tag} | numpy {np.__version__} | {size} | thiết bị {devices} ===", flush=True)
 
     maps = []
     for lvl in (1, 2, 3, 4):
@@ -146,7 +154,12 @@ def run_suite(args) -> int:
     for name, layers in (("GA B1", [KM.OBS_DIM, 8, 2]), ("GA B2", [KM.OBS_DIM, 16, 8, 2])):
         npar = FixedMLP(layers).num_params
         scen.append((name, [(PAR.mlp_spec(rng.normal(0.0, 0.3, npar), layers), M, GEO) for _ in range(n_mlp)]))
-    scen.append(("APF, kiểu chấm test", [({"kind": "apf"}, [p], EUC) for p in M]))
+    from src.baselines.apf import apf_unsupported_reason
+    apf_reason = apf_unsupported_reason()
+    if apf_reason is None:
+        scen.append(("APF, kiểu chấm test", [({"kind": "apf"}, [p], EUC) for p in M]))
+    else:
+        print(f"  (bỏ qua kịch bản APF: {apf_reason})", flush=True)
 
     def stats(name, ref, got, t_ref, t_got, count=True):
         n = mism = outc = dst = badtype = 0
@@ -221,7 +234,7 @@ def run_suite(args) -> int:
                rec_cfg=rec_cfg, geo=geo)
     for ev in evs.values():
         ev.close()
-    print(f"=== cảm biến {KM.LIDAR_MODE}:{N}: TỔNG LỆCH (exact) = {fails} ===", flush=True)
+    print(f"=== cảm biến {tag}: TỔNG LỆCH (exact) = {fails} ===", flush=True)
     return 1 if fails else 0
 
 
@@ -289,11 +302,20 @@ def main():
         pass
     if args.child or args.sensors.strip() == "current":
         sys.exit(run_suite(args))
+    sensors = [s.strip() for s in args.sensors.split(",") if s.strip()]
+    dropped = [f"{k}={os.environ[k]}" for k in ("NEAT_ROBOT", "NEAT_SECTOR_LAYOUT") if os.environ.get(k, "").strip()]
+    if dropped and any(s != "current" for s in sensors):
+        print(f"Lưu ý: cảm biến dạng kiểu:N chạy robot cũ với quạt đều (bỏ {', '.join(dropped)}); muốn kiểm robot / "
+              "bố cục đang đặt thì dùng --sensors current.", flush=True)
     fails = 0
     t0 = time.time()
-    for sensor in [s.strip() for s in args.sensors.split(",") if s.strip()]:
-        mode, n = sensor.split(":")
-        env = dict(os.environ, NEAT_LIDAR_MODE=mode, NEAT_LIDAR_N=str(int(n)), PYTHONDONTWRITEBYTECODE="1")
+    for sensor in sensors:
+        env = dict(os.environ, PYTHONDONTWRITEBYTECODE="1")
+        if sensor != "current":                   # kiểu:N: đúng cảm biến ghi trong --sensors, robot cũ, quạt đều
+            mode, n = sensor.split(":")
+            env.update(NEAT_LIDAR_MODE=mode, NEAT_LIDAR_N=str(int(n)))
+            env.pop("NEAT_ROBOT", None)
+            env.pop("NEAT_SECTOR_LAYOUT", None)
         env.pop("NEAT_EVAL_BACKEND", None)
         cmd = [sys.executable, "-u", "-B", str(Path(__file__).resolve()), "--child", "--device", args.device,
                "--workers", str(args.workers), "--priority", "normal"]
