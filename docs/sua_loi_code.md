@@ -2,6 +2,16 @@
 
 Tài liệu này ghi lại các sửa đổi trong code huấn luyện, môi trường, bản đồ và baseline, theo mã lỗi của báo cáo khả thi (file Word `Bao_cao_pipeline_NEAT_robot.docx` của nhóm, mục 9; file này không đưa lên repo). Phần cấu hình NEAT và GA nằm ở [sua_cau_hinh_NEAT_GA.md](sua_cau_hinh_NEAT_GA.md).
 
+> **Ghi chú ngày 25/11/2026.** Baseline B3 (tìm kiếm ngẫu nhiên, `src/baselines/random_search.py`) và B4 (luật phản
+> xạ, `src/baselines/rule_based.py`) đã bỏ khỏi code; APF (B5) vẫn giữ. Các chỗ nhắc tới B3, B4 dưới đây (mục
+> *Kiểm tra đã làm*, L04, L12, L14, L24) giữ nguyên làm lịch sử sửa lỗi. Phép thử L12 trong `tests/test_fixes.py` bỏ
+> cùng `rule_based.py`; cùng ngày thêm phép thử `test_lehman_archive_rule` cho luật archive của LNS
+> (`LehmanArchive`) và hai phép thử cho cảm biến hình quạt (vật cản mảnh nằm giữa hai tia; các file
+> `configs/*_n{N}.ini` khớp file gốc), nên nay có 16 phép thử. Cùng ngày thêm các tùy chọn mặc định tắt:
+> `novelty_rule="lehman"` (cấu hình LNS và LNS_ref, `--novelty-rule lehman`), `val_key="per_level"`
+> (`--val-key per_level`), `--levels` (chọn các thư mục cấp trong thư mục dữ liệu) và cảm biến hình quạt (biến
+> môi trường `NEAT_LIDAR_MODE`, `NEAT_LIDAR_N`; `README.md` mục 3).
+
 ## Kiểm tra đã làm
 
 - `python tests/test_fixes.py`: 14 phép thử, mỗi phép kiểm một mã lỗi, 14/14 qua. Hai phép thử L12 và L20 được chạy lại trên code cũ và đều hỏng ở đó, tức chúng bắt đúng lỗi.
@@ -13,7 +23,7 @@ Tài liệu này ghi lại các sửa đổi trong code huấn luyện, môi tr�
   - `summarize_results.py` có kiểm định và boxplot.
 - Số của hai bộ điều khiển không học khớp báo cáo: luật rẽ sau khi sửa dấu đạt 80% ở cấp 1, APF đạt 34% trên BARN.
 - Tốc độ: M6 (8 bản đồ huấn luyện và 4 bản đồ probe mỗi thế hệ) mất khoảng 10 giây mỗi thế hệ với 6 worker trên i5-14400F, tức khoảng 50 phút cho 300 thế hệ.
-- Chưa chạy lượt dài bằng `runner.py`. Các số trong báo cáo đến từ bộ mô phỏng nhanh có cùng logic (script kiểm thử riêng, không đưa lên repo).
+- Đến ngày 12/11/2026 chưa chạy lượt dài bằng `runner.py`: các số trong báo cáo đến từ bộ mô phỏng nhanh có cùng logic (script kiểm thử riêng, không đưa lên repo). Benchmark sau sửa lỗi (xong ngày 24/11/2026, [benchmark_sau_sua_loi.md](benchmark_sau_sua_loi.md)) đã chạy lượt dài bằng code này.
 
 ## Lỗi chặn thí nghiệm
 
@@ -84,4 +94,4 @@ Tài liệu này ghi lại các sửa đổi trong code huấn luyện, môi tr�
   - L28: bản đồ thoáng cho 3D.
 - **Xếp độ khó các cấp bằng planner tham chiếu** (phần thứ hai của cách sửa L27) chưa làm. Cấp 3 tường dày vẫn khó hơn cấp 4 với các bộ điều khiển phản xạ.
 - **`data/maps/manifest.csv` và `reports/data/`** vẫn ghi số của bộ cấp 3 cũ. Cần tải `data/raw` rồi chạy lại `scripts/preprocess_data.py`.
-- **Chưa chạy lượt dài và nhiều seed bằng code này.** Câu hỏi Q1 vẫn cần ít nhất 10 seed mỗi phương pháp.
+- **Số seed còn ít.** Benchmark sau sửa lỗi ([benchmark_sau_sua_loi.md](benchmark_sau_sua_loi.md)) đã chạy lượt dài bằng code này (150 thế hệ; NEAT 3–4 seed mỗi cấu hình, GA B1 3 seed, GA B2 1 seed), nhưng câu hỏi Q1 vẫn cần ít nhất 10 seed mỗi phương pháp.

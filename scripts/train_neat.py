@@ -23,6 +23,7 @@ from pathlib import Path
 # Cho phép chạy "python scripts/train_neat.py" trực tiếp từ thư mục gốc
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
+from src.neat_engine.parallel import EVAL_BACKENDS, resolve_backend  # noqa: E402
 from src.neat_engine.runner import NEATRunner  # noqa: E402
 
 
@@ -62,6 +63,12 @@ def main():
     parser.add_argument("--fixed-lambda", type=float, default=None,
                         help="giữ λ cố định (0 = novelty thuần, như M4)")
     parser.add_argument("--novelty-space", choices=["probe", "population"], default="probe")
+    parser.add_argument("--novelty-rule", choices=["project", "lehman"], default="project",
+                        help="lehman = novelty search thuần theo Lehman & Stanley 2011 (thường đi cùng --no-curriculum)")
+    parser.add_argument("--levels", type=str, default=None,
+                        help="các ô cấp trong --data-dir, ví dụ 1,2,3,4,5,6 (mặc định 1,2,3,4)")
+    parser.add_argument("--val-key", choices=["pooled", "per_level"], default="pooled",
+                        help="khóa chọn champion: SR gộp mọi bản đồ val (mặc định) hoặc trung bình SR từng cấp")
     parser.add_argument("--progress", choices=["geodesic", "euclid"], default="geodesic",
                         help="đo tiến độ theo đường đi thật (mặc định) hay đường chim bay")
     parser.add_argument("--val-every", type=int, default=10)
@@ -69,8 +76,17 @@ def main():
                         help="curriculum: số thế hệ tối đa mỗi cấp (mặc định generations/5)")
     parser.add_argument("--no-visual", action="store_true",
                         help="không ghi ảnh bảng, ảnh biểu đồ và trang HTML của log huấn luyện")
+    parser.add_argument("--backend", choices=list(EVAL_BACKENDS), default=None,
+                        help="cách đánh giá: cpu = từng lượt như cũ (mặc định, hoặc theo biến NEAT_EVAL_BACKEND), "
+                             "batch = chạy theo lô bằng NumPy (chia cho --workers tiến trình), gpu = chạy theo lô, "
+                             "LiDAR + va chạm trên GPU (CuPy); batch và gpu cho cùng kết quả từng bit")
+    parser.add_argument("--inexact", action="store_true",
+                        help="chỉ với --backend gpu: tính cả hàm siêu việt trên GPU (chế độ device), KHÔNG trùng bit "
+                             "với mặc định; chỉ để thử, không dùng cho benchmark")
 
     args = parser.parse_args()
+    if args.inexact and resolve_backend(args.backend) != "gpu":
+        parser.error("--inexact chỉ dùng với --backend gpu")
 
     runner = NEATRunner(
         config_path=args.config,
@@ -85,9 +101,14 @@ def main():
         workers=args.workers,
         fixed_lambda=args.fixed_lambda,
         novelty_space=args.novelty_space,
+        novelty_rule=args.novelty_rule,
+        val_key=args.val_key,
+        levels=tuple(int(x) for x in args.levels.split(",")) if args.levels else None,
         progress=args.progress,
         val_every=args.val_every,
         max_gens_per_level=args.max_gens_per_level if args.max_gens_per_level else "auto",
+        backend=args.backend,
+        backend_options={"exact": False} if args.inexact else None,
     )
 
     print("=" * 60)
@@ -98,6 +119,8 @@ def main():
     print(f"  Recurrent:  {runner.is_recurrent}")
     print(f"  Max Gen:    {args.generations}")
     print(f"  Seed:       {args.seed}   Workers: {args.workers}")
+    if runner.backend != "cpu":
+        print(f"  Backend:    {runner.backend}" + (" (inexact: không trùng bit)" if args.inexact else ""))
     print("=" * 60, flush=True)
 
     runner.run()

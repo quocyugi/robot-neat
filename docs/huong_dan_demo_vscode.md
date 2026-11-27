@@ -6,13 +6,10 @@ demo 10–15 phút, các cấu hình **Run and Debug** có sẵn trong `.vscode/
 > **Lưu ý về số liệu và mã nguồn.** Benchmark đã chạy xong ngày 24/11/2026. Champion trong thư mục `demo/` là
 > champion của benchmark (M6 seed 1, chọn theo SR val, xem `demo/README.md`); file
 > `docs/benchmark/benchmark_results.json` và báo cáo `docs/benchmark_sau_sua_loi.md` lấy từ chính lượt benchmark
-> đó (bước 1, 2, 3 và 5 của mục 10 đã làm ngày 24/11/2026). Các file demo (`.vscode/`, `demo/`, `scripts/demo.py`,
-> `scripts/plot_benchmark.py`, `src/visual_report.py` và chính tài liệu này) **chưa được đưa lên GitHub**. Việc còn
-> lại: bước 4 của mục 10.
->
-> **Thay đổi ngày 24/11/2026 (theo yêu cầu của nhóm).** Tập test mê cung Lehman–Stanley (`test_lehman`, 2 bản đồ)
-> đã bỏ khỏi code: tập test giờ là 4 cấp và BARN (250 bản đồ), cấu hình 7 chạy 4 bản đồ BARN. Các kết quả cần trình
-> bày (cấu hình 2–9 và bảng benchmark) ghi thêm **ảnh bảng, ảnh biểu đồ và trang HTML** bên cạnh file JSON/MD cũ:
+> đó. Mục 10: bước 1, 2, 3 và 5 làm ngày 24/11/2026; bước 4 (đưa lên GitHub) làm lần đầu ngày 25/11/2026 (commit
+> `82cd802`: 9 phương pháp, chưa có APF và cột mê cung Lehman); bước 2 làm lại ngày 25/11/2026 (10 phương pháp: R0,
+> M1–M6, GA B1, GA B2, APF; có cột mê cung Lehman) và đi cùng lần đưa lên GitHub sau đó. Các kết quả cần trình
+> bày (cấu hình 2–9 và bảng benchmark) ghi thêm **ảnh bảng, ảnh biểu đồ và trang HTML** bên cạnh file JSON/MD:
 > mục *Kết quả dạng hình* ngay dưới bảng file.
 
 ## Các file dùng cho demo
@@ -47,11 +44,11 @@ Cuối terminal in đường dẫn các file vừa ghi, dạng `Đã ghi ảnh: 
 `Đã ghi trang HTML: output/demo/test_results.html`. **Ctrl+bấm** vào đường dẫn ảnh để mở ngay trong VS Code; trang
 HTML mở bằng trình duyệt (kéo thả file vào Edge hoặc Chrome, hoặc chuột phải trên file trong Explorer của VS Code →
 **Reveal in File Explorer** rồi bấm đúp). Màu kết quả giống cửa sổ demo: **TỚI ĐÍCH** xanh lá, **VA CHẠM** đỏ,
-**HẾT GIỜ** cam; số dùng dấu phẩy thập phân; NEAT đứng trước, baseline ghi nhãn GA B1, GA B2.
+**HẾT GIỜ** cam; số dùng dấu phẩy thập phân; NEAT đứng trước, baseline (GA B1, GA B2, APF) đứng sau.
 
 | Cấu hình | File ảnh và trang HTML | Nội dung |
 |---|---|---|
-| 2, 3, 7, 8, 9 (`scripts/demo.py`) | `output/demo/ket_qua_cau_hinh_<k>_bang.png`, `_bieu_do.png`, `.html` (k là số cấu hình, đặt bằng `--report`) | bảng từng bản đồ (kết quả, số bước, thời gian, cách đích) và SR theo nhóm; biểu đồ số bước của từng bản đồ, màu theo kết quả, kèm ô SR từng cấp |
+| 2, 3, 7, 8, 9 (`scripts/demo.py`) | `output/demo/ket_qua_cau_hinh_<k>_bang.png`, `_bieu_do.png`, `.html` (k là số cấu hình, đặt bằng `--report`) | bảng từng bản đồ (kết quả, số bước, thời gian, cách đích) và SR theo nhóm; biểu đồ số bước của từng bản đồ, màu theo kết quả, kèm ô SR từng cấp (cấu hình 7: từng nhóm BARN, Lehman) |
 | 4 (`scripts/evaluate.py`) | `output/demo/test_results_bang.png`, `test_results_bieu_do.png`, `test_results.html` (cạnh `test_results.json`) | bảng SR, CR, hết giờ, SPL, MTT từng tập; biểu đồ tỉ lệ TỚI ĐÍCH, VA CHẠM, HẾT GIỜ từng tập |
 | 5 (`scripts/train_neat.py`) | `output/demo/train_m6/training_history_bang.png`, `training_history_bieu_do.png`, `training_history.html` | log huấn luyện: tóm tắt champion và bảng từng thế hệ; biểu đồ fitness thô, tỉ lệ tới đích, SR val, số loài theo thế hệ (trang HTML có thêm bảng đủ mọi thế hệ, chép được chữ) |
 | 6 (`scripts/plot_benchmark.py`) | `output/demo/benchmark_sr.png` (biểu đồ, như trước), `benchmark_sr_bang.png`, `benchmark_sr.html` | bảng phương pháp × tập test: mỗi ô là SR trung bình theo seed và min–max, nền xanh càng đậm SR càng cao, NEAT trước, baseline sau |
@@ -95,13 +92,9 @@ Dự án đã kiểm thử với **Python 3.14.0**. Python 3.14 chưa có bản 
 
 ### 1.4. Lấy mã nguồn và mở đúng thư mục
 
-1. Lấy **thư mục dự án do nhóm chuẩn bị** (file zip hoặc USB) và giải nén ra một chỗ cố định, ví dụ
-   `D:\robot-neat`. Thư mục phải có đủ `.vscode\`, `demo\`, `scripts\demo.py` và `docs\huong_dan_demo_vscode.md`.
-
-   Chỉ dùng `git clone https://github.com/quocyugi/robot-neat.git` (hoặc **Code → Download ZIP** trên GitHub)
-   **sau khi** nhóm đã đưa các file demo lên GitHub: mở trang repo, thấy thư mục `.vscode` và file
-   `scripts/demo.py` thì mới clone. Lúc viết tài liệu này GitHub chưa có các file đó, nên bản clone không có
-   cấu hình Run and Debug, không có `scripts/demo.py` và champion trong `demo/`.
+1. Lấy mã nguồn về một chỗ cố định, ví dụ `D:\robot-neat`: `git clone https://github.com/quocyugi/robot-neat.git`
+   (hoặc **Code → Download ZIP** trên trang GitHub rồi giải nén), hoặc chép **thư mục dự án do nhóm chuẩn bị**
+   (file zip hoặc USB). Thư mục phải có đủ `.vscode\`, `demo\`, `scripts\demo.py` và `docs\huong_dan_demo_vscode.md`.
 2. Trong VS Code: **File > Open Folder...**, chọn **thư mục gốc repo**, tức thư mục chứa `README.md`, `src/`,
    `scripts/` và `.vscode/`.
 3. Lần đầu mở, VS Code hỏi *Do you trust the authors of the files in this folder?*: chọn
@@ -161,13 +154,13 @@ scipy 1.18.1, pandas 3.1.1, imageio 2.38.2 (các gói khác như trên).
 1. Bấm **Ctrl+Shift+D** để mở **Run and Debug**.
 2. Ở ô chọn cấu hình phía trên, chọn **1. Kiểm thử các bản sửa lỗi**.
 3. Bấm **F5** (chạy có debug) hoặc **Ctrl+F5** (chạy không debug).
-4. Terminal phía dưới in 13 dòng `OK    test_...` và dòng cuối **`13/13 passed`** (khoảng 2 giây với Ctrl+F5, 4–5
+4. Terminal phía dưới in 16 dòng `OK    test_...` và dòng cuối **`16/16 passed`** (khoảng 2 giây với Ctrl+F5, 4–5
    giây với F5).
 
-Thấy `13/13 passed` nghĩa là đã mở đúng thư mục, đúng interpreter, đủ thư viện tính toán. Muốn chắc chắn thư viện
+Thấy `16/16 passed` nghĩa là đã mở đúng thư mục, đúng interpreter, đủ thư viện tính toán. Muốn chắc chắn thư viện
 `pygame` và `imageio` đã đủ: chạy cấu hình **9** (không mở cửa sổ, khoảng 10 giây), cuối terminal phải có dòng
 `Đã ghi GIF output/demo/demo.gif: ...`, sau đó ba dòng `Đã ghi ảnh: ...`, `Đã ghi trang HTML: ...` (thư viện
-`matplotlib` cũng đủ). Muốn thử cả cửa sổ demo: chạy cấu hình **7** (khoảng 30 giây), cửa sổ phải hiện robot và HUD.
+`matplotlib` cũng đủ). Muốn thử cả cửa sổ demo: chạy cấu hình **7** (khoảng 40 giây), cửa sổ phải hiện robot và HUD.
 
 ---
 
@@ -179,18 +172,19 @@ cửa sổ để nó nhận phím (Space, N, +, -, Esc). Từ bước 2 đến b
 
 | Bước | Cấu hình Run and Debug | Nói gì với giáo viên | Thời gian |
 |---|---|---|---|
-| 1 | (không chạy) mở `README.md`, bấm **Ctrl+Shift+V** để xem dạng trình bày | Bài toán: robot vi sai 2 bánh trong sân 10 m × 10 m, chỉ có 12 tia LiDAR tầm 3 m cùng khoảng cách và hướng tới đích (15 số đầu vào); mạng ra 2 lệnh tốc độ bánh trái, phải; mỗi lượt tối đa 500 bước (50 giây). NEAT tiến hóa cả cấu trúc lẫn trọng số mạng. 4 cấp bản đồ: cấp 1 trống, cấp 2 vật cản thưa, cấp 3 hành lang tường dày, cấp 4 bẫy chữ U. Thêm 50 bản đồ BARN (dữ liệu công khai) để thử khả năng tổng quát hóa. | 2 phút |
+| 1 | (không chạy) mở `README.md`, bấm **Ctrl+Shift+V** để xem dạng trình bày | Bài toán: robot vi sai 2 bánh trong sân 10 m × 10 m, chỉ có 12 tia LiDAR tầm 3 m cùng khoảng cách và hướng tới đích (15 số đầu vào); mạng ra 2 lệnh tốc độ bánh trái, phải; mỗi lượt tối đa 500 bước (50 giây). NEAT tiến hóa cả cấu trúc lẫn trọng số mạng. 4 cấp bản đồ: cấp 1 trống, cấp 2 vật cản thưa, cấp 3 hành lang tường dày, cấp 4 bẫy chữ U. Thêm 50 bản đồ BARN và 2 mê cung Lehman–Stanley (dữ liệu công khai) để thử khả năng tổng quát hóa. | 2 phút |
 | 2 | **2. Demo: champion NEAT trên 4 cấp** | Chỉ trên cửa sổ: robot (tròn xanh dương, vạch trắng là hướng đầu), 12 tia LiDAR màu vàng (tia ngắn là vật cản gần): đó là tất cả những gì mạng "nhìn thấy"; quỹ đạo là nét đậm màu xanh tím; đích là vòng xanh lá. HUD ghi bộ điều khiển, cấp, mã bản đồ, bước/500, khoảng cách tới đích; cuối lượt hiện TỚI ĐÍCH, VA CHẠM hoặc HẾT GIỜ. Bấm Space để dừng giải thích, + để tua nhanh. Chạy xong 8 bản đồ, terminal in bảng kết quả và SR theo cấp, rồi ghi bảng đó dạng hình: Ctrl+bấm `output/demo/ket_qua_cau_hinh_2_bieu_do.png` ở cuối terminal để chiếu biểu đồ số bước và kết quả từng bản đồ. | 3 phút |
-| 3 | **3. Demo: champion NEAT ở bẫy chữ U (cấp 4)** | Champion NEAT chạy trên hai bản đồ cấp 4 đầu tiên của tập test, nơi bẫy chữ U chắn giữa điểm xuất phát và đích. Robot chỉ thấy 3 m quanh mình nên dễ đi thẳng vào bẫy; đây là cấp khó nhất của dự án (SR test của R0 ở cấp 4 là 26,5%). | 1–2 phút |
-| 4 | **4. Chấm champion trên toàn bộ tập test** | Không đánh giá bằng mắt mà chấm trên 250 bản đồ test không dùng khi huấn luyện (4 cấp × 50 và 50 bản đồ BARN): SR (tỉ lệ tới đích), CR (tỉ lệ va chạm), tỉ lệ hết giờ, SPL (vừa tới đích vừa đi ngắn: độ dài đường tối ưu chia độ dài đường đi thật, lượt không tới đích tính 0), MTT (thời gian trung bình của các lượt tới đích). Kết quả ghi vào `output/demo/test_results.json`; khi trình bày, Ctrl+bấm `output/demo/test_results_bieu_do.png` (tỉ lệ TỚI ĐÍCH, VA CHẠM, HẾT GIỜ từng tập) và `output/demo/test_results_bang.png` (bảng đủ chỉ số) ở cuối terminal. | 1 phút |
+| 3 | **3. Demo: APF kẹt ở bẫy chữ U (cấp 4)** | APF (trường thế nhân tạo, baseline B5) là bộ điều khiển không học: lực hút về đích cộng lực đẩy khỏi vật cản. Trong bẫy chữ U hai lực triệt tiêu nhau (cực tiểu cục bộ) nên robot kẹt tới HẾT GIỜ ở cả hai bản đồ cấp 4 đầu tiên của tập test; trên tập test, SR của APF ở cấp 3 và cấp 4 là 0%. Fitness kiểu "càng gần đích càng tốt" cũng đánh lừa thuật toán tiến hóa theo đúng cách này, nên dự án cần học, kèm novelty search và curriculum. | 1–2 phút |
+| 4 | **4. Chấm champion trên toàn bộ tập test** | Không đánh giá bằng mắt mà chấm trên 252 bản đồ test không dùng khi huấn luyện (4 cấp × 50, 50 bản đồ BARN và 2 mê cung Lehman–Stanley): SR (tỉ lệ tới đích), CR (tỉ lệ va chạm), tỉ lệ hết giờ, SPL (vừa tới đích vừa đi ngắn: độ dài đường tối ưu chia độ dài đường đi thật, lượt không tới đích tính 0), MTT (thời gian trung bình của các lượt tới đích). Kết quả ghi vào `output/demo/test_results.json`; khi trình bày, Ctrl+bấm `output/demo/test_results_bieu_do.png` (tỉ lệ TỚI ĐÍCH, VA CHẠM, HẾT GIỜ từng tập) và `output/demo/test_results_bang.png` (bảng đủ chỉ số) ở cuối terminal. | 1 phút |
 | 5 | **5. Huấn luyện thử M6 (5 thế hệ)** | Vừa chạy vừa giải thích log. Mỗi thế hệ in một khối khoảng 10 dòng; dòng cần đọc là `Gen k \| L1 \| best_raw=... mean_raw=... solved=... species=... lambda=...` của dự án, các dòng tiếng Anh còn lại do thư viện neat-python in (cách đọc: *Đọc log huấn luyện* ngay dưới bảng). Chạy xong, Ctrl+bấm `output/demo/train_m6/training_history_bieu_do.png`: cùng log đó dạng biểu đồ theo thế hệ (fitness thô, tỉ lệ tới đích, SR val, số loài), kèm ô tóm tắt champion; `training_history_bang.png` là bảng từng thế hệ. 5 thế hệ chỉ để xem cơ chế; các kết quả benchmark dùng 150 thế hệ (150 cá thể × 8 bản đồ × 150 thế hệ = 180.000 lượt đánh giá mỗi lượt chạy). | 3 phút |
-| 6 | **6. Vẽ biểu đồ benchmark**, rồi mở `docs/benchmark_sau_sua_loi.md` (Ctrl+P, gõ tên file, Ctrl+Shift+V) | Biểu đồ và bảng so các phương pháp trên từng tập test, nhiều seed (cột là trung bình, thanh lỗi là min–max theo seed, mỗi chấm là một seed): NEAT (R0, M1–M6) với các baseline GA B1, GA B2. Nghĩa của từng tên: *Tên các phương pháp trong biểu đồ* dưới bảng. Mở ảnh: Ctrl+bấm vào đường dẫn ở các dòng `Đã ghi ảnh: ...` cuối terminal (`output/demo/benchmark_sr.png` là biểu đồ, `output/demo/benchmark_sr_bang.png` là bảng có tô màu theo SR), hoặc mở thư mục `output/demo/` trong Explorer (Ctrl+P không tìm file trong `output/` vì thư mục này nằm trong `.gitignore`). Bảng markdown ở terminal rất rộng nên bị xuống dòng: khi trình bày, dùng ảnh bảng. | 2–3 phút |
-| 7 | (không chạy) mở code các phần đã sửa | **Ctrl+P**, gõ `geodesic.py`: trường khoảng cách theo đường đi thật (Dijkstra trên lưới 5 cm) thay cho đường chim bay, để fitness không còn thưởng việc lao vào ngõ cụt gần đích (lỗi L26). **Ctrl+P**, gõ `runner.py`, rồi **Ctrl+G**, gõ `268`, Enter: dòng `champ_check = self._champion_check(objs, raw, gen)`, champion chọn theo SR trên val (lỗi L02). Bấm chuột vào chữ `_champion_check` trên dòng đó rồi bấm **F12** để nhảy tới định nghĩa hàm (dòng 311), **Alt+←** để quay lại dòng 268. Danh sách đầy đủ các lỗi đã sửa: `docs/sua_loi_code.md`. | 2 phút |
+| 6 | **6. Vẽ biểu đồ benchmark**, rồi mở `docs/benchmark_sau_sua_loi.md` (Ctrl+P, gõ tên file, Ctrl+Shift+V) | Biểu đồ và bảng so các phương pháp trên từng tập test, nhiều seed (cột là trung bình, thanh lỗi là min–max theo seed, mỗi chấm là một seed): NEAT (R0, M1–M6) với các baseline GA B1, GA B2 và APF. Nghĩa của từng tên: *Tên các phương pháp trong biểu đồ* dưới bảng. Mở ảnh: Ctrl+bấm vào đường dẫn ở các dòng `Đã ghi ảnh: ...` cuối terminal (`output/demo/benchmark_sr.png` là biểu đồ, `output/demo/benchmark_sr_bang.png` là bảng có tô màu theo SR), hoặc mở thư mục `output/demo/` trong Explorer (Ctrl+P không tìm file trong `output/` vì thư mục này nằm trong `.gitignore`). Bảng markdown ở terminal rất rộng nên bị xuống dòng: khi trình bày, dùng ảnh bảng. | 2–3 phút |
+| 7 | (không chạy) mở code các phần đã sửa | **Ctrl+P**, gõ `geodesic.py`: trường khoảng cách theo đường đi thật (Dijkstra trên lưới 5 cm) thay cho đường chim bay, để fitness không còn thưởng việc lao vào ngõ cụt gần đích (lỗi L26). **Ctrl+P**, gõ `runner.py`, rồi **Ctrl+G**, gõ `291`, Enter: dòng `champ_check = self._champion_check(objs, raw, gen)`, champion chọn theo SR trên val (lỗi L02). Bấm chuột vào chữ `_champion_check` trên dòng đó rồi bấm **F12** để nhảy tới định nghĩa hàm (dòng 334), **Alt+←** để quay lại dòng 291. Danh sách đầy đủ các lỗi đã sửa: `docs/sua_loi_code.md`. | 2 phút |
 
-Còn thời gian thì chạy thêm **7. Demo: champion trên 4 bản đồ BARN** (bản đồ công khai, khác hẳn bản đồ huấn
-luyện) và **8. Xem champion vừa huấn luyện** (champion 5 thế hệ của bước 5, so với champion benchmark để thấy tác
-dụng của huấn luyện dài). Hai cấu hình này cũng ghi ảnh kết quả `output/demo/ket_qua_cau_hinh_7_*` và
-`output/demo/ket_qua_cau_hinh_8_*`.
+Còn thời gian thì chạy thêm **7. Demo: champion trên BARN và mê cung Lehman** (4 bản đồ BARN rồi 2 mê cung
+Lehman–Stanley, đều là bản đồ công khai, khác hẳn bản đồ huấn luyện; champion va chạm ở cả hai mê cung, đúng như
+benchmark: mọi phương pháp đều 0/2 trên hai mê cung này) và **8. Xem champion vừa huấn luyện** (champion 5 thế hệ
+của bước 5, so với champion benchmark để thấy tác dụng của huấn luyện dài). Hai cấu hình này cũng ghi ảnh kết quả
+`output/demo/ket_qua_cau_hinh_7_*` và `output/demo/ket_qua_cau_hinh_8_*`.
 
 **Đọc log huấn luyện (bước 5).** Mỗi thế hệ in một khối như sau (thế hệ đầu của một lần chạy thử):
 
@@ -231,7 +225,7 @@ Generation time: 19.096 sec
   8 sẽ chạy.
 
 **Tên các phương pháp trong biểu đồ (bước 6).** Mọi phương pháp học dùng cùng ngân sách 180.000 lượt đánh giá
-(150 cá thể × 8 bản đồ × 150 thế hệ) và champion của mọi phương pháp đều chọn theo SR trên val.
+(150 cá thể × 8 bản đồ × 150 thế hệ) và champion của mọi phương pháp học đều chọn theo SR trên val.
 
 - **R0**: NEAT hồi quy, fitness thường (không novelty), học đều cả 4 cấp (không curriculum). Đây là cấu hình
   "NEAT đã sửa, hồi quy" trong `docs/sua_cau_hinh_NEAT_GA.md`, làm mốc để so với M1–M6.
@@ -241,6 +235,10 @@ Generation time: 19.096 sec
   **M6**: hồi quy, novelty lai, curriculum (mô hình đầy đủ; champion trong `demo/` là M6).
 - **GA B1**, **GA B2** (baseline): thuật toán di truyền chỉ tiến hóa trọng số của mạng có cấu trúc cố định 15-8-2 (B1) và
   15-16-8-2 (B2). Cột GA B2 cùng màu với R0 nhưng có gạch chéo.
+- **APF** (baseline B5): trường thế nhân tạo, bộ điều khiển không học (lực hút về đích cộng lực đẩy khỏi vật cản),
+  tất định nên chỉ chấm một lần (1 seed). Cột APF cùng màu với M1 nhưng có gạch chéo.
+
+Nhóm cột **Lehman** là 2 mê cung Lehman–Stanley: mọi phương pháp, mọi seed đều 0/2 (SR 0%).
 
 ---
 
@@ -259,9 +257,10 @@ cuối dòng thứ hai của HUD (khi còn chỗ) và luôn có trên thanh tiê
 
 **Đọc màn hình demo:**
 
-- HUD dòng 1: tên bộ điều khiển (ví dụ `NEAT hồi quy · champion trong demo/`). Ô bên phải hiện ĐANG CHẠY, TẠM DỪNG, rồi kết quả: **TỚI ĐÍCH** (xanh lá), **VA CHẠM** (đỏ),
-  **HẾT GIỜ** (cam); viền sân đổi theo màu kết quả. Kết quả được giữ 1,5 giây (`--pause`) rồi sang bản đồ tiếp.
-- HUD dòng 2: `Cấp k` (hoặc `BARN`) · mã bản đồ · `bước t/500` · `cách đích x m`.
+- HUD dòng 1: tên bộ điều khiển (ví dụ `NEAT hồi quy · champion trong demo/`, `APF (B5) · trường thế nhân tạo`). Ô
+  bên phải hiện ĐANG CHẠY, TẠM DỪNG, rồi kết quả: **TỚI ĐÍCH** (xanh lá), **VA CHẠM** (đỏ), **HẾT GIỜ** (cam); viền
+  sân đổi theo màu kết quả. Kết quả được giữ 1,5 giây (`--pause`) rồi sang bản đồ tiếp.
+- HUD dòng 2: `Cấp k` (hoặc `BARN`, `Lehman`) · mã bản đồ · `bước t/500` · `cách đích x m`.
 - Sân: robot là hình tròn xanh dương (vạch trắng là hướng đầu robot), 12 tia LiDAR màu vàng, quỹ đạo là nét đậm
   màu xanh tím (vẽ dưới robot và các tia), đích là vòng tròn xanh lá (bán kính 0,3 m), tường và vật cản màu xám.
 
@@ -270,10 +269,10 @@ gõ trong terminal; xem đủ bằng `python scripts/demo.py -h`):
 
 | Tùy chọn | Ý nghĩa |
 |---|---|
-| `--run-dir DIR` · `--genome FILE --config FILE` | chọn bộ điều khiển; không ghi gì thì dùng champion trong `demo/` |
+| `--run-dir DIR` · `--genome FILE --config FILE` · `--controller apf` | chọn bộ điều khiển (`--controller apf`: baseline APF, không học); không ghi gì thì dùng champion trong `demo/` |
 | `--levels 1,2,3,4` · `--maps-per-level N` · `--start-index K` | N bản đồ mỗi cấp, bắt đầu từ bản đồ thứ K theo thứ tự tên file (mặc định 4 cấp, 1 bản đồ, K = 0) |
 | `--split test` / `val` / `train` | lấy bản đồ ở tập nào (mặc định `test`) |
-| `--barn N` | thêm N bản đồ BARN đầu tiên của `data/maps/test_barn` |
+| `--barn N` · `--lehman` | thêm N bản đồ BARN đầu tiên của `data/maps/test_barn`; thêm 2 mê cung Lehman–Stanley của `data/maps/test_lehman` (mê cung vừa trước, mê cung khó sau) |
 | `--maps FILE1,FILE2` | chạy đúng các file bản đồ này (thay cho chọn theo cấp) |
 | `--fps 30` · `--pause 1.5` · `--frame-skip N` | tốc độ cửa sổ; số giây giữ khung kết quả; số bước mô phỏng mỗi khung hình |
 | `--scale 1.3` | phóng to cửa sổ khi chiếu (cửa sổ tự thu lại nếu cao hơn màn hình) |
@@ -288,21 +287,22 @@ gõ trong terminal; xem đủ bằng `python scripts/demo.py -h`):
 Thời gian "đo" là đo trên máy kiểm thử. Cấu hình 4, 6 và 9 đo lại ngày 24/11/2026 với champion hiện tại trong
 `demo/` (M6 seed 1), lúc máy không chạy việc nặng khác; các cấu hình còn lại đo trước đó, với champion tạm cũ và
 trong lúc máy chạy benchmark nền (cấu hình 1, 3, 5, 8 không dùng champion trong `demo/`). Champion hiện tại sống
-lâu hơn champion tạm trên bản đồ khó (nhiều lượt hết giờ đủ 500 bước thay vì va chạm sớm), nên cấu hình 2 và 7 lâu
-hơn số đo cũ. Chỗ ghi "ước tính" là chưa đo trực tiếp: tính bằng số bước mô phỏng chia 30 khung hình/giây, cộng
+lâu hơn champion tạm trên bản đồ khó (nhiều lượt hết giờ đủ 500 bước thay vì va chạm sớm), nên cấu hình 2 lâu hơn
+số đo cũ. Chỗ ghi "ước tính" là chưa đo trực tiếp: tính bằng số bước mô phỏng chia 30 khung hình/giây, cộng
 1,5 giây giữ kết quả mỗi bản đồ (cách tính này khớp các số đo với champion tạm). Từ ngày 24/11/2026 cấu hình 2–9 ghi
 thêm ảnh kết quả và trang HTML (mục *Kết quả dạng hình*), thêm khoảng 1–2 giây vào cuối mỗi lần chạy; cấu hình 4
-và 6 dưới đây đã đo lại cùng phần đó.
+và 6 dưới đây đã đo lại cùng phần đó. Ngày 25/11/2026 đã chạy lại cấu hình 1, 4 (2 worker), 6, 9, và
+cấu hình 2, 3, 7 không mở cửa sổ (để đếm số bước): kết quả, số bước và GIF khớp bảng dưới.
 
 | Cấu hình | Lệnh tương đương trong terminal (ở thư mục gốc repo) | Thời gian |
 |---|---|---|
 | 1. Kiểm thử các bản sửa lỗi | `python tests/test_fixes.py` | đo 1,6 giây |
 | 2. Demo: champion NEAT trên 4 cấp | `python scripts/demo.py --levels 1,2,3,4 --maps-per-level 2 --report output/demo/ket_qua_cau_hinh_2` | ước tính 1,8 phút với champion hiện tại (2.822 bước; 5/8 bản đồ tới đích, 3 lượt hết giờ); tối đa 2,5 phút (8 lượt × 500 bước ở 30 khung/giây); champion tạm cũ đo 44 giây |
-| 3. Demo: champion NEAT ở bẫy chữ U (cấp 4) | `python scripts/demo.py --levels 4 --maps-per-level 2 --report output/demo/ket_qua_cau_hinh_3` | dưới 40 giây (2 bản đồ, mỗi bản đồ tối đa 500 bước) |
-| 4. Chấm champion trên toàn bộ tập test | `python scripts/evaluate.py --genome demo/champion_genome.pkl --config demo/neat_config.ini --workers 4 --out output/demo/test_results.json` | đo 5–7 giây (250 bản đồ, kể cả ghi ảnh và trang HTML) |
+| 3. Demo: APF kẹt ở bẫy chữ U (cấp 4) | `python scripts/demo.py --controller apf --levels 4 --maps-per-level 2 --report output/demo/ket_qua_cau_hinh_3` | ước tính 37 giây (2 lượt hết giờ, 1.000 bước, kể cả 1–2 giây ghi ảnh) |
+| 4. Chấm champion trên toàn bộ tập test | `python scripts/evaluate.py --genome demo/champion_genome.pkl --config demo/neat_config.ini --workers 4 --out output/demo/test_results.json` | đo 5–7 giây, kể cả ghi ảnh và trang HTML (số đo ngày 24/11/2026, khi tập test có 250 bản đồ; ngày 25/11/2026 với 252 bản đồ và 2 worker: 7 giây) |
 | 5. Huấn luyện thử M6 (5 thế hệ) | `python scripts/train_neat.py --generations 5 --workers 4 --val-every 5 --output-dir output/demo/train_m6` | đo 3 phút với 2 worker (khoảng 35 giây mỗi thế hệ); ước tính 1,5–2 phút với 4 worker |
-| 6. Vẽ biểu đồ benchmark | `python scripts/plot_benchmark.py --from-json docs/benchmark/benchmark_results.json --out output/demo/benchmark_sr.png` | đo 3 giây với `docs/benchmark/benchmark_results.json` của benchmark (9 phương pháp, mục 10), gồm biểu đồ, ảnh bảng và trang HTML |
-| 7. Demo: champion trên 4 bản đồ BARN | `python scripts/demo.py --maps-per-level 0 --barn 4 --report output/demo/ket_qua_cau_hinh_7` | ước tính 32 giây với champion hiện tại (766 bước; 3/4 bản đồ tới đích, 1 va chạm); tối đa 1,2 phút |
+| 6. Vẽ biểu đồ benchmark | `python scripts/plot_benchmark.py --from-json docs/benchmark/benchmark_results.json --out output/demo/benchmark_sr.png` | đo 2,5–3 giây với `docs/benchmark/benchmark_results.json` của benchmark (10 phương pháp, mục 10), gồm biểu đồ, ảnh bảng và trang HTML |
+| 7. Demo: champion trên BARN và mê cung Lehman | `python scripts/demo.py --maps-per-level 0 --barn 4 --lehman --report output/demo/ket_qua_cau_hinh_7` | ước tính 38 giây với champion hiện tại (861 bước; BARN 3/4 tới đích, 1 va chạm; 2 mê cung Lehman đều va chạm); tối đa 1,8 phút |
 | 8. Xem champion vừa huấn luyện | `python scripts/demo.py --run-dir output/demo/train_m6 --levels 1,2 --maps-per-level 1 --report output/demo/ket_qua_cau_hinh_8` | đo 13 giây (cần chạy cấu hình 5 trước) |
 | 9. Xuất GIF demo (không mở cửa sổ) | `python scripts/demo.py --no-window --save-gif output/demo/demo.gif --levels 1,2,3,4 --report output/demo/ket_qua_cau_hinh_9` | đo 9 giây, GIF 1,8 MB (301 khung hình; 3/4 bản đồ tới đích, cấp 3 hết giờ) |
 
@@ -322,11 +322,11 @@ activate (môi trường tên `venv` thì gõ `venv\Scripts\python`). Thứ tự
 $env:PYTHONUTF8 = "1"
 .venv\Scripts\python tests\test_fixes.py
 .venv\Scripts\python scripts\demo.py --levels 1,2,3,4 --maps-per-level 2 --report output\demo\ket_qua_cau_hinh_2
-.venv\Scripts\python scripts\demo.py --levels 4 --maps-per-level 2 --report output\demo\ket_qua_cau_hinh_3
+.venv\Scripts\python scripts\demo.py --controller apf --levels 4 --maps-per-level 2 --report output\demo\ket_qua_cau_hinh_3
 .venv\Scripts\python scripts\evaluate.py --genome demo\champion_genome.pkl --config demo\neat_config.ini --workers 4 --out output\demo\test_results.json
 .venv\Scripts\python scripts\train_neat.py --generations 5 --workers 4 --val-every 5 --output-dir output\demo\train_m6
 .venv\Scripts\python scripts\plot_benchmark.py --from-json docs\benchmark\benchmark_results.json --out output\demo\benchmark_sr.png
-.venv\Scripts\python scripts\demo.py --maps-per-level 0 --barn 4 --report output\demo\ket_qua_cau_hinh_7
+.venv\Scripts\python scripts\demo.py --maps-per-level 0 --barn 4 --lehman --report output\demo\ket_qua_cau_hinh_7
 .venv\Scripts\python scripts\demo.py --run-dir output\demo\train_m6 --levels 1,2 --maps-per-level 1 --report output\demo\ket_qua_cau_hinh_8
 .venv\Scripts\python scripts\demo.py --no-window --save-gif output\demo\demo.gif --levels 1,2,3,4 --report output\demo\ket_qua_cau_hinh_9
 ```
@@ -358,7 +358,7 @@ Mỗi lệnh in đường dẫn ảnh và trang HTML vừa ghi ở cuối (mục
 | Cấu hình 6 báo `không đọc được docs\benchmark\benchmark_results.json` | File này chỉ có sau khi lượt benchmark chạy xong (mục 10). |
 | `Lỗi: chưa có champion mặc định của demo` | Thiếu `demo/champion_genome.pkl` hoặc `demo/neat_config.ini`: chép lại theo `demo/README.md`. |
 | `Cảnh báo: không ghi được ảnh và trang HTML ...` ở cuối terminal | Phần vẽ ảnh gặp lỗi (thường do thiếu `matplotlib` hoặc thư mục `output/demo/` đang bị khóa); các kết quả chính (bảng ở terminal, file JSON, GIF, champion) vẫn ghi bình thường. Cài lại `requirements.txt`, rồi chạy lại cấu hình đó. |
-| `demo.py: error: unrecognized arguments: --lehman` | Tập mê cung Lehman–Stanley đã bỏ khỏi code ngày 24/11/2026; bỏ `--lehman` khỏi lệnh (cấu hình 7 giờ dùng `--barn 4`). |
+| `demo.py: error: unrecognized arguments: --controller apf` (cấu hình 3) hoặc `--lehman` (cấu hình 7); `Cảnh báo: không có mê cung Lehman trong data/maps/test_lehman`; bảng của cấu hình 4 thiếu dòng `test_lehman` | Mã hoặc dữ liệu là bản cũ (commit 82cd802 tạm bỏ APF và 2 mê cung Lehman) còn `.vscode/launch.json` là bản mới. Lấy lại cả thư mục dự án từ cùng một bản mới nhất (mục 1.4). |
 
 Lệnh cài đúng các bản thư viện đã kiểm thử (chạy ở thư mục gốc repo; môi trường tên `venv` thì đổi `.venv` thành `venv`):
 
@@ -393,7 +393,7 @@ Lệnh cài đúng các bản thư viện đã kiểm thử (chạy ở thư m�
 ## 10. Khi benchmark chạy xong (người chuẩn bị demo làm)
 
 Gọi thư mục kết quả benchmark là `<bench>` (nằm ngoài repo): mỗi lượt chạy ở `<bench>/<tên>/seed_<k>/`, với các
-tên `ga_b1`, `ga_b2`, `R0`, `M1` … `M6`; mỗi thư mục seed có `test_results.json`.
+tên `R0`, `M1` … `M6`, `ga_b1`, `ga_b2`, `apf`; mỗi thư mục seed có `test_results.json`.
 Các lệnh dưới đây chạy ở thư mục gốc repo.
 
 1. **Champion cho demo:** chọn seed của M6 có `champion_val_mean` cao nhất trong `<bench>/M6/seed_<k>/summary.json`
@@ -403,20 +403,21 @@ Các lệnh dưới đây chạy ở thư mục gốc repo.
 
    ```powershell
    $B = "D:\bench_out"
-   .venv\Scripts\python scripts\plot_benchmark.py --runs "R0=$B/R0" "M1=$B/M1" "M2=$B/M2" "M3=$B/M3" "M4=$B/M4" "M5=$B/M5" "M6=$B/M6" "GA B1=$B/ga_b1" "GA B2=$B/ga_b2" `
-     --metric SR --sets test/level_1,test/level_2,test/level_3,test/level_4,test_barn,mean_levels_1_4 `
+   .venv\Scripts\python scripts\plot_benchmark.py --runs "R0=$B/R0" "M1=$B/M1" "M2=$B/M2" "M3=$B/M3" "M4=$B/M4" "M5=$B/M5" "M6=$B/M6" "GA B1=$B/ga_b1" "GA B2=$B/ga_b2" "APF=$B/apf" `
+     --metric SR --sets test/level_1,test/level_2,test/level_3,test/level_4,test_barn,test_lehman,mean_levels_1_4 `
      --json docs/benchmark/benchmark_results.json --md docs/benchmark/benchmark_SR.md --out docs/benchmark/benchmark_SR.png
    ```
 
    Lệnh in bảng, ghi bảng markdown (`benchmark_SR.md`), ảnh biểu đồ (`benchmark_SR.png`), ảnh bảng
    (`benchmark_SR_bang.png`: mỗi ô là SR trung bình và min–max theo seed, nền xanh càng đậm SR càng cao, NEAT trước,
    baseline sau), trang HTML (`benchmark_SR.html`, hai ảnh nhúng sẵn) và file JSON mà cấu hình 6 đọc (`--from-json`
-   chỉ nhận file do `--json` ghi; file JSON chỉ giữ các tập trong `--sets`). Tập `test_lehman` không còn trong
-   `--sets` vì đã bỏ khỏi code ngày 24/11/2026 theo yêu cầu của nhóm; các file trong `docs/benchmark/` đã tạo lại
-   bằng đúng lệnh trên cùng ngày (số của các tập còn lại không đổi). Ngày 25/11/2026 nhóm bỏ các baseline tìm kiếm ngẫu nhiên (B3), luật phản xạ (B4) và APF (B5) khỏi code; `docs/benchmark/` được vẽ lại từ file JSON đã bỏ ba phương pháp này, số của NEAT và GA không đổi. Tên trong `--runs` là tên trên biểu đồ, trong bảng và trong file JSON, khớp *Tên các phương pháp
-   trong biểu đồ* ở mục 4. Thứ tự trong `--runs` là thứ tự cột và quyết định màu: NEAT trước (R0, M1–M6), rồi các
-   baseline theo thứ tự GA B1, GA B2; giữ đúng thứ tự này để màu khớp
-   với `docs/benchmark/benchmark_SR.png` đã tạo ngày 24/11/2026. Bảng và nhãn số trên cột dùng dấu phẩy thập phân;
+   chỉ nhận file do `--json` ghi; file JSON chỉ giữ các tập trong `--sets`). Ngày 25/11/2026 nhóm bỏ hai baseline
+   tìm kiếm ngẫu nhiên (B3) và luật phản xạ (B4) khỏi code (thư mục `random`, `rule` trong `<bench>` không dùng
+   nữa), giữ APF (B5) và tập `test_lehman`; các file trong `docs/benchmark/` đã tạo lại bằng đúng lệnh trên cùng
+   ngày (số của NEAT và GA không đổi). Tên trong `--runs` là tên trên biểu đồ, trong bảng và trong file JSON, khớp
+   *Tên các phương pháp trong biểu đồ* ở mục 4. Thứ tự trong `--runs` là thứ tự cột và quyết định màu: NEAT trước
+   (R0, M1–M6), rồi các baseline theo thứ tự GA B1, GA B2, APF; giữ đúng thứ tự này để màu khớp với
+   `docs/benchmark/benchmark_SR.png`. Bảng và nhãn số trên cột dùng dấu phẩy thập phân;
    file JSON vẫn lưu số (tỉ lệ 0–1). Trong file JSON, đường dẫn tuyệt đối nằm ngoài thư mục hiện tại chỉ giữ 2 cấp cuối
    (`.../bench_out/M6`), nên file không mang tên người dùng của máy chạy benchmark. Phương pháp chưa có kết quả bị
    bỏ qua kèm cảnh báo: khi đó chờ benchmark xong rồi chạy lại.
@@ -424,7 +425,7 @@ Các lệnh dưới đây chạy ở thư mục gốc repo.
    tra ngân sách ghi ở mục 4 (150 thế hệ, 180.000 lượt đánh giá mỗi lượt chạy) khớp với báo cáo.
 4. **Đưa lên GitHub:** commit và push các file demo (`.vscode/`, `demo/`, `scripts/demo.py`,
    `scripts/plot_benchmark.py`, `src/visual_report.py`, `docs/huong_dan_demo_vscode.md`), `docs/benchmark/` và
-   `docs/benchmark_sau_sua_loi.md`; thêm vào `README.md` một dòng dẫn tới tài liệu này. Từ lúc đó mới dùng được
-   cách `git clone` ở mục 1.4; sửa lại lưu ý ở đầu tài liệu và mục 1.4 (bỏ câu "chưa được đưa lên GitHub").
+   `docs/benchmark_sau_sua_loi.md` (lần đầu ngày 25/11/2026, commit `82cd802`); `README.md` có dòng dẫn tới tài liệu
+   này. Sau mỗi lần thay champion hoặc tạo lại `docs/benchmark/`, commit và push lại các file đã đổi.
 5. Chạy lại cấu hình 4, 6 và 9 (chấm champion mới, vẽ biểu đồ, ghi lại GIF dự phòng) và sửa số đo thời gian ở
    mục 6 nếu khác nhiều.

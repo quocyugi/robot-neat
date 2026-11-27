@@ -8,7 +8,7 @@
 
 ---
 
-## Cấu trúc thư mục đề xuất
+## Cấu trúc thư mục đề xuất (lúc lập kế hoạch, trong thư mục slide `Slide TTTH/`)
 
 ```
 Slide TTTH/
@@ -51,6 +51,8 @@ Slide TTTH/
 └── src/                                 # Code thực tế (khi bắt tay code)
     └── ...
 ```
+
+Trong repo, `brainstorm/` nằm ở thư mục gốc; `01_env/observation_space.md` và `05_defense/related_work.md` chưa viết (phần quan sát 15D nằm trong `01_env/ray_casting.md`); `SCRIPT_THUYET_TRINH_NEAT_ROBOT.md` không nằm trong repo.
 
 ---
 
@@ -118,7 +120,7 @@ Mỗi file nên có cấu trúc sau:
 
 ```
  ┌──────────────┐     ┌──────────────┐     ┌──────────────┐
- │  Tra tài liệu│────>│  Hỏi 1 chủ  │────>│  Lưu file .md│
+ │  Tra tài liệu│────>│  Chọn 1 chủ │────>│  Lưu file .md│
  │  + đối chiếu │     │  đề cụ thể   │     │  vào đúng    │
  │  overview.md  │     │              │     │  thư mục     │
  └──────────────┘     └──────────────┘     └──────┬───────┘

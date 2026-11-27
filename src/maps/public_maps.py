@@ -1,10 +1,10 @@
 """
-Public Map Dataset — BARN
-==========================
-Đọc bản đồ của bộ dữ liệu công khai BARN và chuyển về đúng schema JSON mà
+Public Map Datasets — BARN & Lehman–Stanley Mazes
+==================================================
+Đọc bản đồ từ 2 bộ dữ liệu công khai và chuyển về đúng schema JSON mà
 RobotNavEnv / validator của dự án đang dùng (bounds, start, goal, segments).
 
-BARN — Benchmark for Autonomous Robot Navigation (Perille et al., 2020)
+1. BARN — Benchmark for Autonomous Robot Navigation (Perille et al., 2020)
    300 môi trường Gazebo cho robot Jackal (0.508 m × 0.430 m). Mỗi vật cản là
    một trụ tròn r = 0.075 m đặt ở tâm một ô lưới 0.15 m. Cả world là lưới
    30 ô (trục x) × 64 ô (trục y):
@@ -13,9 +13,13 @@ BARN — Benchmark for Autonomous Robot Navigation (Perille et al., 2020)
      - hàng j = 34..63     : vùng vật cản sinh bằng cellular automaton (30 × 30 ô)
    Robot xuất phát tại (-2.25, 3.0) quay mặt về +y, đích ở (-2.25, 13.0).
 
+2. Mê cung "medium" và "hard" của Lehman & Stanley (2011), dùng trong bài báo
+   Novelty Search gốc. Mỗi tường là một đoạn thẳng (đơn vị pixel), robot gốc
+   có bán kính 8 đơn vị.
+
 Reference
 ---------
-- overview.md §5.2 (Tập Test đặc biệt: 50 bản đồ BARN)
+- overview.md §5.2 (Tập Test đặc biệt: 2 mê cung Lehman & Stanley + 50 bản đồ BARN)
 - overview.md §6.1 Q3 (tổng quát hoá zero-shot sang bản đồ BARN chưa từng thấy)
 """
 
@@ -41,6 +45,9 @@ BARN_FIELD_J0: int = 34            # hàng đầu tiên của vùng vật cản
 BARN_FIELD_LEN: int = 30           # số hàng của vùng vật cản
 BARN_RUN_UP: float = 2.1           # m, từ điểm xuất phát (y = 3.0) tới mép vùng vật cản (y = 5.1)
 BARN_START_HEADING: float = math.pi / 2   # robot BARN quay mặt về +y
+
+# ── Hằng số của mê cung Lehman–Stanley ──────────────────────────────────
+LEHMAN_ROBOT_RADIUS: float = 8.0   # bán kính robot trong mô phỏng gốc (pixel)
 
 
 # ======================================================================
@@ -196,3 +203,106 @@ def _is_vertical_edge(grid: np.ndarray, i: int, j: int) -> bool:
 
 def _is_horizontal_edge(grid: np.ndarray, i: int, j: int) -> bool:
     return _cell_value(grid, i, j - 1) != _cell_value(grid, i, j)
+
+
+# ======================================================================
+#  Mê cung Lehman & Stanley
+# ======================================================================
+
+def read_lehman_maze(txt_path: str | Path) -> dict:
+    """Đọc file mê cung dạng của Lehman & Stanley (medium_maze.txt, hard_maze.txt).
+
+    Định dạng (bỏ dòng trống và dòng bắt đầu bằng #):
+        dòng 1 : số tường N
+        dòng 2 : toạ độ xuất phát  x y
+        dòng 3 : góc hướng ban đầu (độ)
+        dòng 4 : toạ độ lối ra (đích)  x y
+        N dòng : mỗi tường  x1 y1 x2 y2
+    """
+    lines = []
+    with open(txt_path, "r", encoding="utf-8") as f:
+        for raw in f:
+            text = raw.strip()
+            if text == "" or text.startswith("#"):
+                continue
+            lines.append(text)
+
+    n_walls = int(lines[0])
+    start = [float(v) for v in lines[1].split()]
+    heading_deg = float(lines[2])
+    goal = [float(v) for v in lines[3].split()]
+
+    walls = []
+    for k in range(n_walls):
+        values = [float(v) for v in lines[4 + k].split()]
+        walls.append(values)
+    if len(lines) != 4 + n_walls:
+        raise ValueError(f"{txt_path}: số dòng tường không khớp với N = {n_walls}")
+
+    return {"start": start, "heading_deg": heading_deg, "goal": goal, "walls": walls}
+
+
+def lehman_to_map(maze: dict, name: str) -> dict:
+    """Đặt mê cung vào giữa arena với tỉ lệ sao cho robot gốc (8 px) = robot nhóm (0.25 m).
+
+    Tỉ lệ 0.25 / 8 = 0.03125 m/pixel giữ nguyên độ rộng hành lang so với
+    kích thước robot như trong bài báo. File gốc dùng toạ độ màn hình (trục y
+    hướng xuống) nên lật trục y để hình giống hình trong bài báo; lật gương
+    không làm thay đổi độ khó.
+    """
+    scale = ROBOT_RADIUS / LEHMAN_ROBOT_RADIUS
+
+    # Khung bao của toàn bộ tường
+    xs = []
+    ys = []
+    for w in maze["walls"]:
+        xs.append(w[0])
+        xs.append(w[2])
+        ys.append(w[1])
+        ys.append(w[3])
+    center = (min(xs) + max(xs)) / 2, (min(ys) + max(ys)) / 2
+    width_m = (max(xs) - min(xs)) * scale
+    height_m = (max(ys) - min(ys)) * scale
+    if width_m > ARENA_W or height_m > ARENA_H:
+        raise ValueError(f"{name}: mê cung {width_m:.2f} x {height_m:.2f} m không vừa arena")
+
+    maze_segs = []
+    for w in maze["walls"]:
+        p1 = _px_to_arena(w[0], w[1], center, scale)
+        p2 = _px_to_arena(w[2], w[3], center, scale)
+        maze_segs.append([p1, p2])
+    segments = arena_wall_segments(ARENA_W, ARENA_H).tolist() + maze_segs
+
+    return {
+        "map_id": f"lehman_{name}",
+        "source": "Lehman-Stanley",
+        "source_index": None,
+        "difficulty_level": None,          # điền sau khi tính τ
+        "seed": None,
+        "bounds": [ARENA_W, ARENA_H],
+        "start": _px_to_arena(maze["start"][0], maze["start"][1], center, scale),
+        "goal": _px_to_arena(maze["goal"][0], maze["goal"][1], center, scale),
+        # lật trục y thì góc hướng cũng đổi dấu
+        "start_heading": -math.radians(maze["heading_deg"]) + 0.0,
+        "robot_radius": ROBOT_RADIUS,
+        "inflation_radius": INFLATION_RADIUS,
+        "source_info": {
+            "maze_file": f"{name}.txt",
+            "scale_m_per_px": scale,
+            "maze_size_m": [round(width_m, 3), round(height_m, 3)],
+            "placement": "co giãn 0.25/8 m mỗi pixel, lật trục y, đặt giữa arena",
+        },
+        "segments": segments,
+    }
+
+
+def _px_to_arena(
+    px: float, py: float, center: tuple[float, float], scale: float,
+) -> list[float]:
+    """Đổi 1 điểm (pixel, y hướng xuống) sang toạ độ arena (mét, y hướng lên).
+
+    Tâm mê cung trùng tâm arena.
+    """
+    x = (px - center[0]) * scale + ARENA_W / 2
+    y = (center[1] - py) * scale + ARENA_H / 2
+    return [round(x, 4), round(y, 4)]

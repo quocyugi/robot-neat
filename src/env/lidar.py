@@ -15,13 +15,25 @@ Reference
 Performance
 -----------
 > 20 000 FPS on a single CPU core (12 rays × ~200 segments).
+
+Hai kiểu cảm biến (chọn bằng NEAT_LIDAR_MODE, xem src/env/kinematics.py)
+-------------------------------------------------------------------------
+- "rays" (mặc định): cast_rays, N tia điểm.
+- "sector": cast_sectors. Đầu vào i = 1 - d_i / R (R = 3 m, cắt về [0, 1], float32),
+  d_i = khoảng cách Euclid nhỏ nhất từ tâm robot tới MỌI điểm vật cản nằm trong hình
+  quạt ĐÓNG [theta_i - pi/N, theta_i + pi/N] (cả hai cạnh thuộc hình quạt; điểm nằm
+  đúng trên cạnh chung của hai hình quạt kề nhau được tính cho cả hai). Bằng giới hạn
+  của vô số tia trong hình quạt (điểm gần nhất của một hình quạt không bao giờ bị che),
+  nên vật cản mảnh lọt giữa hai tia điểm vẫn được thấy. Tính giải tích, vector hóa trên
+  (N, số đoạn): không bắn tia dày trong vòng lặp lượt chạy.
+scan() gọi đúng hàm theo self.mode; RobotNavEnv gọi scan().
 """
 
 from __future__ import annotations
 
 import numpy as np
 
-from src.env.kinematics import LIDAR_NUM_RAYS, LIDAR_MAX_RANGE
+from src.env.kinematics import LIDAR_MODE, LIDAR_MODES, LIDAR_NUM_RAYS, LIDAR_MAX_RANGE
 
 
 class FastLiDAR2D:
@@ -31,6 +43,7 @@ class FastLiDAR2D:
         self,
         num_rays: int = LIDAR_NUM_RAYS,
         max_range: float = LIDAR_MAX_RANGE,
+        mode: str = LIDAR_MODE,
     ):
         self.num_rays = num_rays
         self.max_range = max_range
@@ -38,10 +51,34 @@ class FastLiDAR2D:
         self.ray_angles: np.ndarray = np.linspace(
             0, 2 * np.pi, num_rays, endpoint=False
         )
+        if mode not in LIDAR_MODES:
+            raise ValueError(f"mode={mode!r}: chỉ nhận {LIDAR_MODES}")
+        if mode == "sector" and num_rays < 2:
+            raise ValueError("kiểu 'sector' cần num_rays >= 2")
+        self.mode = mode
+        # Cạnh dưới của hình quạt i ở góc 2*pi*i/N - pi/N (so với hướng robot);
+        # cạnh trên của hình quạt i là cạnh dưới của hình quạt i + 1.
+        # Chỉ tính khi num_rays > 0: kiểu "rays" dựng được với mọi num_rays, kể cả 0
+        # (không chia cho 0; sector_edges khi đó là mảng rỗng như ray_angles).
+        if num_rays > 0:
+            self.sector_edges: np.ndarray = self.ray_angles - np.pi / num_rays
+        else:
+            self.sector_edges = np.empty(0)
 
     # ------------------------------------------------------------------ #
     #  Public API                                                         #
     # ------------------------------------------------------------------ #
+    def scan(
+        self,
+        robot_pos: np.ndarray,
+        robot_theta: float,
+        segments: np.ndarray,
+    ) -> np.ndarray:
+        """Độ gần (num_rays,) theo kiểu đã chọn: tia điểm (mặc định) hoặc hình quạt."""
+        if self.mode == "sector":
+            return self.cast_sectors(robot_pos, robot_theta, segments)
+        return self.cast_rays(robot_pos, robot_theta, segments)
+
     def cast_rays(
         self,
         robot_pos: np.ndarray,
@@ -115,6 +152,90 @@ class FastLiDAR2D:
         # Proximity Index:  0 (safe)  →  1 (touching)
         proximity = 1.0 - min_t
         return proximity.astype(np.float32)
+
+    # ------------------------------------------------------------------ #
+    #  Cảm biến hình quạt (NEAT_LIDAR_MODE = "sector")                     #
+    # ------------------------------------------------------------------ #
+    def cast_sectors(
+        self,
+        robot_pos: np.ndarray,
+        robot_theta: float,
+        segments: np.ndarray,
+    ) -> np.ndarray:
+        """Độ gần theo hình quạt: 1 - min(d_i, R) / R, float32, shape (num_rays,).
+
+        d_i xem sector_distances(); không có điểm vật cản nào trong tầm R thì 0.
+        """
+        d = self.sector_distances(robot_pos, robot_theta, segments)
+        proximity = 1.0 - np.minimum(d, self.max_range) / self.max_range
+        return proximity.astype(np.float32)
+
+    def sector_distances(
+        self,
+        robot_pos: np.ndarray,
+        robot_theta: float,
+        segments: np.ndarray,
+    ) -> np.ndarray:
+        """d_i (m, float64): khoảng cách nhỏ nhất từ tâm robot p tới điểm vật cản trong
+        hình quạt ĐÓNG i = [theta_i - pi/N, theta_i + pi/N]; inf nếu không có điểm nào.
+
+        Với đoạn A→B, q(t) = A - p + t (B - A), t ∈ [0, 1]. Điểm q ở trong hình quạt
+        (góc mở 2*pi/N <= pi) khi cross(u_lo, q) >= 0 và cross(q, u_hi) >= 0 (bất đẳng
+        thức không chặt: hình quạt đóng); cả hai tuyến tính theo t nên cho một khoảng
+        đóng [t_lo, t_hi] ⊂ [0, 1]. |q(t)|^2 lồi theo t: kẹp tham số điểm gần nhất (không
+        ràng buộc) vào khoảng đó rồi lấy khoảng cách. Khoảng rỗng = đoạn không có điểm
+        nào trong hình quạt. Cạnh chung của hai hình quạt kề nhau dùng cùng một bất
+        phương trình đổi dấu (cùng nghiệm r_k = -ca/cs, cùng phép so sánh không chặt),
+        nên mọi điểm thuộc ít nhất một hình quạt, và điểm nằm đúng trên cạnh chung được
+        tính cho CẢ HAI hình quạt. "Đúng trên cạnh" hiểu theo chính các phép tính dấu
+        phẩy động ở đây: đoạn chỉ nằm dọc theo một cạnh trong phạm vi sai số làm tròn
+        thì làm tròn quyết định phần nào của đoạn thuộc hình quạt nào (một hình quạt có
+        thể đọc một điểm xa hơn của cùng đoạn), còn giá trị nhỏ nhất của hai hình quạt
+        kề nhau vẫn đúng.
+        """
+        n = self.num_rays
+        if segments.shape[0] == 0:
+            return np.full(n, np.inf)
+        edges = robot_theta + self.sector_edges                   # (N,)
+        c, s = np.cos(edges), np.sin(edges)
+        # N + 1 cạnh: cạnh N chính là cạnh 0 (cùng giá trị) để hình quạt N - 1 khép vòng
+        ex = np.concatenate((c, c[:1]))[:, np.newaxis]            # (N+1, 1)
+        ey = np.concatenate((s, s[:1]))[:, np.newaxis]
+
+        A = segments[:, 0, :]                                     # (M, 2)
+        ax = A[:, 0] - robot_pos[0]                               # (M,)  a = A - p
+        ay = A[:, 1] - robot_pos[1]
+        sx = segments[:, 1, 0] - A[:, 0]                          # (M,)  s = B - A
+        sy = segments[:, 1, 1] - A[:, 1]
+
+        # f_k(t) = cross(e_k, q(t)) = ca[k] + t cs[k]                   (N+1, M)
+        # Hình quạt i: f_i(t) >= 0 (cạnh dưới e_i) và cross(q, e_{i+1}) = -f_{i+1}(t) >= 0
+        ca = ex * ay - ey * ax
+        cs = ex * sy - ey * sx
+        pos = cs > 0.0
+        neg = cs < 0.0
+        flat = cs == 0.0                                          # đoạn song song đúng với cạnh: f_k không đổi
+        any_flat = bool(flat.any())
+        r = -ca / (np.where(flat, 1.0, cs) if any_flat else cs)   # nghiệm của f_k(t) = 0
+        # f_i >= 0: t >= r_i nếu cs_i > 0, t <= r_i nếu cs_i < 0, cần ca_i >= 0 nếu cs_i = 0
+        # f_{i+1} <= 0: t <= r_{i+1} nếu cs > 0, t >= r_{i+1} nếu cs < 0, cần ca_{i+1} <= 0 nếu cs = 0
+        t_lo = np.maximum(np.maximum(np.where(pos[:-1], r[:-1], -np.inf), np.where(neg[1:], r[1:], -np.inf)), 0.0)
+        t_hi = np.minimum(np.minimum(np.where(neg[:-1], r[:-1], np.inf), np.where(pos[1:], r[1:], np.inf)), 1.0)
+        inside = t_lo <= t_hi                                     # (N, M)
+        if any_flat:
+            inside &= ~((flat[:-1] & (ca[:-1] < 0.0)) | (flat[1:] & (ca[1:] > 0.0)))
+
+        # |q(t)|^2 = h2 + ss (t - t*)^2: h2 = khoảng cách^2 tới đường thẳng AB, t* = chân
+        # đường vuông góc; kẹp t* vào [t_lo, t_hi]. Đoạn suy biến (A = B): t* = 0, h2 = |a|^2.
+        ss = sx * sx + sy * sy                                    # (M,)
+        nz = ss > 0.0
+        ss1 = np.where(nz, ss, 1.0)
+        t_star = np.where(nz, -(ax * sx + ay * sy) / ss1, 0.0)
+        cr = ax * sy - ay * sx
+        h2 = np.where(nz, cr * cr / ss1, ax * ax + ay * ay)
+        dt = np.minimum(np.maximum(t_star, t_lo), t_hi) - t_star  # (N, M)
+        d2 = np.where(inside, h2 + ss * (dt * dt), np.inf)
+        return np.sqrt(np.min(d2, axis=1))
 
 
 # ------------------------------------------------------------------ #

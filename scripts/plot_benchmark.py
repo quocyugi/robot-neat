@@ -56,7 +56,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-DEFAULT_SETS = ("test/level_1", "test/level_2", "test/level_3", "test/level_4", "test_barn")
+DEFAULT_SETS = ("test/level_1", "test/level_2", "test/level_3", "test/level_4", "test_barn", "test_lehman")
 LEVELS = ("test/level_1", "test/level_2", "test/level_3", "test/level_4")
 MEAN_SET = "mean_levels_1_4"
 
@@ -67,7 +67,7 @@ METRICS = {
             "better": "Cao hơn là tốt hơn"},
     "timeout": {"name": "Tỉ lệ hết giờ", "axis": "Tỉ lệ hết giờ (%)", "better": "Thấp hơn là tốt hơn"},
 }
-SET_LABELS = {"test_barn": "BARN", MEAN_SET: "TB cấp 1–4"}
+SET_LABELS = {"test_barn": "BARN", "test_lehman": "Lehman", MEAN_SET: "TB cấp 1–4"}
 
 # Light chart palette. The 8 categorical slots keep a fixed order: adjacent pairs stay
 # apart under protan/deutan simulation (worst OKLab dE 9.1) and for normal vision

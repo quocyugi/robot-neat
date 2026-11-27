@@ -8,13 +8,14 @@ Gom toàn bộ dữ liệu của đề tài về cùng một định dạng JSON
       chọn 50 bản đồ trải đều từ dễ tới khó làm tập test zero-shot (câu hỏi Q3).
         → data/maps/barn_all/   (mọi bản đồ BARN robot đi lọt)
         → data/maps/test_barn/  (50 bản đồ test)
-  [2] Kiểm tra bộ bản đồ tự sinh data/maps/{train,val,test}/level_k/:
+  [2] Mê cung Lehman & Stanley (medium, hard) → data/maps/test_lehman/
+  [3] Kiểm tra bộ bản đồ tự sinh data/maps/{train,val,test}/level_k/:
       đủ trường, nằm trong arena, |SG| ≥ 5 m, S/G cách vật cản ≥ r + 0.2 m,
       A* có đường, τ đúng dải của cấp, không trùng lặp giữa các tập (rò rỉ)
-  [2b] Kiểm tra bằng mô phỏng cho MỌI bản đồ: robot bám theo đường A* trong
+  [3b] Kiểm tra bằng mô phỏng cho MỌI bản đồ: robot bám theo đường A* trong
       chính RobotNavEnv phải tới đích, không va chạm, trong 500 bước
-  [3] Ghi data/maps/manifest.csv (1 dòng / bản đồ), reports/data/summary.json
-      và các hình minh hoạ trong reports/data/figures/ (01, 02, 04, 05)
+  [4] Ghi data/maps/manifest.csv (1 dòng / bản đồ), reports/data/summary.json
+      và các hình minh hoạ trong reports/data/figures/
 
 Reference
 ---------
@@ -52,13 +53,19 @@ from src.env.kinematics import ARENA_W, ARENA_H, DT, ROBOT_RADIUS, V_MAX, WHEEL_
 from src.env.robot_env import RobotNavEnv
 from src.maps.generator import _MIN_SG_DIST, _SG_CLEARANCE, _TAU_RANGES
 from src.maps.map_metrics import assign_level_from_tau, compute_map_metrics
-from src.maps.public_maps import barn_to_map, read_barn_world
+from src.maps.public_maps import (
+    barn_to_map,
+    lehman_to_map,
+    read_barn_world,
+    read_lehman_maze,
+)
 from src.maps.validator import INFLATION_RADIUS
 
 
 # ── Hằng số ──────────────────────────────────────────────────────────────
 N_BARN_WORLDS = 300
 N_BARN_TEST = 50                      # overview §5.2: "50 bản đồ trích từ BARN"
+LEHMAN_MAZES = ["medium_maze", "hard_maze"]
 SPLITS = ["train", "val", "test"]
 LEVELS = [1, 2, 3, 4]
 EXPECTED_PER_LEVEL = {"train": 250, "val": 25, "test": 50}
@@ -109,10 +116,11 @@ def main():
 
     t0 = time.time()
 
-    # [1] Dữ liệu công khai (BARN)
+    # [1] + [2] Dữ liệu công khai
     barn_maps, barn_dropped = process_barn(raw_dir, data_dir)
+    lehman_maps = process_lehman(raw_dir, data_dir)
 
-    # [2] Kiểm tra bộ bản đồ tự sinh
+    # [3] Kiểm tra bộ bản đồ tự sinh
     gen_maps, gen_rows = audit_generated_maps(data_dir)
 
     # Gom tất cả thành các dòng của manifest
@@ -126,18 +134,20 @@ def main():
             split = "barn_extra"
             folder = "barn_all"
         rows.append(make_row(m, split, data_dir / folder / f"{m['map_id']}.json", []))
+    for m in lehman_maps:
+        rows.append(make_row(m, "test_lehman", data_dir / "test_lehman" / f"{m['map_id']}.json", []))
 
     # Trùng lặp nội dung giữa các tập (rò rỉ dữ liệu)
     dup_counts = mark_duplicates(rows)
 
-    # [2b] Mô phỏng robot bám đường A* (thứ tự all_maps khớp với rows)
-    all_maps = list(gen_maps) + list(barn_maps)
+    # [3b] Mô phỏng robot bám đường A* (thứ tự all_maps khớp với rows)
+    all_maps = list(gen_maps) + list(barn_maps) + list(lehman_maps)
     oracle_fail = check_with_simulation(all_maps, rows)
 
-    # [3] Ghi kết quả
+    # [4] Ghi kết quả
     manifest_path = data_dir / "manifest.csv"
     write_manifest(rows, manifest_path)
-    summary = build_summary(rows, barn_maps, barn_dropped, dup_counts)
+    summary = build_summary(rows, barn_maps, barn_dropped, lehman_maps, dup_counts)
     summary["mo_phong_bam_duong_Astar"] = {
         "so_ban_do": len(all_maps),
         "khong_toi_dich": oracle_fail,
@@ -146,8 +156,8 @@ def main():
     with open(summary_path, "w", encoding="utf-8") as f:
         json.dump(summary, f, indent=2, ensure_ascii=False)
 
-    print("[3] Vẽ hình minh hoạ")
-    figures = make_figures(gen_maps, barn_maps, rows, fig_dir)
+    print("[4] Vẽ hình minh hoạ")
+    figures = make_figures(gen_maps, barn_maps, lehman_maps, rows, fig_dir)
 
     print_summary(summary)
     print(f"\nĐã ghi: {manifest_path}")
@@ -265,11 +275,43 @@ def select_evenly(maps: list[dict], n_pick: int) -> list[str]:
 
 
 # ======================================================================
-#  [2] Kiểm tra bộ bản đồ tự sinh
+#  [2] Mê cung Lehman & Stanley
+# ======================================================================
+
+def process_lehman(raw_dir: Path, data_dir: Path) -> list[dict]:
+    print("[2] Mê cung Lehman & Stanley")
+    out_dir = data_dir / "test_lehman"
+    clear_json_files(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    maps = []
+    for name in LEHMAN_MAZES:
+        txt_path = raw_dir / "lehman_stanley" / f"{name}.txt"
+        if not txt_path.exists():
+            print(f"  Không thấy {txt_path} — hãy chạy scripts/download_public_data.py trước")
+            continue
+        map_data = lehman_to_map(read_lehman_maze(txt_path), name)
+        metrics = compute_map_metrics(map_data["segments"], map_data["start"], map_data["goal"])
+        if metrics is None:
+            print(f"  {name}: robot r = 0.25 m KHÔNG đi lọt — bỏ qua")
+            continue
+        map_data["optimal_path"] = metrics.pop("optimal_path")
+        map_data["metrics"] = metrics
+        map_data["difficulty_level"] = assign_level_from_tau(metrics["tortuosity"])
+        save_json(map_data, out_dir / f"{map_data['map_id']}.json")
+        maps.append(map_data)
+        print(f"  {name}: τ = {metrics['tortuosity']:.2f}, đường tối ưu "
+              f"{metrics['optimal_path_length']:.2f} m, khe hẹp nhất "
+              f"{metrics['bottleneck_clearance']:.2f} m")
+    return maps
+
+
+# ======================================================================
+#  [3] Kiểm tra bộ bản đồ tự sinh
 # ======================================================================
 
 def audit_generated_maps(data_dir: Path) -> tuple[list[dict], list[dict]]:
-    print("[2] Kiểm tra bộ bản đồ tự sinh (tính lại A* và chỉ số cho từng bản đồ)")
+    print("[3] Kiểm tra bộ bản đồ tự sinh (tính lại A* và chỉ số cho từng bản đồ)")
     maps = []
     rows = []
     for split in SPLITS:
@@ -342,12 +384,12 @@ def inside_arena(p: np.ndarray) -> bool:
 
 
 # ======================================================================
-#  [2b] Kiểm tra bằng mô phỏng
+#  [3b] Kiểm tra bằng mô phỏng
 # ======================================================================
 
 def check_with_simulation(all_maps: list[dict], rows: list[dict]) -> list[str]:
     """Chạy oracle_rollout cho từng bản đồ, ghi kết quả vào dòng manifest tương ứng."""
-    print(f"[2b] Mô phỏng: robot bám đường A* trong RobotNavEnv ({len(all_maps)} bản đồ)")
+    print(f"[3b] Mô phỏng: robot bám đường A* trong RobotNavEnv ({len(all_maps)} bản đồ)")
     failed = []
     for k in range(len(all_maps)):
         m = all_maps[k]
@@ -490,7 +532,7 @@ def write_manifest(rows: list[dict], path: Path):
             writer.writerow(out)
 
 
-def build_summary(rows, barn_maps, barn_dropped, dup_counts) -> dict:
+def build_summary(rows, barn_maps, barn_dropped, lehman_maps, dup_counts) -> dict:
     # Số bản đồ tự sinh theo tập / cấp
     counts = {}
     for split in SPLITS:
@@ -527,6 +569,16 @@ def build_summary(rows, barn_maps, barn_dropped, dup_counts) -> dict:
         if m["source_info"]["in_test_barn"]:
             selected.append(m["map_id"])
 
+    lehman_info = {}
+    for m in lehman_maps:
+        lehman_info[m["map_id"]] = {
+            "maze_size_m": m["source_info"]["maze_size_m"],
+            "tortuosity": m["metrics"]["tortuosity"],
+            "optimal_path_length": m["metrics"]["optimal_path_length"],
+            "bottleneck_clearance": m["metrics"]["bottleneck_clearance"],
+            "trap_depth": m["metrics"]["trap_depth"],
+        }
+
     return {
         "thoi_diem_chay": datetime.now().isoformat(timespec="seconds"),
         "robot_radius": ROBOT_RADIUS,
@@ -544,17 +596,19 @@ def build_summary(rows, barn_maps, barn_dropped, dup_counts) -> dict:
             "so_ban_do_test": len(selected),
             "test_barn": selected,
         },
+        "lehman_stanley": lehman_info,
         "chi_so_theo_nhom": stats,
     }
 
 
 def group_rows_for_report(rows: list[dict]) -> dict:
-    """Chia các dòng manifest thành nhóm để thống kê / vẽ: Cấp 1..4, BARN."""
+    """Chia các dòng manifest thành nhóm để thống kê / vẽ: Cấp 1..4, BARN, Lehman."""
     groups = {}
     for level in LEVELS:
         groups[f"Cấp {level}"] = []
     groups["BARN (50 test)"] = []
     groups["BARN (cả 300)"] = []
+    groups["Lehman"] = []
     for row in rows:
         if row["split"] in SPLITS:
             groups[f"Cấp {row['level']}"].append(row)
@@ -563,6 +617,8 @@ def group_rows_for_report(rows: list[dict]) -> dict:
             groups["BARN (cả 300)"].append(row)
         elif row["split"] == "barn_extra":
             groups["BARN (cả 300)"].append(row)
+        elif row["split"] == "test_lehman":
+            groups["Lehman"].append(row)
     return groups
 
 
@@ -598,13 +654,16 @@ def print_summary(summary: dict):
     barn = summary["barn"]
     print(f"  BARN: robot đi lọt {barn['robot_di_lot']}/{barn['so_world']}, "
           f"chọn {barn['so_ban_do_test']} bản đồ test")
+    for name, info in summary["lehman_stanley"].items():
+        print(f"  {name}: τ = {info['tortuosity']}, L* = {info['optimal_path_length']} m, "
+              f"khe hẹp = {info['bottleneck_clearance']} m")
 
 
 # ======================================================================
 #  Hình minh hoạ
 # ======================================================================
 
-def make_figures(gen_maps, barn_maps, rows, fig_dir: Path) -> list[Path]:
+def make_figures(gen_maps, barn_maps, lehman_maps, rows, fig_dir: Path) -> list[Path]:
     setup_plot_style()
     written = []
 
@@ -655,12 +714,22 @@ def make_figures(gen_maps, barn_maps, rows, fig_dir: Path) -> list[Path]:
                      color=INK, fontsize=11)
         written.append(save_figure(fig, fig_dir / "02_barn_vi_du.png"))
 
-    # (Số 03 không còn dùng: hình đó thuộc tập test đã bỏ ngày 24/11/2026, xem
-    #  docs/tien_xu_ly_du_lieu.md; các hình còn lại giữ số cũ để tài liệu dẫn tới đúng file.)
+    # 3. Hai mê cung Lehman & Stanley
+    if lehman_maps:
+        fig, axes = plt.subplots(1, len(lehman_maps), figsize=(4.6 * len(lehman_maps), 5))
+        if len(lehman_maps) == 1:
+            axes = [axes]
+        for k, m in enumerate(lehman_maps):
+            title = (f"{m['map_id']}\nτ = {m['metrics']['tortuosity']:.2f}, "
+                     f"độ sâu bẫy {m['metrics']['trap_depth']:.2f} m")
+            draw_map(axes[k], m, title)
+        add_map_legend(fig)
+        fig.suptitle("Mê cung Lehman & Stanley (robot gốc 8 px = 0.25 m)", color=INK, fontsize=11)
+        written.append(save_figure(fig, fig_dir / "03_me_cung_lehman.png"))
 
     # 4. Phân bố chỉ số theo nhóm
     groups = group_rows_for_report(rows)
-    order = ["Cấp 1", "Cấp 2", "Cấp 3", "Cấp 4", "BARN (50 test)"]
+    order = ["Cấp 1", "Cấp 2", "Cấp 3", "Cấp 4", "BARN (50 test)", "Lehman"]
     fig, axes = plt.subplots(1, 3, figsize=(13, 4.4))
     # Mỗi đường tham chiếu: (giá trị, nhãn, nhãn nằm "tren" hay "duoi" đường)
     plot_metric_panel(axes[0], groups, order, "tortuosity", "Độ quanh co τ",
@@ -781,13 +850,13 @@ def plot_metric_panel(ax, groups: dict, order: list[str], col: str, ylabel: str,
             jitter = rng.uniform(-0.17, 0.17, size=n)
             ax.scatter(position + jitter, values, s=5, color=BLUE, alpha=0.3, linewidths=0, zorder=3)
         else:
-            # Quá ít điểm (dưới 5 bản đồ) → chỉ vẽ điểm và ghi tên;
+            # Quá ít điểm (mê cung Lehman) → chỉ vẽ điểm và ghi tên;
             # điểm cao hơn ghi nhãn phía trên, điểm thấp hơn ghi phía dưới cho khỏi đè nhau
             ax.scatter([position] * n, values, s=28, color=BLUE, zorder=3)
             names = []
             for row in groups[name]:
                 if row.get(col, "") != "":
-                    names.append(row["map_id"])
+                    names.append(row["map_id"].replace("lehman_", "").replace("_maze", ""))
             for v, label in zip(values, names):
                 if v == max(values):
                     offset, va = (5, 3), "bottom"

@@ -33,12 +33,12 @@
       "justMyCode": true
     },
     {
-      // Champion NEAT trên hai bản đồ cấp 4 đầu tiên của tập test (bẫy chữ U)
-      "name": "3. Demo: champion NEAT ở bẫy chữ U (cấp 4)",
+      // baseline APF (B5, không học) trên hai bản đồ cấp 4 đầu tiên của tập test: kẹt ở bẫy chữ U
+      "name": "3. Demo: APF kẹt ở bẫy chữ U (cấp 4)",
       "type": "debugpy",
       "request": "launch",
       "program": "${workspaceFolder}/scripts/demo.py",
-      "args": ["--levels", "4", "--maps-per-level", "2",
+      "args": ["--controller", "apf", "--levels", "4", "--maps-per-level", "2",
                "--report", "output/demo/ket_qua_cau_hinh_3"],
       "console": "integratedTerminal",
       "cwd": "${workspaceFolder}",
@@ -46,7 +46,7 @@
       "justMyCode": true
     },
     {
-      // SR, CR, hết giờ, SPL, MTT trên 4 cấp test và test_barn (250 bản đồ);
+      // SR, CR, hết giờ, SPL, MTT trên 4 cấp test, test_barn và test_lehman (252 bản đồ);
       // ghi test_results.json và test_results_bang.png, test_results_bieu_do.png, test_results.html
       "name": "4. Chấm champion trên toàn bộ tập test",
       "type": "debugpy",
@@ -88,12 +88,12 @@
       "justMyCode": true
     },
     {
-      // 4 bản đồ BARN đầu tiên của data/maps/test_barn (dữ liệu công khai), không lấy bản đồ tự sinh
-      "name": "7. Demo: champion trên 4 bản đồ BARN",
+      // 4 bản đồ BARN đầu tiên của data/maps/test_barn và 2 mê cung Lehman–Stanley (dữ liệu công khai)
+      "name": "7. Demo: champion trên BARN và mê cung Lehman",
       "type": "debugpy",
       "request": "launch",
       "program": "${workspaceFolder}/scripts/demo.py",
-      "args": ["--maps-per-level", "0", "--barn", "4",
+      "args": ["--maps-per-level", "0", "--barn", "4", "--lehman",
                "--report", "output/demo/ket_qua_cau_hinh_7"],
       "console": "integratedTerminal",
       "cwd": "${workspaceFolder}",

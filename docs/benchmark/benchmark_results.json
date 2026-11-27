@@ -1,774 +1,963 @@
 {
- "metric": "SR",
- "metric_name": "Tỉ lệ thành công (SR)",
- "unit": "tỉ lệ 0–1 như test_results.json; biểu đồ và bảng nhân 100 thành %",
- "sets": [
-  "test/level_1",
-  "test/level_2",
-  "test/level_3",
-  "test/level_4",
-  "test_barn",
-  "mean_levels_1_4"
- ],
- "set_labels": {
-  "test/level_1": "Cấp 1",
-  "test/level_2": "Cấp 2",
-  "test/level_3": "Cấp 3",
-  "test/level_4": "Cấp 4",
-  "test_barn": "BARN",
-  "mean_levels_1_4": "TB cấp 1–4"
- },
- "method_order": [
-  "R0",
-  "M1",
-  "M2",
-  "M3",
-  "M4",
-  "M5",
-  "M6",
-  "GA B1",
-  "GA B2"
- ],
- "methods": {
-  "R0": {
-   "dir": ".../bench_out/R0",
-   "seeds": [
-    "seed_0",
-    "seed_1",
-    "seed_2",
-    "seed_3"
-   ],
-   "color": "#2a78d6",
-   "hatch": null,
-   "sets": {
-    "test/level_1": {
-     "mean": 0.965,
-     "min": 0.94,
-     "max": 0.98,
-     "n_seeds": 4,
-     "per_seed": {
-      "seed_0": 0.98,
-      "seed_1": 0.94,
-      "seed_2": 0.98,
-      "seed_3": 0.96
-     },
-     "n_maps": 50
-    },
-    "test/level_2": {
-     "mean": 0.715,
-     "min": 0.54,
-     "max": 0.82,
-     "n_seeds": 4,
-     "per_seed": {
-      "seed_0": 0.54,
-      "seed_1": 0.82,
-      "seed_2": 0.76,
-      "seed_3": 0.74
-     },
-     "n_maps": 50
-    },
-    "test/level_3": {
-     "mean": 0.26,
-     "min": 0.18,
-     "max": 0.46,
-     "n_seeds": 4,
-     "per_seed": {
-      "seed_0": 0.18,
-      "seed_1": 0.22,
-      "seed_2": 0.46,
-      "seed_3": 0.18
-     },
-     "n_maps": 50
-    },
-    "test/level_4": {
-     "mean": 0.265,
-     "min": 0.04,
-     "max": 0.5,
-     "n_seeds": 4,
-     "per_seed": {
-      "seed_0": 0.32,
-      "seed_1": 0.2,
-      "seed_2": 0.5,
-      "seed_3": 0.04
-     },
-     "n_maps": 50
-    },
-    "test_barn": {
-     "mean": 0.24,
-     "min": 0.16,
-     "max": 0.3,
-     "n_seeds": 4,
-     "per_seed": {
-      "seed_0": 0.16,
-      "seed_1": 0.3,
-      "seed_2": 0.26,
-      "seed_3": 0.24
-     },
-     "n_maps": 50
-    },
-    "mean_levels_1_4": {
-     "mean": 0.55125,
-     "min": 0.48,
-     "max": 0.675,
-     "n_seeds": 4,
-     "per_seed": {
-      "seed_0": 0.505,
-      "seed_1": 0.545,
-      "seed_2": 0.675,
-      "seed_3": 0.48
-     }
-    }
-   }
+  "metric": "SR",
+  "metric_name": "Tỉ lệ thành công (SR)",
+  "unit": "tỉ lệ 0–1 như test_results.json; biểu đồ và bảng nhân 100 thành %",
+  "sets": [
+    "test/level_1",
+    "test/level_2",
+    "test/level_3",
+    "test/level_4",
+    "test_barn",
+    "test_lehman",
+    "mean_levels_1_4"
+  ],
+  "set_labels": {
+    "test/level_1": "Cấp 1",
+    "test/level_2": "Cấp 2",
+    "test/level_3": "Cấp 3",
+    "test/level_4": "Cấp 4",
+    "test_barn": "BARN",
+    "test_lehman": "Lehman",
+    "mean_levels_1_4": "TB cấp 1–4"
   },
-  "M1": {
-   "dir": ".../bench_out/M1",
-   "seeds": [
-    "seed_0",
-    "seed_1",
-    "seed_2"
-   ],
-   "color": "#eb6834",
-   "hatch": null,
-   "sets": {
-    "test/level_1": {
-     "mean": 0.946667,
-     "min": 0.92,
-     "max": 0.98,
-     "n_seeds": 3,
-     "per_seed": {
-      "seed_0": 0.92,
-      "seed_1": 0.94,
-      "seed_2": 0.98
-     },
-     "n_maps": 50
+  "method_order": [
+    "R0",
+    "M1",
+    "M2",
+    "M3",
+    "M4",
+    "M5",
+    "M6",
+    "GA B1",
+    "GA B2",
+    "APF"
+  ],
+  "methods": {
+    "R0": {
+      "dir": ".../bench_out/R0",
+      "seeds": [
+        "seed_0",
+        "seed_1",
+        "seed_2",
+        "seed_3"
+      ],
+      "color": "#2a78d6",
+      "hatch": null,
+      "sets": {
+        "test/level_1": {
+          "mean": 0.965,
+          "min": 0.94,
+          "max": 0.98,
+          "n_seeds": 4,
+          "per_seed": {
+            "seed_0": 0.98,
+            "seed_1": 0.94,
+            "seed_2": 0.98,
+            "seed_3": 0.96
+          },
+          "n_maps": 50
+        },
+        "test/level_2": {
+          "mean": 0.715,
+          "min": 0.54,
+          "max": 0.82,
+          "n_seeds": 4,
+          "per_seed": {
+            "seed_0": 0.54,
+            "seed_1": 0.82,
+            "seed_2": 0.76,
+            "seed_3": 0.74
+          },
+          "n_maps": 50
+        },
+        "test/level_3": {
+          "mean": 0.26,
+          "min": 0.18,
+          "max": 0.46,
+          "n_seeds": 4,
+          "per_seed": {
+            "seed_0": 0.18,
+            "seed_1": 0.22,
+            "seed_2": 0.46,
+            "seed_3": 0.18
+          },
+          "n_maps": 50
+        },
+        "test/level_4": {
+          "mean": 0.265,
+          "min": 0.04,
+          "max": 0.5,
+          "n_seeds": 4,
+          "per_seed": {
+            "seed_0": 0.32,
+            "seed_1": 0.2,
+            "seed_2": 0.5,
+            "seed_3": 0.04
+          },
+          "n_maps": 50
+        },
+        "test_barn": {
+          "mean": 0.24,
+          "min": 0.16,
+          "max": 0.3,
+          "n_seeds": 4,
+          "per_seed": {
+            "seed_0": 0.16,
+            "seed_1": 0.3,
+            "seed_2": 0.26,
+            "seed_3": 0.24
+          },
+          "n_maps": 50
+        },
+        "test_lehman": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "n_seeds": 4,
+          "per_seed": {
+            "seed_0": 0.0,
+            "seed_1": 0.0,
+            "seed_2": 0.0,
+            "seed_3": 0.0
+          },
+          "n_maps": 2
+        },
+        "mean_levels_1_4": {
+          "mean": 0.55125,
+          "min": 0.48,
+          "max": 0.675,
+          "n_seeds": 4,
+          "per_seed": {
+            "seed_0": 0.505,
+            "seed_1": 0.545,
+            "seed_2": 0.675,
+            "seed_3": 0.48
+          }
+        }
+      }
     },
-    "test/level_2": {
-     "mean": 0.646667,
-     "min": 0.54,
-     "max": 0.82,
-     "n_seeds": 3,
-     "per_seed": {
-      "seed_0": 0.58,
-      "seed_1": 0.82,
-      "seed_2": 0.54
-     },
-     "n_maps": 50
+    "M1": {
+      "dir": ".../bench_out/M1",
+      "seeds": [
+        "seed_0",
+        "seed_1",
+        "seed_2"
+      ],
+      "color": "#eb6834",
+      "hatch": null,
+      "sets": {
+        "test/level_1": {
+          "mean": 0.946667,
+          "min": 0.92,
+          "max": 0.98,
+          "n_seeds": 3,
+          "per_seed": {
+            "seed_0": 0.92,
+            "seed_1": 0.94,
+            "seed_2": 0.98
+          },
+          "n_maps": 50
+        },
+        "test/level_2": {
+          "mean": 0.646667,
+          "min": 0.54,
+          "max": 0.82,
+          "n_seeds": 3,
+          "per_seed": {
+            "seed_0": 0.58,
+            "seed_1": 0.82,
+            "seed_2": 0.54
+          },
+          "n_maps": 50
+        },
+        "test/level_3": {
+          "mean": 0.3,
+          "min": 0.28,
+          "max": 0.34,
+          "n_seeds": 3,
+          "per_seed": {
+            "seed_0": 0.28,
+            "seed_1": 0.34,
+            "seed_2": 0.28
+          },
+          "n_maps": 50
+        },
+        "test/level_4": {
+          "mean": 0.3,
+          "min": 0.02,
+          "max": 0.5,
+          "n_seeds": 3,
+          "per_seed": {
+            "seed_0": 0.38,
+            "seed_1": 0.5,
+            "seed_2": 0.02
+          },
+          "n_maps": 50
+        },
+        "test_barn": {
+          "mean": 0.3,
+          "min": 0.16,
+          "max": 0.58,
+          "n_seeds": 3,
+          "per_seed": {
+            "seed_0": 0.16,
+            "seed_1": 0.58,
+            "seed_2": 0.16
+          },
+          "n_maps": 50
+        },
+        "test_lehman": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "n_seeds": 3,
+          "per_seed": {
+            "seed_0": 0.0,
+            "seed_1": 0.0,
+            "seed_2": 0.0
+          },
+          "n_maps": 2
+        },
+        "mean_levels_1_4": {
+          "mean": 0.548333,
+          "min": 0.455,
+          "max": 0.65,
+          "n_seeds": 3,
+          "per_seed": {
+            "seed_0": 0.54,
+            "seed_1": 0.65,
+            "seed_2": 0.455
+          }
+        }
+      }
     },
-    "test/level_3": {
-     "mean": 0.3,
-     "min": 0.28,
-     "max": 0.34,
-     "n_seeds": 3,
-     "per_seed": {
-      "seed_0": 0.28,
-      "seed_1": 0.34,
-      "seed_2": 0.28
-     },
-     "n_maps": 50
+    "M2": {
+      "dir": ".../bench_out/M2",
+      "seeds": [
+        "seed_0",
+        "seed_1",
+        "seed_2"
+      ],
+      "color": "#1baf7a",
+      "hatch": null,
+      "sets": {
+        "test/level_1": {
+          "mean": 0.866667,
+          "min": 0.64,
+          "max": 1.0,
+          "n_seeds": 3,
+          "per_seed": {
+            "seed_0": 0.64,
+            "seed_1": 1.0,
+            "seed_2": 0.96
+          },
+          "n_maps": 50
+        },
+        "test/level_2": {
+          "mean": 0.52,
+          "min": 0.44,
+          "max": 0.58,
+          "n_seeds": 3,
+          "per_seed": {
+            "seed_0": 0.44,
+            "seed_1": 0.54,
+            "seed_2": 0.58
+          },
+          "n_maps": 50
+        },
+        "test/level_3": {
+          "mean": 0.22,
+          "min": 0.16,
+          "max": 0.26,
+          "n_seeds": 3,
+          "per_seed": {
+            "seed_0": 0.24,
+            "seed_1": 0.16,
+            "seed_2": 0.26
+          },
+          "n_maps": 50
+        },
+        "test/level_4": {
+          "mean": 0.286667,
+          "min": 0.16,
+          "max": 0.4,
+          "n_seeds": 3,
+          "per_seed": {
+            "seed_0": 0.4,
+            "seed_1": 0.16,
+            "seed_2": 0.3
+          },
+          "n_maps": 50
+        },
+        "test_barn": {
+          "mean": 0.16,
+          "min": 0.14,
+          "max": 0.2,
+          "n_seeds": 3,
+          "per_seed": {
+            "seed_0": 0.14,
+            "seed_1": 0.2,
+            "seed_2": 0.14
+          },
+          "n_maps": 50
+        },
+        "test_lehman": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "n_seeds": 3,
+          "per_seed": {
+            "seed_0": 0.0,
+            "seed_1": 0.0,
+            "seed_2": 0.0
+          },
+          "n_maps": 2
+        },
+        "mean_levels_1_4": {
+          "mean": 0.473333,
+          "min": 0.43,
+          "max": 0.525,
+          "n_seeds": 3,
+          "per_seed": {
+            "seed_0": 0.43,
+            "seed_1": 0.465,
+            "seed_2": 0.525
+          }
+        }
+      }
     },
-    "test/level_4": {
-     "mean": 0.3,
-     "min": 0.02,
-     "max": 0.5,
-     "n_seeds": 3,
-     "per_seed": {
-      "seed_0": 0.38,
-      "seed_1": 0.5,
-      "seed_2": 0.02
-     },
-     "n_maps": 50
+    "M3": {
+      "dir": ".../bench_out/M3",
+      "seeds": [
+        "seed_0",
+        "seed_1",
+        "seed_2"
+      ],
+      "color": "#eda100",
+      "hatch": null,
+      "sets": {
+        "test/level_1": {
+          "mean": 0.953333,
+          "min": 0.94,
+          "max": 0.98,
+          "n_seeds": 3,
+          "per_seed": {
+            "seed_0": 0.94,
+            "seed_1": 0.98,
+            "seed_2": 0.94
+          },
+          "n_maps": 50
+        },
+        "test/level_2": {
+          "mean": 0.486667,
+          "min": 0.42,
+          "max": 0.52,
+          "n_seeds": 3,
+          "per_seed": {
+            "seed_0": 0.52,
+            "seed_1": 0.52,
+            "seed_2": 0.42
+          },
+          "n_maps": 50
+        },
+        "test/level_3": {
+          "mean": 0.28,
+          "min": 0.18,
+          "max": 0.34,
+          "n_seeds": 3,
+          "per_seed": {
+            "seed_0": 0.32,
+            "seed_1": 0.18,
+            "seed_2": 0.34
+          },
+          "n_maps": 50
+        },
+        "test/level_4": {
+          "mean": 0.306667,
+          "min": 0.18,
+          "max": 0.42,
+          "n_seeds": 3,
+          "per_seed": {
+            "seed_0": 0.42,
+            "seed_1": 0.18,
+            "seed_2": 0.32
+          },
+          "n_maps": 50
+        },
+        "test_barn": {
+          "mean": 0.16,
+          "min": 0.08,
+          "max": 0.2,
+          "n_seeds": 3,
+          "per_seed": {
+            "seed_0": 0.2,
+            "seed_1": 0.2,
+            "seed_2": 0.08
+          },
+          "n_maps": 50
+        },
+        "test_lehman": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "n_seeds": 3,
+          "per_seed": {
+            "seed_0": 0.0,
+            "seed_1": 0.0,
+            "seed_2": 0.0
+          },
+          "n_maps": 2
+        },
+        "mean_levels_1_4": {
+          "mean": 0.506667,
+          "min": 0.465,
+          "max": 0.55,
+          "n_seeds": 3,
+          "per_seed": {
+            "seed_0": 0.55,
+            "seed_1": 0.465,
+            "seed_2": 0.505
+          }
+        }
+      }
     },
-    "test_barn": {
-     "mean": 0.3,
-     "min": 0.16,
-     "max": 0.58,
-     "n_seeds": 3,
-     "per_seed": {
-      "seed_0": 0.16,
-      "seed_1": 0.58,
-      "seed_2": 0.16
-     },
-     "n_maps": 50
+    "M4": {
+      "dir": ".../bench_out/M4",
+      "seeds": [
+        "seed_0",
+        "seed_1",
+        "seed_2"
+      ],
+      "color": "#e87ba4",
+      "hatch": null,
+      "sets": {
+        "test/level_1": {
+          "mean": 0.866667,
+          "min": 0.82,
+          "max": 0.92,
+          "n_seeds": 3,
+          "per_seed": {
+            "seed_0": 0.82,
+            "seed_1": 0.92,
+            "seed_2": 0.86
+          },
+          "n_maps": 50
+        },
+        "test/level_2": {
+          "mean": 0.4,
+          "min": 0.34,
+          "max": 0.48,
+          "n_seeds": 3,
+          "per_seed": {
+            "seed_0": 0.48,
+            "seed_1": 0.38,
+            "seed_2": 0.34
+          },
+          "n_maps": 50
+        },
+        "test/level_3": {
+          "mean": 0.086667,
+          "min": 0.02,
+          "max": 0.14,
+          "n_seeds": 3,
+          "per_seed": {
+            "seed_0": 0.14,
+            "seed_1": 0.1,
+            "seed_2": 0.02
+          },
+          "n_maps": 50
+        },
+        "test/level_4": {
+          "mean": 0.013333,
+          "min": 0.0,
+          "max": 0.04,
+          "n_seeds": 3,
+          "per_seed": {
+            "seed_0": 0.0,
+            "seed_1": 0.04,
+            "seed_2": 0.0
+          },
+          "n_maps": 50
+        },
+        "test_barn": {
+          "mean": 0.066667,
+          "min": 0.06,
+          "max": 0.08,
+          "n_seeds": 3,
+          "per_seed": {
+            "seed_0": 0.08,
+            "seed_1": 0.06,
+            "seed_2": 0.06
+          },
+          "n_maps": 50
+        },
+        "test_lehman": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "n_seeds": 3,
+          "per_seed": {
+            "seed_0": 0.0,
+            "seed_1": 0.0,
+            "seed_2": 0.0
+          },
+          "n_maps": 2
+        },
+        "mean_levels_1_4": {
+          "mean": 0.341667,
+          "min": 0.305,
+          "max": 0.36,
+          "n_seeds": 3,
+          "per_seed": {
+            "seed_0": 0.36,
+            "seed_1": 0.36,
+            "seed_2": 0.305
+          }
+        }
+      }
     },
-    "mean_levels_1_4": {
-     "mean": 0.548333,
-     "min": 0.455,
-     "max": 0.65,
-     "n_seeds": 3,
-     "per_seed": {
-      "seed_0": 0.54,
-      "seed_1": 0.65,
-      "seed_2": 0.455
-     }
+    "M5": {
+      "dir": ".../bench_out/M5",
+      "seeds": [
+        "seed_0",
+        "seed_1",
+        "seed_2"
+      ],
+      "color": "#008300",
+      "hatch": null,
+      "sets": {
+        "test/level_1": {
+          "mean": 0.946667,
+          "min": 0.9,
+          "max": 0.98,
+          "n_seeds": 3,
+          "per_seed": {
+            "seed_0": 0.96,
+            "seed_1": 0.98,
+            "seed_2": 0.9
+          },
+          "n_maps": 50
+        },
+        "test/level_2": {
+          "mean": 0.66,
+          "min": 0.44,
+          "max": 0.78,
+          "n_seeds": 3,
+          "per_seed": {
+            "seed_0": 0.78,
+            "seed_1": 0.76,
+            "seed_2": 0.44
+          },
+          "n_maps": 50
+        },
+        "test/level_3": {
+          "mean": 0.3,
+          "min": 0.22,
+          "max": 0.34,
+          "n_seeds": 3,
+          "per_seed": {
+            "seed_0": 0.34,
+            "seed_1": 0.22,
+            "seed_2": 0.34
+          },
+          "n_maps": 50
+        },
+        "test/level_4": {
+          "mean": 0.3,
+          "min": 0.02,
+          "max": 0.66,
+          "n_seeds": 3,
+          "per_seed": {
+            "seed_0": 0.66,
+            "seed_1": 0.02,
+            "seed_2": 0.22
+          },
+          "n_maps": 50
+        },
+        "test_barn": {
+          "mean": 0.28,
+          "min": 0.16,
+          "max": 0.36,
+          "n_seeds": 3,
+          "per_seed": {
+            "seed_0": 0.36,
+            "seed_1": 0.32,
+            "seed_2": 0.16
+          },
+          "n_maps": 50
+        },
+        "test_lehman": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "n_seeds": 3,
+          "per_seed": {
+            "seed_0": 0.0,
+            "seed_1": 0.0,
+            "seed_2": 0.0
+          },
+          "n_maps": 2
+        },
+        "mean_levels_1_4": {
+          "mean": 0.551667,
+          "min": 0.475,
+          "max": 0.685,
+          "n_seeds": 3,
+          "per_seed": {
+            "seed_0": 0.685,
+            "seed_1": 0.495,
+            "seed_2": 0.475
+          }
+        }
+      }
+    },
+    "M6": {
+      "dir": ".../bench_out/M6",
+      "seeds": [
+        "seed_0",
+        "seed_1",
+        "seed_2"
+      ],
+      "color": "#6250d6",
+      "hatch": null,
+      "sets": {
+        "test/level_1": {
+          "mean": 0.96,
+          "min": 0.88,
+          "max": 1.0,
+          "n_seeds": 3,
+          "per_seed": {
+            "seed_0": 1.0,
+            "seed_1": 0.88,
+            "seed_2": 1.0
+          },
+          "n_maps": 50
+        },
+        "test/level_2": {
+          "mean": 0.6,
+          "min": 0.54,
+          "max": 0.66,
+          "n_seeds": 3,
+          "per_seed": {
+            "seed_0": 0.54,
+            "seed_1": 0.66,
+            "seed_2": 0.6
+          },
+          "n_maps": 50
+        },
+        "test/level_3": {
+          "mean": 0.173333,
+          "min": 0.06,
+          "max": 0.28,
+          "n_seeds": 3,
+          "per_seed": {
+            "seed_0": 0.06,
+            "seed_1": 0.28,
+            "seed_2": 0.18
+          },
+          "n_maps": 50
+        },
+        "test/level_4": {
+          "mean": 0.173333,
+          "min": 0.0,
+          "max": 0.44,
+          "n_seeds": 3,
+          "per_seed": {
+            "seed_0": 0.0,
+            "seed_1": 0.44,
+            "seed_2": 0.08
+          },
+          "n_maps": 50
+        },
+        "test_barn": {
+          "mean": 0.206667,
+          "min": 0.1,
+          "max": 0.34,
+          "n_seeds": 3,
+          "per_seed": {
+            "seed_0": 0.18,
+            "seed_1": 0.34,
+            "seed_2": 0.1
+          },
+          "n_maps": 50
+        },
+        "test_lehman": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "n_seeds": 3,
+          "per_seed": {
+            "seed_0": 0.0,
+            "seed_1": 0.0,
+            "seed_2": 0.0
+          },
+          "n_maps": 2
+        },
+        "mean_levels_1_4": {
+          "mean": 0.476667,
+          "min": 0.4,
+          "max": 0.565,
+          "n_seeds": 3,
+          "per_seed": {
+            "seed_0": 0.4,
+            "seed_1": 0.565,
+            "seed_2": 0.465
+          }
+        }
+      }
+    },
+    "GA B1": {
+      "dir": ".../bench_out/ga_b1",
+      "seeds": [
+        "seed_0",
+        "seed_1",
+        "seed_2"
+      ],
+      "color": "#e34948",
+      "hatch": null,
+      "sets": {
+        "test/level_1": {
+          "mean": 0.993333,
+          "min": 0.98,
+          "max": 1.0,
+          "n_seeds": 3,
+          "per_seed": {
+            "seed_0": 0.98,
+            "seed_1": 1.0,
+            "seed_2": 1.0
+          },
+          "n_maps": 50
+        },
+        "test/level_2": {
+          "mean": 0.606667,
+          "min": 0.48,
+          "max": 0.68,
+          "n_seeds": 3,
+          "per_seed": {
+            "seed_0": 0.68,
+            "seed_1": 0.48,
+            "seed_2": 0.66
+          },
+          "n_maps": 50
+        },
+        "test/level_3": {
+          "mean": 0.293333,
+          "min": 0.18,
+          "max": 0.38,
+          "n_seeds": 3,
+          "per_seed": {
+            "seed_0": 0.38,
+            "seed_1": 0.18,
+            "seed_2": 0.32
+          },
+          "n_maps": 50
+        },
+        "test/level_4": {
+          "mean": 0.466667,
+          "min": 0.32,
+          "max": 0.54,
+          "n_seeds": 3,
+          "per_seed": {
+            "seed_0": 0.54,
+            "seed_1": 0.54,
+            "seed_2": 0.32
+          },
+          "n_maps": 50
+        },
+        "test_barn": {
+          "mean": 0.146667,
+          "min": 0.1,
+          "max": 0.24,
+          "n_seeds": 3,
+          "per_seed": {
+            "seed_0": 0.1,
+            "seed_1": 0.1,
+            "seed_2": 0.24
+          },
+          "n_maps": 50
+        },
+        "test_lehman": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "n_seeds": 3,
+          "per_seed": {
+            "seed_0": 0.0,
+            "seed_1": 0.0,
+            "seed_2": 0.0
+          },
+          "n_maps": 2
+        },
+        "mean_levels_1_4": {
+          "mean": 0.59,
+          "min": 0.55,
+          "max": 0.645,
+          "n_seeds": 3,
+          "per_seed": {
+            "seed_0": 0.645,
+            "seed_1": 0.55,
+            "seed_2": 0.575
+          }
+        }
+      }
+    },
+    "GA B2": {
+      "dir": ".../bench_out/ga_b2",
+      "seeds": [
+        "seed_0"
+      ],
+      "color": "#2a78d6",
+      "hatch": "///",
+      "sets": {
+        "test/level_1": {
+          "mean": 1.0,
+          "min": 1.0,
+          "max": 1.0,
+          "n_seeds": 1,
+          "per_seed": {
+            "seed_0": 1.0
+          },
+          "n_maps": 50
+        },
+        "test/level_2": {
+          "mean": 0.7,
+          "min": 0.7,
+          "max": 0.7,
+          "n_seeds": 1,
+          "per_seed": {
+            "seed_0": 0.7
+          },
+          "n_maps": 50
+        },
+        "test/level_3": {
+          "mean": 0.26,
+          "min": 0.26,
+          "max": 0.26,
+          "n_seeds": 1,
+          "per_seed": {
+            "seed_0": 0.26
+          },
+          "n_maps": 50
+        },
+        "test/level_4": {
+          "mean": 0.46,
+          "min": 0.46,
+          "max": 0.46,
+          "n_seeds": 1,
+          "per_seed": {
+            "seed_0": 0.46
+          },
+          "n_maps": 50
+        },
+        "test_barn": {
+          "mean": 0.14,
+          "min": 0.14,
+          "max": 0.14,
+          "n_seeds": 1,
+          "per_seed": {
+            "seed_0": 0.14
+          },
+          "n_maps": 50
+        },
+        "test_lehman": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "n_seeds": 1,
+          "per_seed": {
+            "seed_0": 0.0
+          },
+          "n_maps": 2
+        },
+        "mean_levels_1_4": {
+          "mean": 0.605,
+          "min": 0.605,
+          "max": 0.605,
+          "n_seeds": 1,
+          "per_seed": {
+            "seed_0": 0.605
+          }
+        }
+      }
+    },
+    "APF": {
+      "dir": ".../bench_out/apf",
+      "seeds": [
+        "seed_0"
+      ],
+      "color": "#eb6834",
+      "hatch": "///",
+      "sets": {
+        "test/level_1": {
+          "mean": 1.0,
+          "min": 1.0,
+          "max": 1.0,
+          "n_seeds": 1,
+          "per_seed": {
+            "seed_0": 1.0
+          },
+          "n_maps": 50
+        },
+        "test/level_2": {
+          "mean": 0.38,
+          "min": 0.38,
+          "max": 0.38,
+          "n_seeds": 1,
+          "per_seed": {
+            "seed_0": 0.38
+          },
+          "n_maps": 50
+        },
+        "test/level_3": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "n_seeds": 1,
+          "per_seed": {
+            "seed_0": 0.0
+          },
+          "n_maps": 50
+        },
+        "test/level_4": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "n_seeds": 1,
+          "per_seed": {
+            "seed_0": 0.0
+          },
+          "n_maps": 50
+        },
+        "test_barn": {
+          "mean": 0.34,
+          "min": 0.34,
+          "max": 0.34,
+          "n_seeds": 1,
+          "per_seed": {
+            "seed_0": 0.34
+          },
+          "n_maps": 50
+        },
+        "test_lehman": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "n_seeds": 1,
+          "per_seed": {
+            "seed_0": 0.0
+          },
+          "n_maps": 2
+        },
+        "mean_levels_1_4": {
+          "mean": 0.345,
+          "min": 0.345,
+          "max": 0.345,
+          "n_seeds": 1,
+          "per_seed": {
+            "seed_0": 0.345
+          }
+        }
+      }
     }
-   }
-  },
-  "M2": {
-   "dir": ".../bench_out/M2",
-   "seeds": [
-    "seed_0",
-    "seed_1",
-    "seed_2"
-   ],
-   "color": "#1baf7a",
-   "hatch": null,
-   "sets": {
-    "test/level_1": {
-     "mean": 0.866667,
-     "min": 0.64,
-     "max": 1.0,
-     "n_seeds": 3,
-     "per_seed": {
-      "seed_0": 0.64,
-      "seed_1": 1.0,
-      "seed_2": 0.96
-     },
-     "n_maps": 50
-    },
-    "test/level_2": {
-     "mean": 0.52,
-     "min": 0.44,
-     "max": 0.58,
-     "n_seeds": 3,
-     "per_seed": {
-      "seed_0": 0.44,
-      "seed_1": 0.54,
-      "seed_2": 0.58
-     },
-     "n_maps": 50
-    },
-    "test/level_3": {
-     "mean": 0.22,
-     "min": 0.16,
-     "max": 0.26,
-     "n_seeds": 3,
-     "per_seed": {
-      "seed_0": 0.24,
-      "seed_1": 0.16,
-      "seed_2": 0.26
-     },
-     "n_maps": 50
-    },
-    "test/level_4": {
-     "mean": 0.286667,
-     "min": 0.16,
-     "max": 0.4,
-     "n_seeds": 3,
-     "per_seed": {
-      "seed_0": 0.4,
-      "seed_1": 0.16,
-      "seed_2": 0.3
-     },
-     "n_maps": 50
-    },
-    "test_barn": {
-     "mean": 0.16,
-     "min": 0.14,
-     "max": 0.2,
-     "n_seeds": 3,
-     "per_seed": {
-      "seed_0": 0.14,
-      "seed_1": 0.2,
-      "seed_2": 0.14
-     },
-     "n_maps": 50
-    },
-    "mean_levels_1_4": {
-     "mean": 0.473333,
-     "min": 0.43,
-     "max": 0.525,
-     "n_seeds": 3,
-     "per_seed": {
-      "seed_0": 0.43,
-      "seed_1": 0.465,
-      "seed_2": 0.525
-     }
-    }
-   }
-  },
-  "M3": {
-   "dir": ".../bench_out/M3",
-   "seeds": [
-    "seed_0",
-    "seed_1",
-    "seed_2"
-   ],
-   "color": "#eda100",
-   "hatch": null,
-   "sets": {
-    "test/level_1": {
-     "mean": 0.953333,
-     "min": 0.94,
-     "max": 0.98,
-     "n_seeds": 3,
-     "per_seed": {
-      "seed_0": 0.94,
-      "seed_1": 0.98,
-      "seed_2": 0.94
-     },
-     "n_maps": 50
-    },
-    "test/level_2": {
-     "mean": 0.486667,
-     "min": 0.42,
-     "max": 0.52,
-     "n_seeds": 3,
-     "per_seed": {
-      "seed_0": 0.52,
-      "seed_1": 0.52,
-      "seed_2": 0.42
-     },
-     "n_maps": 50
-    },
-    "test/level_3": {
-     "mean": 0.28,
-     "min": 0.18,
-     "max": 0.34,
-     "n_seeds": 3,
-     "per_seed": {
-      "seed_0": 0.32,
-      "seed_1": 0.18,
-      "seed_2": 0.34
-     },
-     "n_maps": 50
-    },
-    "test/level_4": {
-     "mean": 0.306667,
-     "min": 0.18,
-     "max": 0.42,
-     "n_seeds": 3,
-     "per_seed": {
-      "seed_0": 0.42,
-      "seed_1": 0.18,
-      "seed_2": 0.32
-     },
-     "n_maps": 50
-    },
-    "test_barn": {
-     "mean": 0.16,
-     "min": 0.08,
-     "max": 0.2,
-     "n_seeds": 3,
-     "per_seed": {
-      "seed_0": 0.2,
-      "seed_1": 0.2,
-      "seed_2": 0.08
-     },
-     "n_maps": 50
-    },
-    "mean_levels_1_4": {
-     "mean": 0.506667,
-     "min": 0.465,
-     "max": 0.55,
-     "n_seeds": 3,
-     "per_seed": {
-      "seed_0": 0.55,
-      "seed_1": 0.465,
-      "seed_2": 0.505
-     }
-    }
-   }
-  },
-  "M4": {
-   "dir": ".../bench_out/M4",
-   "seeds": [
-    "seed_0",
-    "seed_1",
-    "seed_2"
-   ],
-   "color": "#e87ba4",
-   "hatch": null,
-   "sets": {
-    "test/level_1": {
-     "mean": 0.866667,
-     "min": 0.82,
-     "max": 0.92,
-     "n_seeds": 3,
-     "per_seed": {
-      "seed_0": 0.82,
-      "seed_1": 0.92,
-      "seed_2": 0.86
-     },
-     "n_maps": 50
-    },
-    "test/level_2": {
-     "mean": 0.4,
-     "min": 0.34,
-     "max": 0.48,
-     "n_seeds": 3,
-     "per_seed": {
-      "seed_0": 0.48,
-      "seed_1": 0.38,
-      "seed_2": 0.34
-     },
-     "n_maps": 50
-    },
-    "test/level_3": {
-     "mean": 0.086667,
-     "min": 0.02,
-     "max": 0.14,
-     "n_seeds": 3,
-     "per_seed": {
-      "seed_0": 0.14,
-      "seed_1": 0.1,
-      "seed_2": 0.02
-     },
-     "n_maps": 50
-    },
-    "test/level_4": {
-     "mean": 0.013333,
-     "min": 0.0,
-     "max": 0.04,
-     "n_seeds": 3,
-     "per_seed": {
-      "seed_0": 0.0,
-      "seed_1": 0.04,
-      "seed_2": 0.0
-     },
-     "n_maps": 50
-    },
-    "test_barn": {
-     "mean": 0.066667,
-     "min": 0.06,
-     "max": 0.08,
-     "n_seeds": 3,
-     "per_seed": {
-      "seed_0": 0.08,
-      "seed_1": 0.06,
-      "seed_2": 0.06
-     },
-     "n_maps": 50
-    },
-    "mean_levels_1_4": {
-     "mean": 0.341667,
-     "min": 0.305,
-     "max": 0.36,
-     "n_seeds": 3,
-     "per_seed": {
-      "seed_0": 0.36,
-      "seed_1": 0.36,
-      "seed_2": 0.305
-     }
-    }
-   }
-  },
-  "M5": {
-   "dir": ".../bench_out/M5",
-   "seeds": [
-    "seed_0",
-    "seed_1",
-    "seed_2"
-   ],
-   "color": "#008300",
-   "hatch": null,
-   "sets": {
-    "test/level_1": {
-     "mean": 0.946667,
-     "min": 0.9,
-     "max": 0.98,
-     "n_seeds": 3,
-     "per_seed": {
-      "seed_0": 0.96,
-      "seed_1": 0.98,
-      "seed_2": 0.9
-     },
-     "n_maps": 50
-    },
-    "test/level_2": {
-     "mean": 0.66,
-     "min": 0.44,
-     "max": 0.78,
-     "n_seeds": 3,
-     "per_seed": {
-      "seed_0": 0.78,
-      "seed_1": 0.76,
-      "seed_2": 0.44
-     },
-     "n_maps": 50
-    },
-    "test/level_3": {
-     "mean": 0.3,
-     "min": 0.22,
-     "max": 0.34,
-     "n_seeds": 3,
-     "per_seed": {
-      "seed_0": 0.34,
-      "seed_1": 0.22,
-      "seed_2": 0.34
-     },
-     "n_maps": 50
-    },
-    "test/level_4": {
-     "mean": 0.3,
-     "min": 0.02,
-     "max": 0.66,
-     "n_seeds": 3,
-     "per_seed": {
-      "seed_0": 0.66,
-      "seed_1": 0.02,
-      "seed_2": 0.22
-     },
-     "n_maps": 50
-    },
-    "test_barn": {
-     "mean": 0.28,
-     "min": 0.16,
-     "max": 0.36,
-     "n_seeds": 3,
-     "per_seed": {
-      "seed_0": 0.36,
-      "seed_1": 0.32,
-      "seed_2": 0.16
-     },
-     "n_maps": 50
-    },
-    "mean_levels_1_4": {
-     "mean": 0.551667,
-     "min": 0.475,
-     "max": 0.685,
-     "n_seeds": 3,
-     "per_seed": {
-      "seed_0": 0.685,
-      "seed_1": 0.495,
-      "seed_2": 0.475
-     }
-    }
-   }
-  },
-  "M6": {
-   "dir": ".../bench_out/M6",
-   "seeds": [
-    "seed_0",
-    "seed_1",
-    "seed_2"
-   ],
-   "color": "#6250d6",
-   "hatch": null,
-   "sets": {
-    "test/level_1": {
-     "mean": 0.96,
-     "min": 0.88,
-     "max": 1.0,
-     "n_seeds": 3,
-     "per_seed": {
-      "seed_0": 1.0,
-      "seed_1": 0.88,
-      "seed_2": 1.0
-     },
-     "n_maps": 50
-    },
-    "test/level_2": {
-     "mean": 0.6,
-     "min": 0.54,
-     "max": 0.66,
-     "n_seeds": 3,
-     "per_seed": {
-      "seed_0": 0.54,
-      "seed_1": 0.66,
-      "seed_2": 0.6
-     },
-     "n_maps": 50
-    },
-    "test/level_3": {
-     "mean": 0.173333,
-     "min": 0.06,
-     "max": 0.28,
-     "n_seeds": 3,
-     "per_seed": {
-      "seed_0": 0.06,
-      "seed_1": 0.28,
-      "seed_2": 0.18
-     },
-     "n_maps": 50
-    },
-    "test/level_4": {
-     "mean": 0.173333,
-     "min": 0.0,
-     "max": 0.44,
-     "n_seeds": 3,
-     "per_seed": {
-      "seed_0": 0.0,
-      "seed_1": 0.44,
-      "seed_2": 0.08
-     },
-     "n_maps": 50
-    },
-    "test_barn": {
-     "mean": 0.206667,
-     "min": 0.1,
-     "max": 0.34,
-     "n_seeds": 3,
-     "per_seed": {
-      "seed_0": 0.18,
-      "seed_1": 0.34,
-      "seed_2": 0.1
-     },
-     "n_maps": 50
-    },
-    "mean_levels_1_4": {
-     "mean": 0.476667,
-     "min": 0.4,
-     "max": 0.565,
-     "n_seeds": 3,
-     "per_seed": {
-      "seed_0": 0.4,
-      "seed_1": 0.565,
-      "seed_2": 0.465
-     }
-    }
-   }
-  },
-  "GA B1": {
-   "dir": ".../bench_out/ga_b1",
-   "seeds": [
-    "seed_0",
-    "seed_1",
-    "seed_2"
-   ],
-   "color": "#e34948",
-   "hatch": null,
-   "sets": {
-    "test/level_1": {
-     "mean": 0.993333,
-     "min": 0.98,
-     "max": 1.0,
-     "n_seeds": 3,
-     "per_seed": {
-      "seed_0": 0.98,
-      "seed_1": 1.0,
-      "seed_2": 1.0
-     },
-     "n_maps": 50
-    },
-    "test/level_2": {
-     "mean": 0.606667,
-     "min": 0.48,
-     "max": 0.68,
-     "n_seeds": 3,
-     "per_seed": {
-      "seed_0": 0.68,
-      "seed_1": 0.48,
-      "seed_2": 0.66
-     },
-     "n_maps": 50
-    },
-    "test/level_3": {
-     "mean": 0.293333,
-     "min": 0.18,
-     "max": 0.38,
-     "n_seeds": 3,
-     "per_seed": {
-      "seed_0": 0.38,
-      "seed_1": 0.18,
-      "seed_2": 0.32
-     },
-     "n_maps": 50
-    },
-    "test/level_4": {
-     "mean": 0.466667,
-     "min": 0.32,
-     "max": 0.54,
-     "n_seeds": 3,
-     "per_seed": {
-      "seed_0": 0.54,
-      "seed_1": 0.54,
-      "seed_2": 0.32
-     },
-     "n_maps": 50
-    },
-    "test_barn": {
-     "mean": 0.146667,
-     "min": 0.1,
-     "max": 0.24,
-     "n_seeds": 3,
-     "per_seed": {
-      "seed_0": 0.1,
-      "seed_1": 0.1,
-      "seed_2": 0.24
-     },
-     "n_maps": 50
-    },
-    "mean_levels_1_4": {
-     "mean": 0.59,
-     "min": 0.55,
-     "max": 0.645,
-     "n_seeds": 3,
-     "per_seed": {
-      "seed_0": 0.645,
-      "seed_1": 0.55,
-      "seed_2": 0.575
-     }
-    }
-   }
-  },
-  "GA B2": {
-   "dir": ".../bench_out/ga_b2",
-   "seeds": [
-    "seed_0"
-   ],
-   "color": "#2a78d6",
-   "hatch": "///",
-   "sets": {
-    "test/level_1": {
-     "mean": 1.0,
-     "min": 1.0,
-     "max": 1.0,
-     "n_seeds": 1,
-     "per_seed": {
-      "seed_0": 1.0
-     },
-     "n_maps": 50
-    },
-    "test/level_2": {
-     "mean": 0.7,
-     "min": 0.7,
-     "max": 0.7,
-     "n_seeds": 1,
-     "per_seed": {
-      "seed_0": 0.7
-     },
-     "n_maps": 50
-    },
-    "test/level_3": {
-     "mean": 0.26,
-     "min": 0.26,
-     "max": 0.26,
-     "n_seeds": 1,
-     "per_seed": {
-      "seed_0": 0.26
-     },
-     "n_maps": 50
-    },
-    "test/level_4": {
-     "mean": 0.46,
-     "min": 0.46,
-     "max": 0.46,
-     "n_seeds": 1,
-     "per_seed": {
-      "seed_0": 0.46
-     },
-     "n_maps": 50
-    },
-    "test_barn": {
-     "mean": 0.14,
-     "min": 0.14,
-     "max": 0.14,
-     "n_seeds": 1,
-     "per_seed": {
-      "seed_0": 0.14
-     },
-     "n_maps": 50
-    },
-    "mean_levels_1_4": {
-     "mean": 0.605,
-     "min": 0.605,
-     "max": 0.605,
-     "n_seeds": 1,
-     "per_seed": {
-      "seed_0": 0.605
-     }
-    }
-   }
   }
- }
 }

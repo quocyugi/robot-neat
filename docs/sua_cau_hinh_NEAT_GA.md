@@ -1,6 +1,6 @@
 # Cấu hình NEAT và GA đã sửa (nhóm 3, IT4906)
 
-Tài liệu này mô tả bản sửa cấu hình NEAT và GA. Bản sửa được kiểm trên repo `hoangthcslt/Project_IT4906`, khác repo này ở vài chỗ nhỏ đã được đưa vào cùng đợt sửa (khóa `response_*` trong config, hướng xuất phát `start_heading`, in ra ký tự ASCII). Phân tích đầy đủ ở mục 8.13–8.14 của `reports/Bao_cao_pipeline_NEAT_robot.docx`; script và kết quả kiểm thử ở `kiem_thu/`; các lỗi code đã sửa ở [sua_loi_code.md](sua_loi_code.md).
+Tài liệu này mô tả bản sửa cấu hình NEAT và GA. Bản sửa được kiểm trên repo `hoangthcslt/Project_IT4906`, khác repo này ở vài chỗ nhỏ đã được đưa vào cùng đợt sửa (khóa `response_*` trong config, hướng xuất phát `start_heading`, in ra ký tự ASCII). Phân tích đầy đủ ở mục 8.13–8.14 của báo cáo Word `Bao_cao_pipeline_NEAT_robot.docx` của nhóm (file này không đưa lên repo); script và kết quả kiểm thử nằm ở thư mục kiểm thử riêng, không đưa lên repo, trừ thí nghiệm mê cung Lehman–Stanley (script và kết quả ở [lehman_maze/](../lehman_maze/README.md)); các lỗi code đã sửa ở [sua_loi_code.md](sua_loi_code.md).
 
 ## Trạng thái trong repo này
 
@@ -29,7 +29,7 @@ Mọi bước áp dụng đã làm trong cùng commit:
 
 ## Kết quả kiểm thử
 
-Kiểm thử chạy **chính các file trong thư mục này**: bộ huấn luyện nhanh của báo cáo đọc các file `.ini`, nạp `neat_fixes.py` và `fixed_ga.py` từ đây. Điều kiện chung, trừ chỗ ghi khác trong tên dòng: bản đồ cấp 3 tường dày 0,20 m, fitness geodesic, học đều cả bốn cấp với 8 bản đồ mỗi thế hệ (2 mỗi cấp), 180.000 lượt đánh giá, champion chọn trên val, 50 bản đồ test mỗi cấp. Nhiều seed: trung bình (thấp nhất–cao nhất).
+Kiểm thử chạy **chính các file của bản sửa**: bộ huấn luyện nhanh của báo cáo đọc các file `.ini` (nay là `configs/neat_recurrent.ini`, `configs/neat_feedforward.ini`), nạp `neat_fixes.py` và `fixed_ga.py` (nay là `src/neat_engine/neat_fixes.py`, `src/baselines/fixed_ga.py`). Điều kiện chung, trừ chỗ ghi khác trong tên dòng: bản đồ cấp 3 tường dày 0,20 m, fitness geodesic, học đều cả bốn cấp với 8 bản đồ mỗi thế hệ (2 mỗi cấp), 180.000 lượt đánh giá, champion chọn trên val, 50 bản đồ test mỗi cấp. Nhiều seed: trung bình (thấp nhất–cao nhất).
 
 | Cấu hình | Seed | Cấp 1 | Cấp 2 | Cấp 3 | Cấp 4 | BARN |
 |---|---|---|---|---|---|---|

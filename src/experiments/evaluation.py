@@ -1,13 +1,13 @@
 """
 Test-set Evaluation Helpers (sửa lỗi L04)
 ==========================================
-Chấm một bộ điều khiển (champion NEAT hoặc vector trọng số GA) trên các
+Chấm một bộ điều khiển (champion NEAT, vector trọng số GA, APF) trên các
 tập test và tính SR, CR, tỉ lệ hết giờ, SPL, MTT cho từng tập. Dùng chung cho
 scripts/evaluate.py và scripts/run_baselines.py.
 
-Tập test mặc định: test/level_1 … test/level_4 và test_barn (tập nào có trong
-data_dir thì chấm tập đó). Mọi bộ điều khiển chạy cùng một env, cùng bản đồ, nên
-số liệu so được trực tiếp.
+Tập test mặc định: test/level_1 … test/level_4, test_barn, test_lehman (tập nào
+có trong data_dir thì chấm tập đó). Mọi bộ điều khiển chạy cùng một env, cùng
+bản đồ, nên số liệu so được trực tiếp.
 """
 
 from __future__ import annotations
@@ -17,9 +17,9 @@ from typing import Optional
 
 import numpy as np
 
-from src.neat_engine.parallel import ParallelEvaluator, summarize
+from src.neat_engine.parallel import ParallelEvaluator, make_evaluator, summarize
 
-DEFAULT_SETS = ("test/level_1", "test/level_2", "test/level_3", "test/level_4", "test_barn")
+DEFAULT_SETS = ("test/level_1", "test/level_2", "test/level_3", "test/level_4", "test_barn", "test_lehman")
 
 
 def find_sets(data_dir: str | Path, names=DEFAULT_SETS) -> dict[str, list[str]]:
@@ -39,14 +39,20 @@ def evaluate_sets(
     sets: dict[str, list[str]],
     evaluator: Optional[ParallelEvaluator] = None,
     workers: int = 4,
+    backend: Optional[str] = None,
+    backend_options: Optional[dict] = None,
 ) -> dict:
     """Chấm `spec` trên mọi tập. Mỗi bản đồ là một tác vụ để chia đều cho các worker.
 
-    Tiến độ đo theo đường chim bay ở đây: chỉ số đánh giá (SR, CR, SPL) không cần
+    Tiến độ đo theo đường chim bay ở đây: chỉ số đánh giá (SR, CR, TC, SPL, MTT) không cần
     trường geodesic, nên không phải tính trường cho bản đồ test.
+    Hàng "mean_levels_1_4": SR, CR là trung bình cộng của 4 cấp; TC là tổng số va chạm của 4 cấp;
+    MTT tính trên mọi lượt tới đích của 4 cấp gộp lại.
+    Không truyền evaluator thì tự dựng bằng parallel.make_evaluator(workers, backend):
+    mặc định "cpu" (ParallelEvaluator); "batch" / "gpu" chạy theo lô, cùng kết quả từng bit.
     """
     own = evaluator is None
-    ev = evaluator or ParallelEvaluator(workers)
+    ev = evaluator or make_evaluator(workers, backend, **(backend_options or {}))
     opts = {"progress": "euclid"}
     try:
         tasks, owners = [], []
@@ -66,17 +72,32 @@ def evaluate_sets(
         report[name] = s
     levels = [k for k in report if k.startswith("test/level_")]
     if levels:
+        level_rows = [r for r, o in zip(flat, owners) if o in levels]
         report["mean_levels_1_4"] = {"SR": round(float(np.mean([report[k]["SR"] for k in levels])), 4),
-                                     "CR": round(float(np.mean([report[k]["CR"] for k in levels])), 4)}
+                                     "CR": round(float(np.mean([report[k]["CR"] for k in levels])), 4),
+                                     "TC": int(sum(report[k]["TC"] for k in levels)),
+                                     "MTT": summarize(level_rows).get("MTT")}
     return report
 
 
+def total_collisions(s: dict) -> Optional[int]:
+    """TC của một tập; kết quả cũ (trước khi có TC) thì suy từ CR × n (mỗi lượt có nhiều nhất 1 va chạm)."""
+    if s.get("TC") is not None:
+        return int(s["TC"])
+    if s.get("CR") is not None and s.get("n") is not None:
+        return int(round(s["CR"] * s["n"]))
+    return None
+
+
 def format_report(report: dict) -> str:
-    lines = [f"{'tập':<16}{'n':>5}{'SR':>8}{'CR':>8}{'hết giờ':>9}{'SPL':>8}{'MTT (s)':>9}"]
+    lines = [f"{'tập':<16}{'n':>5}{'SR':>8}{'CR':>8}{'TC':>6}{'hết giờ':>9}{'SPL':>8}{'MTT (s)':>9}"]
     for name, s in report.items():
-        if "n" not in s:
-            lines.append(f"{name:<16}{'':>5}{s['SR']:>8.2f}{s['CR']:>8.2f}")
-            continue
         mtt = f"{s['MTT']:.1f}" if s.get("MTT") is not None else "-"
-        lines.append(f"{name:<16}{s['n']:>5}{s['SR']:>8.2f}{s['CR']:>8.2f}{s['timeout']:>9.2f}{s['SPL']:>8.2f}{mtt:>9}")
+        tc = total_collisions(s)
+        tc_txt = str(tc) if tc is not None else "-"
+        if "n" not in s:
+            lines.append(f"{name:<16}{'':>5}{s['SR']:>8.2f}{s['CR']:>8.2f}{tc_txt:>6}{'':>9}{'':>8}{mtt:>9}")
+            continue
+        lines.append(f"{name:<16}{s['n']:>5}{s['SR']:>8.2f}{s['CR']:>8.2f}{tc_txt:>6}{s['timeout']:>9.2f}"
+                     f"{s['SPL']:>8.2f}{mtt:>9}")
     return "\n".join(lines)

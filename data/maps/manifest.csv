@@ -1599,3 +1599,5 @@ barn_296,BARN,test_barn,2,data/maps/test_barn/barn_296.json,,246,8.1,8.6971,1.07
 barn_297,BARN,barn_extra,2,data/maps/barn_all/barn_297.json,,222,8.1,9.0799,1.121,9.3426,1.1534,0.375,0.6669,1.05,0.85,True,0.4628,0.0017,True,199,289,kho,ee9ed027cbaca2fa,
 barn_298,BARN,barn_extra,2,data/maps/barn_all/barn_298.json,,202,8.1,9.1668,1.1317,9.3841,1.1585,0.375,0.6474,1.05,0.85,True,0.3704,0.0,True,198,296,kho,c03f6de5d7d59b70,
 barn_299,BARN,barn_extra,2,data/maps/barn_all/barn_299.json,,174,8.1,8.9717,1.1076,9.3426,1.1534,0.375,0.6616,1.05,0.85,True,0.4444,0.0654,True,198,290,kho,26ebd3d05298a228,
+lehman_medium_maze,Lehman-Stanley,test_lehman,2,data/maps/test_lehman/lehman_medium_maze.json,,15,7.8862,8.9054,1.1292,9.1654,1.1622,0.3933,0.4325,0.5312,0.6157,True,0.352,0.6139,True,218,,,d9614280a90b14d7,
+lehman_hard_maze,Lehman-Stanley,test_lehman,4,data/maps/test_lehman/lehman_hard_maze.json,,15,5.1274,15.0081,2.927,15.6403,3.0503,0.3719,0.4371,0.5,0.4688,True,0.3238,2.8254,True,365,,,1190467e96b83cdf,

@@ -31,6 +31,8 @@ L09  λ so với kỷ lục toàn run và không reset khi lên cấp nên kẹt
      reset() khi lên cấp, λ khởi đầu 0,5, sàn 0,2.
 L03  Thêm fixed_lambda: λ cố định (M4 "novelty thuần" dùng fixed_lambda = 0).
 L14  Nhận ngẫu nhiên 1% vào archive dùng bộ sinh số có seed.
+
+LehmanArchive (25/11/2026): luật archive của Lehman & Stanley (2011) cho novelty search thuần kiểu bài báo.
 """
 
 from __future__ import annotations
@@ -192,6 +194,50 @@ class NoveltyArchive:
     @property
     def size(self) -> int:
         return len(self._archive)
+
+
+class LehmanArchive(NoveltyArchive):
+    """Archive theo luật của Lehman & Stanley (2011), dùng cho novelty search thuần (NEATRunner novelty_rule="lehman").
+
+    Giống noveltyset.h của mã gốc (jal278/novelty-search-cpp) và lehman_maze/lehman_maze_ns.py:
+      - nhận cá thể khi novelty > ngưỡng; không nhận ngẫu nhiên; archive không giới hạn kích thước;
+      - archive còn rỗng mà không ai qua ngưỡng: nhận cá thể có novelty cao nhất;
+      - 10 thế hệ liền không nhận ai: ngưỡng x 0,95 (không thấp hơn sàn);
+      - nhận hơn 4 cá thể trong một thế hệ: ngưỡng x 1,2.
+    Novelty vẫn tính bằng compute_novelty (trung bình khoảng cách tới k = 15 láng giềng gần nhất trong quần thể
+    và archive, trước khi thêm cá thể của thế hệ này).
+
+    Ngưỡng của bài báo (6 đơn vị, sàn 0,25 đơn vị của mê cung gốc) đổi sang thang descriptor của dự án:
+    1 đơn vị = 0,03125 m (tỉ lệ đã dùng để dựng data/maps/test_lehman), chia cho arena 10 m, rồi nhân sqrt(K)
+    với K bản đồ probe, vì khoảng cách trong 2K chiều lớn gấp sqrt(K) khi hành vi lệch như nhau trên mọi bản đồ.
+    Với K = 4: ngưỡng đầu 0,0375, sàn 0,0015625.
+    """
+
+    UNIT = 0.03125 / 10.0     # một đơn vị của mê cung gốc, theo thang descriptor (mét / kích thước arena)
+
+    def __init__(self, k_neighbours: int = 15, n_maps: int = 4, initial_units: float = 6.0, floor_units: float = 0.25):
+        scale = self.UNIT * float(np.sqrt(n_maps))
+        super().__init__(k_neighbours=k_neighbours, max_size=10**9, initial_threshold=initial_units * scale)
+        self.floor = floor_units * scale
+        self._generations_without_add = 0
+
+    def update(self, behaviors: np.ndarray, novelty: np.ndarray) -> int:
+        """Thêm cá thể của một thế hệ vào archive và chỉnh ngưỡng; trả số cá thể được nhận."""
+        behaviors = np.asarray(behaviors, dtype=np.float64)
+        novelty = np.asarray(novelty, dtype=np.float64)
+        idx = np.flatnonzero(novelty > self.threshold)
+        if not self._archive and idx.size == 0:
+            idx = np.array([int(np.argmax(novelty))])
+        for i in idx:
+            self._archive.append(np.array(behaviors[i], dtype=np.float64, copy=True))
+        added = int(idx.size)
+        self._generations_without_add = 0 if added else self._generations_without_add + 1
+        if self._generations_without_add == 10:
+            self.threshold = max(self.threshold * 0.95, self.floor)
+            self._generations_without_add = 0
+        if added > 4:
+            self.threshold *= 1.2
+        return added
 
 
 # ══════════════════════════════════════════════════════════════════════════

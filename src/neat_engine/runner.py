@@ -30,6 +30,12 @@ L21  is_recurrent=None: suy ra từ feed_forward của file config.
 L30  Gọi unify_initial_hidden_keys() (không làm gì khi num_hidden = 0).
 L34  Curriculum có giới hạn số thế hệ mỗi cấp; summary.json ghi cấp cao nhất đã học.
 In ra chỉ dùng ký tự ASCII (λ, ★ làm lỗi UnicodeEncodeError trên console cp1252).
+Cảm biến (NEAT_LIDAR_MODE / NEAT_LIDAR_N, xem src/env/kinematics.py): num_inputs của config
+phải bằng N + 3 (báo lỗi ngay nếu khác); summary.json ghi "sensor" ({"mode", "n"}) chỉ khi
+cảm biến khác mặc định 12 tia điểm.
+Cách đánh giá (backend, xem parallel.make_evaluator): mặc định "cpu" (ParallelEvaluator như cũ);
+"batch" / "gpu" chạy theo lô (src/batch), cùng kết quả từng bit; summary.json ghi "backend" chỉ
+khi khác "cpu".
 """
 
 from __future__ import annotations
@@ -47,11 +53,13 @@ import neat
 import numpy as np
 
 from src.env.geodesic import DEFAULT_CACHE_DIR
+from src.env.kinematics import LIDAR_MODE, LIDAR_NUM_RAYS, sensor_summary
 from src.neat_engine.curriculum import LEVELS, CurriculumManager, UniformSchedule, list_maps
 from src.neat_engine.evaluator import max_episode_fitness
 from src.neat_engine.neat_fixes import unify_initial_hidden_keys
-from src.neat_engine.novelty import AdaptiveHybridManager, NoveltyArchive, behavior_descriptor
-from src.neat_engine.parallel import ParallelEvaluator, neat_spec
+from src.neat_engine.novelty import AdaptiveHybridManager, LehmanArchive, NoveltyArchive, behavior_descriptor
+from src.neat_engine.parallel import (ParallelEvaluator, backend_label, check_backend_options, make_evaluator,
+                                      neat_spec, resolve_backend)
 
 
 class NEATRunner:
@@ -78,7 +86,19 @@ class NEATRunner:
         max_gens_per_level: Optional[int] | str = "auto",
         promotion_threshold: float = 0.80,
         verbose: bool = True,
+        novelty_rule: str = "project",
+        val_key: str = "pooled",
+        levels: Optional[tuple] = None,
+        backend: Optional[str] = None,
+        backend_options: Optional[dict] = None,
     ):
+        # backend: "cpu" (mặc định, hoặc theo NEAT_EVAL_BACKEND), "batch", "gpu"; backend_options cho
+        # BatchEvaluator, ví dụ {"exact": False} (chế độ device của GPU, không trùng bit). Kiểm trước khi tạo
+        # thư mục ra, nên tên sai không để lại thư mục rỗng.
+        self.backend = resolve_backend(backend)
+        self.backend_options = check_backend_options(self.backend, backend_options)
+        self.backend_used: Optional[str] = None
+
         self.config_path = Path(config_path).resolve()
         self.data_dir = Path(data_dir)
         self.output_dir = Path(output_dir)
@@ -98,6 +118,21 @@ class NEATRunner:
         self.verbose = verbose
         if novelty_space not in ("probe", "population"):
             raise ValueError("novelty_space must be 'probe' or 'population'")
+        # novelty_rule: "project" = novelty lai của nhóm (M3–M6); "lehman" = novelty search thuần theo
+        # Lehman & Stanley 2011 (LehmanArchive, điểm chọn lọc = novelty thô, không λ, không Minimal Criteria)
+        if novelty_rule not in ("project", "lehman"):
+            raise ValueError("novelty_rule must be 'project' or 'lehman'")
+        if novelty_rule == "lehman" and (not use_novelty or novelty_space != "probe"):
+            raise ValueError("novelty_rule='lehman' needs use_novelty=True and novelty_space='probe'")
+        # val_key: "pooled" = SR trên mọi bản đồ val gộp lại; "per_level" = trung bình SR của từng cấp (mỗi
+        # bộ dữ liệu nặng như nhau khi các ô cấp có số bản đồ val khác nhau)
+        if val_key not in ("pooled", "per_level"):
+            raise ValueError("val_key must be 'pooled' or 'per_level'")
+        self.novelty_rule = novelty_rule
+        self.val_key = val_key
+        # levels: các ô cấp trong data_dir (mặc định 1–4). Thêm ô (ví dụ 5 = BARN, 6 = mê cung Lehman) để học
+        # trên nhiều bộ dữ liệu; UniformSchedule bốc maps_per_eval // số ô bản đồ mỗi ô.
+        self.levels = tuple(int(x) for x in levels) if levels else LEVELS
 
         # NEAT config
         self.neat_config = neat.Config(
@@ -107,6 +142,13 @@ class NEATRunner:
             neat.DefaultStagnation,
             str(self.config_path),
         )
+        n_in = self.neat_config.genome_config.num_inputs
+        if n_in != LIDAR_NUM_RAYS + 3:
+            hint = "file gốc configs/neat_*.ini" if LIDAR_NUM_RAYS == 12 else f"configs/neat_*_n{LIDAR_NUM_RAYS}.ini"
+            raise ValueError(
+                f"{self.config_path.name}: num_inputs = {n_in}, nhưng cảm biến ({LIDAR_MODE}, N = "
+                f"{LIDAR_NUM_RAYS}) cho {LIDAR_NUM_RAYS + 3} đầu vào; dùng {hint} hoặc đặt NEAT_LIDAR_N cho đúng"
+            )
         # L21: suy ra kiểu mạng từ config thay vì mặc định True
         if is_recurrent is None:
             is_recurrent = not bool(self.neat_config.genome_config.feed_forward)
@@ -121,10 +163,10 @@ class NEATRunner:
                 max_gens_per_level = max(10, int(np.ceil(max_generations / 5)))
             self.schedule = CurriculumManager(
                 data_dir, rng=self.rng, max_gens_per_level=max_gens_per_level,
-                promotion_threshold=promotion_threshold,
+                promotion_threshold=promotion_threshold, levels=self.levels,
             )
         else:
-            self.schedule = UniformSchedule(data_dir, rng=self.rng)
+            self.schedule = UniformSchedule(data_dir, rng=self.rng, levels=self.levels)
         self.curriculum = self.schedule if use_curriculum else None   # tên cũ
 
         # Bản đồ val của cả 4 cấp, dùng để chọn champion (L02)
@@ -134,13 +176,18 @@ class NEATRunner:
 
         # Novelty (L06–L09): bản đồ probe cố định = bản đồ train đầu tiên của mỗi cấp
         self.probe_maps = (
-            [list_maps(data_dir, "train", lvl)[0] for lvl in LEVELS]
+            [list_maps(data_dir, "train", lvl)[0] for lvl in self.levels]
             if use_novelty and novelty_space == "probe" else []
         )
         # Thang cố định của novelty (L08): khoảng cách lớn nhất có thể giữa hai descriptor
         # 2K chiều trong hình hộp đơn vị, sqrt(2K), nên điểm novelty chuẩn hóa không bị cắt.
         n_desc_maps = len(self.probe_maps) or maps_per_eval
-        self.archive = NoveltyArchive(rng=self.rng) if use_novelty else None
+        if not use_novelty:
+            self.archive = None
+        elif novelty_rule == "lehman":
+            self.archive = LehmanArchive(n_maps=n_desc_maps)
+        else:
+            self.archive = NoveltyArchive(rng=self.rng)
         self.hybrid_mgr = (
             AdaptiveHybridManager(fixed_lambda=fixed_lambda, fitness_scale=max_episode_fitness(progress),
                                   novelty_scale=float(np.sqrt(2 * n_desc_maps)))
@@ -182,7 +229,10 @@ class NEATRunner:
         population.add_reporter(stats)
 
         t0 = time.time()
-        self._evaluator = ParallelEvaluator(self.workers)
+        self._evaluator = make_evaluator(self.workers, self.backend, **self.backend_options)
+        self.backend_used = backend_label(self._evaluator)
+        if self.verbose and self.backend_used != "cpu":     # đường mặc định không in thêm gì
+            print(f"Backend đánh giá thực dùng: {self.backend_used}", flush=True)
         try:
             library_best = population.run(self._eval_genomes, n=self.max_generations)
             self._evaluator.close()
@@ -236,14 +286,18 @@ class NEATRunner:
                 beh = np.array([behavior_descriptor([r["final_pos"] for r in res[:n_train]]) for res in results])
                 use_archive = False
             novelty = self.archive.compute_novelty(beh, population_behaviors=beh, use_archive=use_archive)
-            if use_archive:
+            if self.novelty_rule == "lehman":
+                self.archive.update(beh, novelty)
+                final_scores = np.asarray(novelty, dtype=np.float64)   # novelty thô: chọn lọc chỉ theo novelty
+            elif use_archive:
                 if self.archive.size == 0:
                     self.archive.calibrate(novelty)   # ngưỡng ban đầu theo đúng thang của descriptor
                 for b, s in zip(beh, novelty):
                     self.archive.try_add(b, s)
                 self.archive.end_generation()
-            self.hybrid_mgr.update(float(np.max(raw)))
-            final_scores = self.hybrid_mgr.combine_scores(raw, novelty, steps, collisions)
+            if self.novelty_rule != "lehman":
+                self.hybrid_mgr.update(float(np.max(raw)))
+                final_scores = self.hybrid_mgr.combine_scores(raw, novelty, steps, collisions)
         else:
             final_scores = raw
 
@@ -280,7 +334,7 @@ class NEATRunner:
             "mean_score": float(np.mean(final_scores)),
             "n_species": n_species,
             "archive_size": self.archive.size if self.archive else 0,
-            "lambda": self.hybrid_mgr.current_lambda if self.hybrid_mgr else 1.0,
+            "lambda": 0.0 if self.novelty_rule == "lehman" else (self.hybrid_mgr.current_lambda if self.hybrid_mgr else 1.0),
             "level_val_sr": level_val_sr,
             "promotion": promotion,
             "champion_check": champ_check,
@@ -318,7 +372,10 @@ class NEATRunner:
             succ = np.array([r["success"] for r in rr], dtype=float)
             fit = float(np.mean([r["fitness"] for r in rr]))
             per_level = {int(lvl): round(float(succ[levels == lvl].mean()), 4) for lvl in sorted(set(self.val_levels))}
-            score = float(succ.mean())
+            if self.val_key == "per_level":     # mỗi cấp (bộ dữ liệu) nặng như nhau
+                score = float(np.mean([succ[levels == lvl].mean() for lvl in sorted(set(self.val_levels))]))
+            else:
+                score = float(succ.mean())
             best_here = max(best_here, score)
             key = (score, fit)
             if self.champion_key is None or key > self.champion_key:
@@ -370,5 +427,17 @@ class NEATRunner:
             "wall_seconds": round(self.wall_seconds, 1),
             "workers": self.workers,
         }
+        if self.novelty_rule != "project":     # chỉ ghi khi khác mặc định (giữ summary cũ y nguyên)
+            summary["novelty_rule"] = self.novelty_rule
+            summary["archive_final"] = {"size": self.archive.size, "threshold": self.archive.threshold}
+        if self.val_key != "pooled":
+            summary["val_key"] = self.val_key
+        if self.levels != LEVELS:
+            summary["levels"] = list(self.levels)
+        sensor = sensor_summary()
+        if sensor is not None:                 # cảm biến khác mặc định 12 tia điểm
+            summary["sensor"] = sensor
+        if self.backend_used not in (None, "cpu"):   # chạy theo lô (cùng kết quả), chỉ ghi khi khác mặc định
+            summary["backend"] = self.backend_used
         with open(out / "summary.json", "w", encoding="utf-8") as f:
             json.dump(summary, f, indent=2)

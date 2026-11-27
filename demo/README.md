@@ -25,7 +25,7 @@ của lượt đó ngày 24/11/2026, theo mục *Lấy champion nào* và *Cách
 | `neat_config.ini` | file của chính lượt đó; nội dung trùng `configs/neat_recurrent.ini`, chỉ khác kiểu xuống dòng (CRLF) |
 | Ngày đưa vào `demo/` | 24/11/2026 |
 
-Kết quả trên tập test (`scripts/evaluate.py`, 250 bản đồ), trùng từng số với `test_results.json` của lượt benchmark:
+Kết quả trên tập test (`scripts/evaluate.py`, 252 bản đồ), trùng từng số với `test_results.json` của lượt benchmark:
 
 | Tập | SR | CR | Hết giờ |
 |---|---:|---:|---:|
@@ -34,9 +34,7 @@ Kết quả trên tập test (`scripts/evaluate.py`, 250 bản đồ), trùng t�
 | Cấp 3 | 0,28 | 0,10 | 0,62 |
 | Cấp 4 | 0,44 | 0,10 | 0,46 |
 | BARN (50 bản đồ) | 0,34 | 0,52 | 0,14 |
-
-Lượt benchmark còn chấm 2 mê cung Lehman–Stanley (0/2, cả hai va chạm); tập này đã bỏ khỏi code ngày 24/11/2026
-theo yêu cầu của nhóm, nên bảng trên và cấu hình 4 không còn dòng đó.
+| Lehman–Stanley (2 mê cung) | 0,00 | 1,00 | 0,00 |
 
 Kiểm tra nhanh trước buổi demo: chạy cấu hình 4 trong Run and Debug (hoặc
 `python scripts/evaluate.py --genome demo/champion_genome.pkl --config demo/neat_config.ini`), phải ra đúng bảng
@@ -87,7 +85,7 @@ Cũng có thể chép bằng chuột trong thanh Explorer của VS Code (Ctrl+C,
    ```
 
 2. Chạy cấu hình 4 (chấm trên toàn bộ tập test): bảng SR phải trùng `test_results.json` trong thư mục của lượt
-   đã chọn (file đó của benchmark còn mục `test_lehman`, bỏ qua mục này) và khác bảng ở mục *Champion hiện tại*;
+   đã chọn và khác bảng ở mục *Champion hiện tại*;
    sau đó sửa mục đó cho đúng champion mới.
 3. Chạy lại cấu hình 9 để ghi lại GIF dự phòng `output/demo/demo.gif`: GIF cũ vẫn là champion trước đó.
 

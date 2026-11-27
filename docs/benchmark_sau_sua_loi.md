@@ -10,9 +10,12 @@ của `docs/huong_dan_demo_vscode.md`).
 
 ## 1. Giao thức
 
-- **Code:** bản sao đóng băng của commit `56f4204`, tức đúng code trong repo. Huấn luyện bằng `NEATRunner` (NEAT)
-  và `scripts/run_baselines.py` (các baseline), chấm test bằng `src/experiments/evaluation.py` (như
-  `scripts/evaluate.py`).
+- **Code:** bản sao đóng băng của commit `56f4204`. Code trong repo hiện là bản này sau khi bỏ B3, B4 và thêm các
+  tùy chọn mặc định tắt (`novelty_rule="lehman"` cho LNS và LNS_ref, `val_key="per_level"`, `--levels`, cảm biến
+  hình quạt); khi các tùy chọn này tắt, code hiện tại cho kết quả trùng từng bit với code `56f4204` (kiểm ngày
+  25/11/2026 bằng lượt ngắn 3 thế hệ, seed 0: R0, M4, M6, GA B1 và APF trước khi thêm cảm biến hình quạt, R0 và
+  GA B1 sau khi thêm). Huấn luyện bằng `NEATRunner` (NEAT) và `scripts/run_baselines.py` (các baseline), chấm test
+  bằng `src/experiments/evaluation.py` (như `scripts/evaluate.py`).
 - **Ngân sách mỗi lượt chạy:** quần thể 150, 150 thế hệ, 8 bản đồ huấn luyện mỗi thế hệ, tức
   150 × 8 × 150 = 180.000 lượt đánh giá, như nhau cho NEAT và GA. M3–M6 (có novelty) chạy
   thêm 4 bản đồ probe cố định cho mỗi cá thể mỗi thế hệ, chỉ để tính novelty: thêm 90.000 lượt, không tính vào
@@ -23,35 +26,37 @@ của `docs/huong_dan_demo_vscode.md`).
 - **Curriculum** (M2, M3, M4, M6): ở cả 12 lượt, quần thể lên cấp 2 ở thế hệ 10 nhờ SR val ≥ 80%, nhưng lên cấp 3
   và 4 ở thế hệ 40 và 70 chỉ vì chạm giới hạn 30 thế hệ mỗi cấp; lịch thực tế là 10, 30, 30 và 80 thế hệ ở cấp 1–4.
 - **Tập test:** 50 bản đồ mỗi cấp 1–4, 50 bản đồ BARN, 2 mê cung Lehman–Stanley (252 lượt mỗi champion), tối đa
-  500 bước mỗi lượt. Chỉ số chính là SR (tỉ lệ tới đích); file kết quả có thêm CR, tỉ lệ hết giờ, SPL, MTT. Tập mê
-  cung Lehman–Stanley (mọi lượt đều 0/2) đã bỏ khỏi code ngày 24/11/2026 theo yêu cầu của nhóm, nên các bảng dưới và
-  `docs/benchmark/` không còn cột này; số của các tập khác không đổi.
-- **Số seed:** NEAT R0 4 seed; M1–M6 mỗi cấu hình 3 seed; GA B1 3 seed; GA B2 1 seed.
+  500 bước mỗi lượt. Chỉ số chính là SR (tỉ lệ tới đích); file kết quả có thêm CR, tỉ lệ hết giờ, SPL, MTT.
+- **Số seed:** NEAT R0 4 seed; M1–M6 mỗi cấu hình 3 seed; GA B1 3 seed; GA B2 1 seed; APF (B5) là bộ điều khiển
+  tất định, chấm một lần.
 
 **Các phương pháp.** NEAT: **R0** là NEAT hồi quy, chỉ dùng fitness, học đều 4 cấp, làm mốc so sánh. **M1–M6** là
 thí nghiệm bóc tách: M1 như R0 nhưng mạng truyền thẳng; M2 hồi quy, curriculum; M3 truyền thẳng, novelty lai, curriculum; M4 hồi
 quy, novelty thuần (lambda = 0), curriculum; M5 hồi quy, novelty lai, không curriculum; M6 hồi quy, novelty lai,
 curriculum (mô hình đầy đủ). Baseline: **GA B1**, **GA B2** là GA chỉ tiến hóa trọng số của mạng cố định 15-8-2 và
-15-16-8-2 (ngày 25/11/2026 nhóm bỏ các baseline tìm kiếm ngẫu nhiên, luật phản xạ và APF khỏi code, nên tài liệu chỉ còn so NEAT với GA). Bảng dưới, `docs/benchmark/benchmark_SR.md` và biểu đồ dùng đúng các tên
+15-16-8-2; **APF** (B5, trường thế nhân tạo) là baseline không học. Benchmark còn chạy B3 (tìm kiếm ngẫu nhiên) và
+B4 (luật phản xạ); hai baseline này đã bỏ khỏi code ngày 25/11/2026 nên không có trong tài liệu. Bảng dưới, `docs/benchmark/benchmark_SR.md` và biểu đồ dùng đúng các tên
 này, cùng thứ tự: NEAT trước, rồi các baseline.
 
 ## 2. SR trên tập test
 
-SR (%): trung bình các seed (seed thấp nhất–cao nhất). Cấp 1–4 và BARN mỗi tập 50 bản đồ. Cùng số với
+SR (%): trung bình các seed (seed thấp nhất–cao nhất). Cấp 1–4 và BARN mỗi tập 50 bản đồ, Lehman 2 mê cung
+(mọi lượt đều 0/2). Cùng số với
 `docs/benchmark/benchmark_SR.md` (file đó do script ghi; ảnh `docs/benchmark/benchmark_SR_bang.png` là cùng bảng ở
-dạng hình). Bảy dòng đầu là NEAT (R0, M1–M6), năm dòng sau là baseline.
+dạng hình). Bảy dòng đầu là NEAT (R0, M1–M6), ba dòng sau là baseline.
 
-| Phương pháp | Seed | Cấp 1 | Cấp 2 | Cấp 3 | Cấp 4 | BARN | TB cấp 1–4 |
-|:--|--:|--:|--:|--:|--:|--:|--:|
-| **R0** | 4 | 96,5 (94–98) | 71,5 (54–82) | 26,0 (18–46) | 26,5 (4–50) | 24,0 (16–30) | 55,1 (48–67,5) |
-| M1 | 3 | 94,7 (92–98) | 64,7 (54–82) | 30,0 (28–34) | 30,0 (2–50) | 30,0 (16–58) | 54,8 (45,5–65) |
-| M2 | 3 | 86,7 (64–100) | 52,0 (44–58) | 22,0 (16–26) | 28,7 (16–40) | 16,0 (14–20) | 47,3 (43–52,5) |
-| M3 | 3 | 95,3 (94–98) | 48,7 (42–52) | 28,0 (18–34) | 30,7 (18–42) | 16,0 (8–20) | 50,7 (46,5–55) |
-| M4 | 3 | 86,7 (82–92) | 40,0 (34–48) | 8,7 (2–14) | 1,3 (0–4) | 6,7 (6–8) | 34,2 (30,5–36) |
-| M5 | 3 | 94,7 (90–98) | 66,0 (44–78) | 30,0 (22–34) | 30,0 (2–66) | 28,0 (16–36) | 55,2 (47,5–68,5) |
-| M6 | 3 | 96,0 (88–100) | 60,0 (54–66) | 17,3 (6–28) | 17,3 (0–44) | 20,7 (10–34) | 47,7 (40–56,5) |
-| GA B1 | 3 | 99,3 (98–100) | 60,7 (48–68) | 29,3 (18–38) | 46,7 (32–54) | 14,7 (10–24) | 59,0 (55–64,5) |
-| GA B2 | 1 | 100 | 70 | 26 | 46 | 14 | 60,5 |
+| Phương pháp | Seed | Cấp 1 | Cấp 2 | Cấp 3 | Cấp 4 | BARN | Lehman | TB cấp 1–4 |
+|:--|--:|--:|--:|--:|--:|--:|--:|--:|
+| **R0** | 4 | 96,5 (94–98) | 71,5 (54–82) | 26,0 (18–46) | 26,5 (4–50) | 24,0 (16–30) | 0 | 55,1 (48–67,5) |
+| M1 | 3 | 94,7 (92–98) | 64,7 (54–82) | 30,0 (28–34) | 30,0 (2–50) | 30,0 (16–58) | 0 | 54,8 (45,5–65) |
+| M2 | 3 | 86,7 (64–100) | 52,0 (44–58) | 22,0 (16–26) | 28,7 (16–40) | 16,0 (14–20) | 0 | 47,3 (43–52,5) |
+| M3 | 3 | 95,3 (94–98) | 48,7 (42–52) | 28,0 (18–34) | 30,7 (18–42) | 16,0 (8–20) | 0 | 50,7 (46,5–55) |
+| M4 | 3 | 86,7 (82–92) | 40,0 (34–48) | 8,7 (2–14) | 1,3 (0–4) | 6,7 (6–8) | 0 | 34,2 (30,5–36) |
+| M5 | 3 | 94,7 (90–98) | 66,0 (44–78) | 30,0 (22–34) | 30,0 (2–66) | 28,0 (16–36) | 0 | 55,2 (47,5–68,5) |
+| M6 | 3 | 96,0 (88–100) | 60,0 (54–66) | 17,3 (6–28) | 17,3 (0–44) | 20,7 (10–34) | 0 | 47,7 (40–56,5) |
+| GA B1 | 3 | 99,3 (98–100) | 60,7 (48–68) | 29,3 (18–38) | 46,7 (32–54) | 14,7 (10–24) | 0 | 59,0 (55–64,5) |
+| GA B2 | 1 | 100 | 70 | 26 | 46 | 14 | 0 | 60,5 |
+| APF | 1 | 100 | 38 | 0 | 0 | 34 | 0 | 34,5 |
 
 **NEAT.** R0 đạt trung bình 55,1% trên 4 cấp, 26,0% ở cấp 3, 26,5% ở cấp 4 và 24,0% trên BARN, với dao động giữa
 các seed rất lớn (cấp 4 từ 4% đến 50%). Trong các biến thể bóc tách, M1 (truyền thẳng, 54,8%) và M5 (novelty lai,
@@ -65,14 +70,18 @@ seed 0 và 2), trong khi seed thấp nhất của GA B1 đạt 32%. Champion tro
 và 44% ở cấp 1–4 (trung bình 56,5%) và 34% trên BARN.
 
 **Baseline.** GA B1 (3 seed) có SR cao nhất ở cấp 4 (46,7%) và ở trung bình 4 cấp (59,0%) trong các phương pháp có từ
-3 seed, nhưng thấp hơn R0 trên BARN (14,7% so với 24,0%); GA B2 (1 seed) cho số gần GA B1 (60,5%).
+3 seed, nhưng thấp hơn R0 trên BARN (14,7% so với 24,0%); GA B2 (1 seed) cho số gần GA B1 (60,5%). APF (B5,
+không học) đạt 0% ở cấp 3 và 4, trong khi mọi lượt học đều trên 0% ở cấp 3 (thấp nhất 2%, M4 seed 2). APF đạt 34%
+trên BARN, cao hơn trung bình của mọi phương pháp học (6,7–30,0%): APF không va chạm lần nào nhưng hết giờ 66%, còn
+các phương pháp học thất bại trên BARN chủ yếu do va chạm (CR trung bình 54–91%). Trên 2 mê cung Lehman–Stanley
+không lượt nào tới đích (mọi lượt NEAT, GA và APF đều 0/2).
 
 ## 3. Kiểm định và giới hạn
 
 Kiểm định hoán vị chính xác hai phía trên giá trị SR từng seed: xét mọi cách chia lại nhãn các seed của hai phương
 pháp, p = min(1, 2 × p một phía nhỏ hơn). Đơn vị lặp là seed huấn luyện. Vì số seed ít, p có mức sàn: 3 so với 3
 seed thì p không nhỏ hơn 0,1; 4 so với 3 thì không nhỏ hơn 2/35 ≈ 0,057; 4 so với 4 thì không nhỏ hơn 2/70 ≈ 0,029.
-GA B2 chỉ có 1 seed nên không kiểm định được với phương pháp khác, chỉ so bằng mô tả.
+GA B2 (1 seed) và APF (chấm một lần) không kiểm định được với phương pháp khác, chỉ so bằng mô tả.
 
 Chênh lệch SR (điểm %, A trừ B) và p hoán vị:
 
@@ -98,6 +107,9 @@ Chênh lệch SR (điểm %, A trừ B) và p hoán vị:
   trên BARN, cả hai p = 0,17), và chưa kết luận được mạng hồi quy, curriculum hay novelty có giúp NEAT không. Chỉ để
   tham khảo về hướng: các cấu hình có curriculum thấp hơn R0, novelty thuần (M4) thấp hơn hẳn, novelty lai không
   curriculum (M5) ngang R0.
+- Việc mọi lượt học vượt APF ở cấp 3 chỉ là kết luận mô tả: APF chỉ có một lần chấm nên không có phép so theo
+  seed. Phép so theo từng bản đồ (mục 8.16 của báo cáo Word) chỉ nói về các champion cụ thể này trên các bản đồ này,
+  không nói về thuật toán.
 - Muốn tách được các chênh lệch cỡ vài điểm cần nhiều seed hơn hẳn; mục 8.16 ước tính chênh lệch phát hiện được với 10 seed mỗi
   bên.
 

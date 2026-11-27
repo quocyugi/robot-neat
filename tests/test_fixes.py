@@ -24,7 +24,6 @@ def _map(rel: str) -> dict:
     return json.load(open(DATA / rel, encoding="utf-8"))
 
 
-
 def test_L20_goal_and_collision_same_step_counts_as_success():
     from src.env.robot_env import RobotNavEnv
     m = {"segments": [[[0, 0], [10, 0]], [[10, 0], [10, 10]], [[10, 10], [0, 10]], [[0, 10], [0, 0]],
@@ -112,6 +111,21 @@ def test_L03_M4_is_pure_novelty():
     assert ABLATION_CONFIGS["M6"].get("fixed_lambda") is None
 
 
+def test_lehman_archive_rule():
+    """LehmanArchive: ngưỡng đổi thang đúng, nhận cá thể mới nhất khi archive rỗng, x0,95 sau 10 thế hệ, x1,2 khi nhận > 4."""
+    from src.neat_engine.novelty import LehmanArchive
+    a = LehmanArchive(n_maps=4)
+    assert abs(a.threshold - 0.0375) < 1e-12 and abs(a.floor - 0.0015625) < 1e-12
+    beh = np.zeros((3, 8))
+    nov = np.array([0.0, 0.01, 0.02])
+    assert a.update(beh, nov) == 1 and a.size == 1
+    for _ in range(10):
+        assert a.update(beh, nov) == 0
+    assert abs(a.threshold - 0.0375 * 0.95) < 1e-12
+    assert a.update(np.ones((6, 8)), np.full(6, 1.0)) == 6
+    assert a.size == 7 and abs(a.threshold - 0.0375 * 0.95 * 1.2) < 1e-12
+
+
 def test_L05_L34_schedules():
     from src.neat_engine.curriculum import CurriculumManager, UniformSchedule
     u = UniformSchedule(DATA, rng=np.random.default_rng(0))
@@ -160,6 +174,63 @@ def test_config_files_load_without_utf8_mode():
     for r in raw:
         r.decode("cp1252")
         r.decode("cp1258")
+
+
+def test_sector_sensor_sees_obstacle_between_rays():
+    """Cảm biến hình quạt (NEAT_LIDAR_MODE=sector): vật cản mảnh lệch 10° khỏi tia 0 (lọt giữa hai tia
+    điểm 30°) vẫn được thấy ở hình quạt 0; kiểu "rays" (mặc định) trả đúng cast_rays và bỏ sót nó."""
+    from src.env.lidar import FastLiDAR2D
+    p, theta = np.array([5.0, 5.0]), np.pi / 2
+    u = np.array([np.cos(theta + np.deg2rad(10)), np.sin(theta + np.deg2rad(10))])
+    seg = np.array([[p + 1.0 * u, p + 1.2 * u]])              # đoạn hướng tâm, gần nhất cách robot 1 m
+    rays, sec = FastLiDAR2D(12, 3.0, "rays"), FastLiDAR2D(12, 3.0, "sector")
+    assert np.array_equal(rays.scan(p, theta, seg), rays.cast_rays(p, theta, seg))
+    assert not rays.scan(p, theta, seg).any(), "tia điểm 0° và 30° đều trượt vật cản"
+    prox = sec.scan(p, theta, seg)
+    assert prox.dtype == np.float32 and prox.shape == (12,)
+    assert abs(prox[0] - (1.0 - 1.0 / 3.0)) < 1e-6 and not prox[1:].any(), prox
+
+
+def test_sensor_configs_match_their_base():
+    """configs/<tên>_n{N}.ini = file gốc, chỉ đổi num_inputs thành N + 3 (scripts/make_sensor_configs.py)."""
+    import importlib.util
+    import re
+    spec = importlib.util.spec_from_file_location("make_sensor_configs", ROOT / "scripts" / "make_sensor_configs.py")
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    found = [(p, re.fullmatch(r"(.+)_n(\d+)\.ini", p.name)) for p in sorted((ROOT / "configs").glob("*.ini"))]
+    found = [(p, *m.groups()) for p, m in found if m]
+    assert found, "thiếu configs/*_n{N}.ini"
+    for p, base, n in found:
+        assert p.read_bytes() == mod.sensor_config_bytes((ROOT / "configs" / f"{base}.ini").read_bytes(), int(n)), \
+            f"{p.name} lệch file gốc: chạy lại python scripts/make_sensor_configs.py {n}"
+
+
+def test_metrics_SR_TC_MTT():
+    """SR, TC (tổng số va chạm) và MTT (giây, chỉ lượt tới đích) có trong kết quả chấm và hàng TB cấp 1–4."""
+    from src.neat_engine.parallel import summarize
+    from src.experiments.evaluation import format_report, total_collisions
+
+    def ep(success, collision, steps, l_opt=8.0, length=10.0):
+        return {"success": success, "collision": collision, "steps": steps, "l_opt": l_opt,
+                "length": length, "fitness": 0.0}
+
+    rows = [ep(True, False, 200), ep(True, False, 300), ep(False, True, 120), ep(False, True, 50),
+            ep(False, True, 400), ep(False, False, 500)]
+    s = summarize(rows)
+    assert s["n"] == 6 and s["SR"] == round(2 / 6, 4) and s["CR"] == 0.5, s
+    assert s["TC"] == 3 and isinstance(s["TC"], int), s           # 3 lượt kết thúc vì va chạm
+    assert s["MTT"] == 25.0, s                                   # (200 + 300) / 2 bước × 0,1 s
+    assert s["timeout"] == round(1 / 6, 4), s
+    assert summarize([ep(False, True, 10)])["MTT"] is None       # không lượt nào tới đích thì MTT trống
+    # Kết quả cũ chưa có TC: suy từ CR × n
+    assert total_collisions({"n": 50, "CR": 0.44}) == 22
+    assert total_collisions({"n": 50, "CR": 0.44, "TC": 21}) == 21
+    report = {"test/level_1": s, "mean_levels_1_4": {"SR": 0.5, "CR": 0.25, "TC": 7, "MTT": 31.25}}
+    text = format_report(report)
+    head = text.splitlines()[0]
+    assert "SR" in head and "TC" in head and "MTT" in head, head
+    assert "31.2" in text and " 7" in text, text
 
 
 def main():

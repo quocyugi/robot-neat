@@ -12,6 +12,10 @@ Observation space (15-D continuous)
   13   : sin(φ)  — heading-to-goal angle
   14   : cos(φ)  — heading-to-goal angle
 
+Số hướng N (NEAT_LIDAR_N, mặc định 12) và kiểu cảm biến (NEAT_LIDAR_MODE: tia điểm "rays"
+mặc định, hoặc hình quạt "sector") đọc trong src/env/kinematics.py.
+Quan sát có N + 3 chiều: 0..N-1 độ gần, N: ρ, N+1: sin(φ), N+2: cos(φ).
+
 Action space (2-D continuous)
 ------------------------------
   [oL, oR] ∈ [-1, 1]²  →  left / right wheel commands
@@ -38,7 +42,7 @@ import numpy as np
 
 from src.env.kinematics import (
     ROBOT_RADIUS, WHEEL_BASE, V_MAX, DT, MAX_STEPS,
-    GOAL_RADIUS, LIDAR_MAX_RANGE, LIDAR_NUM_RAYS,
+    GOAL_RADIUS, LIDAR_MAX_RANGE, LIDAR_NUM_RAYS, LIDAR_MODE,
     ARENA_DIAGONAL, step_kinematics, is_spinning,
 )
 from src.env.lidar import FastLiDAR2D
@@ -89,11 +93,12 @@ class RobotNavEnv(gym.Env):
             low=-1.0, high=1.0, shape=(2,), dtype=np.float32,
         )
         self.observation_space = spaces.Box(
-            low=-1.0, high=1.0, shape=(15,), dtype=np.float32,
+            low=-1.0, high=1.0, shape=(LIDAR_NUM_RAYS + 3,), dtype=np.float32,
         )
 
         # ── Internals ────────────────────────────────────────────────
-        self._lidar = FastLiDAR2D(LIDAR_NUM_RAYS, LIDAR_MAX_RANGE)
+        # Kiểu cảm biến (tia điểm / hình quạt) theo NEAT_LIDAR_MODE
+        self._lidar = FastLiDAR2D(LIDAR_NUM_RAYS, LIDAR_MAX_RANGE, LIDAR_MODE)
         self._renderer = Renderer(render_mode)
         self.render_mode = render_mode
 
@@ -224,9 +229,10 @@ class RobotNavEnv(gym.Env):
         [12]     normalised distance to goal  ρ
         [13]     sin(φ)  heading-to-goal angle
         [14]     cos(φ)  heading-to-goal angle
+        (N hướng: [0..N-1] độ gần, rồi ρ, sin φ, cos φ; N = LIDAR_NUM_RAYS, mặc định 12)
         """
-        # LiDAR proximity (12-D)
-        proximity = self._lidar.cast_rays(
+        # LiDAR proximity (12-D; N-D với NEAT_LIDAR_N, tia điểm hoặc hình quạt)
+        proximity = self._lidar.scan(
             self.pos, self.theta, self.segments,
         )
         self._last_proximity = proximity       # cache for render

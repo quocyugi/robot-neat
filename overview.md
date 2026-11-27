@@ -3,6 +3,8 @@
 > **Đề tài**: Điều hướng robot tự hành trong môi trường có vật cản bằng Neuroevolution (NEAT)  
 > **Nhóm**: Nhóm 3  
 > **Mục đích tài liệu**: Cung cấp toàn bộ bối cảnh học thuật, mô hình toán, kiến trúc hệ thống, dữ liệu, thiết kế thực nghiệm và các câu hỏi mở để phục vụ **brainstorming, phản biện và phát triển tiếp dự án**.
+>
+> **Lưu ý (25/11/2026).** Đây là thiết kế ban đầu của đề tài. Code hiện tại khác thiết kế ở các điểm sau (chi tiết: `README.md`, `docs/sua_loi_code.md`, `docs/sua_cau_hinh_NEAT_GA.md`): mỗi lượt tối đa 500 bước (50 s), không phải 600 bước (mục 1.1, lỗi L16); xác suất thêm kết nối và thêm nút là 0,5 và 0,1 (mục 3.3, L29); mỗi thế hệ cả quần thể chạy trên cùng 8 bản đồ (mục 4.1); fitness mặc định đo tiến độ theo đường đi thật, trọng số 10, không giảm nửa khi va chạm (mục 4.1, L26); mô tả hành vi là vị trí cuối trên 4 bản đồ probe cố định, 8 chiều (mục 4.3, L06, L07); bộ bản đồ học cố định 250 bản đồ mỗi cấp, val 25 bản đồ mỗi cấp (seed 100000–100024), test 50 bản đồ mỗi cấp (seed 200000–200049) (mục 5.2); xét lên cấp bằng 5 genome có fitness thô cao nhất trên val của cấp hiện tại, mỗi cấp tối đa max(10, số thế hệ/5) thế hệ (mục 5.3, L10, L34).
 
 ---
 
@@ -174,7 +176,7 @@ $$F = \max(F_{\text{raw}} + 3.0, \; 0.01)$$
   * **Tập Train**: Sinh mới ngẫu nhiên mỗi thế hệ bằng dải seed `0 – 99,999` (chống học vẹt).
   * **Tập Validation**: Cố định 100 bản đồ (25 bản đồ/cấp, seed `100,000 – 100,099`) dùng để kiểm tra điều kiện thăng cấp trong Curriculum Learning.
   * **Tập Test**: Cố định 200 bản đồ độc lập (50 bản đồ/cấp, seed `200,000 – 200,199`), chỉ chạy kiểm thử 1 lần duy nhất để báo cáo kết quả.
-  * **Tập Test đặc biệt**: 50 bản đồ trích từ BARN. (Thiết kế ban đầu có thêm 2 mê cung Lehman & Stanley; tập này đã bỏ khỏi code ngày 24/11/2026 theo yêu cầu của nhóm.)
+  * **Tập Test đặc biệt**: 2 mê cung Lehman & Stanley + 50 bản đồ trích từ BARN.
 
 ### 5.3. Chiến lược Học theo Giáo trình (Curriculum Learning)
 * Quần thể bắt đầu tiến hóa ở **Cấp 1**.
@@ -190,9 +192,12 @@ $$F = \max(F_{\text{raw}} + 3.0, \; 0.01)$$
 * **Q2 (Novelty Search vs. Deceptive Fitness)**: Trên các bản đồ có bẫy chữ U, Novelty Search có giải quyết thành công ở số lượng run vượt trội so với hàm fitness khoảng cách truyền thống?
 * **Q3 (Generalization & Zero-Shot Transfer)**: Bộ điều khiển học trên bản đồ tự sinh có khả năng tổng quát hóa thành công sang bản đồ BARN chưa từng thấy?
 
-### 6.2. Danh mục Baseline Đối chuẩn (B1, B2)
+### 6.2. Danh mục Baseline Đối chuẩn (B1, B2, B5)
 1. **B1**: Fixed MLP (1 tầng ẩn, 8 nút) tiến hóa bằng GA truyền thống.
 2. **B2**: Fixed MLP (2 tầng ẩn, 16-8 nút) tiến hóa bằng GA.
+3. **B5**: Artificial Potential Field (APF - Trường thế nhân tạo).
+
+Thiết kế ban đầu có 7 baseline (B1 – B7). B3 (Random Search) và B4 (Heuristic Rule-based) đã cài và chạy benchmark nhưng đã bỏ khỏi code ngày 25/11/2026; B6 ($A^* + \text{DWA}$) và B7 (Deep RL PPO/SAC) chưa cài.
 
 ### 6.3. Tiêu chuẩn Đánh giá & Thống kê Khoa học
 * **Các chỉ số chính**:
@@ -230,6 +235,8 @@ Do Gazebo 3D tiêu tốn tài nguyên gấp hàng chục lần so với 2D, khô
 
 ## 8. CẤU TRÚC KỸ THUẬT & STACK CÔNG NGHỆ
 
+Sơ đồ dưới là cấu trúc đề xuất lúc lập đề cương (thư mục `Slide TTTH/` của nhóm, nằm ngoài repo; slide, đề cương và script thuyết trình không có trong repo). Code thật dùng tên khác: `src/maps/generator.py`, `src/neat_engine/runner.py`, `src/neat_engine/novelty.py`, `src/baselines/apf.py`, `configs/neat_feedforward.ini`, `configs/neat_recurrent.ini`, `src/experiments/run_ablation.py`, `src/experiments/stats.py`; cấu trúc đầy đủ ở mục *Cấu trúc dự án* của `README.md`.
+
 ```
 Slide TTTH/
 ├── Slide_NEAT.pptx                  # Slide báo cáo chính thức (18 slides)
@@ -246,7 +253,8 @@ Slide TTTH/
     │   ├── novelty_search.py        # Module tính Novelty score & Archive
     │   └── curriculum.py            # Quản lý thăng cấp độ khó theo dõi Validation SR
     ├── baselines/
-    │   └── fixed_ga.py              # Baseline mạng cố định (B1, B2)
+    │   ├── fixed_ga.py              # Baseline mạng cố định (B1, B2)
+    │   └── apf_controller.py        # Baseline trường thế nhân tạo (B5)
     ├── configs/
     │   ├── config_feedforward.txt   # File cấu hình NEAT chuẩn
     │   └── config_recurrent.txt     # File cấu hình Recurrent NEAT
@@ -255,7 +263,7 @@ Slide TTTH/
         └── statistical_tests.py     # Tính Mann-Whitney U test, vẽ Boxplot
 ```
 
-* **Công nghệ cốt lõi**: Python 3.10+, NumPy, neat-python $\ge 1.0$, Gymnasium, Pygame, SciPy, Matplotlib, multiprocessing.
+* **Công nghệ cốt lõi**: Python 3.10+ (đã kiểm thử trên 3.14), NumPy, neat-python 2.0.0 (đúng bản này, ghim trong `requirements.txt`; bản 1.x không đọc được file cấu hình), Gymnasium, Pygame (`pygame-ce`), SciPy, Matplotlib, multiprocessing.
 
 ---
 

@@ -16,7 +16,9 @@ Usage
     python scripts/demo.py --levels 1,2,3,4 --maps-per-level 2
     python scripts/demo.py --run-dir output/demo/train_m6 --levels 1,2
     python scripts/demo.py --genome path/champion_genome.pkl --config path/neat_config.ini
+    python scripts/demo.py --controller apf --levels 4 --maps-per-level 2   # baseline APF (B5)
     python scripts/demo.py --maps-per-level 0 --barn 4
+    python scripts/demo.py --maps-per-level 0 --barn 2 --lehman          # thêm 2 mê cung Lehman
     python scripts/demo.py --no-window --save-gif output/demo/demo.gif   # không mở cửa sổ, chỉ xuất GIF
     python scripts/demo.py --report output/demo/ket_qua_cau_hinh_2       # tên các file ảnh/HTML kết quả
 
@@ -185,6 +187,15 @@ def _neat_controller(genome_path: Path, cfg_path: Path, recurrent: Optional[bool
 
 def build_controller(args):
     """Trả (policy, tên hiện trên HUD, mô tả in ra terminal)."""
+    if args.controller:
+        if args.config:
+            warn("--config chỉ dùng cùng --genome, bỏ qua")
+        name, desc = {
+            "apf": ("APF (B5) · trường thế nhân tạo",
+                    "baseline không học; lực hút về đích + lực đẩy khỏi vật cản, dễ kẹt ở cực tiểu "
+                    "cục bộ (bẫy chữ U)"),
+        }[args.controller]
+        return make_policy({"kind": args.controller}), name, desc
 
     if args.run_dir:
         run = _resolve(args.run_dir)
@@ -219,7 +230,7 @@ def build_controller(args):
         fail("chưa có champion mặc định của demo (cần demo/champion_genome.pkl và demo/neat_config.ini).\n"
              "  Chép champion_genome.pkl và neat_config.ini từ một thư mục kết quả huấn luyện "
              "(ví dụ output/demo/train_m6) vào thư mục demo/,\n"
-             "  hoặc chỉ định bộ điều khiển: --run-dir THƯ_MỤC | --genome FILE --config FILE")
+             "  hoặc chỉ định bộ điều khiển: --run-dir THƯ_MỤC | --genome FILE --config FILE | --controller apf")
     return _neat_controller(g, cfg, args.recurrent, "champion trong demo/")
 
 
@@ -229,7 +240,7 @@ def build_controller(args):
 @dataclass
 class MapItem:
     path: Path
-    label: str          # "Cấp 1".."Cấp 4", "BARN"
+    label: str          # "Cấp 1".."Cấp 4", "BARN", "Lehman"
     map_id: str
     data: dict
 
@@ -244,6 +255,8 @@ def _load_item(path: Path) -> MapItem:
     folder = path.parent.name
     if folder == "test_barn" or source.upper() == "BARN":
         label = "BARN"
+    elif folder == "test_lehman" or source.lower().startswith("lehman"):
+        label = "Lehman"      # file mê cung có difficulty_level (2, 4) nhưng không phải bản đồ cấp
     elif m.get("difficulty_level") is not None:
         label = f"Cấp {m['difficulty_level']}"
     else:
@@ -278,6 +291,13 @@ def select_maps(args) -> list[MapItem]:
         if not files:
             warn(f"không có bản đồ BARN trong {_rel(data_dir / 'test_barn')}")
         items.extend(_load_item(p) for p in files[: args.barn])
+    if args.lehman:
+        lehman = [_load_item(p) for p in sorted((data_dir / "test_lehman").glob("*.json"))]
+        if not lehman:
+            warn(f"không có mê cung Lehman trong {_rel(data_dir / 'test_lehman')}")
+        # mê cung vừa trước, mê cung khó sau
+        lehman.sort(key=lambda it: (it.data.get("difficulty_level") or 0, it.map_id))
+        items.extend(lehman)
     return items
 
 
@@ -762,6 +782,8 @@ def parse_args(argv=None):
     g = ap.add_argument_group("bộ điều khiển (mặc định: demo/champion_genome.pkl + demo/neat_config.ini)")
     src = g.add_mutually_exclusive_group()
     src.add_argument("--genome", type=str, default=None, help="file genome NEAT (.pkl)")
+    src.add_argument("--controller", choices=["apf"], default=None,
+                     help="baseline không học: apf = trường thế nhân tạo (B5)")
     src.add_argument("--run-dir", type=str, default=None,
                      help="thư mục kết quả huấn luyện (champion_genome.pkl + neat_config.ini)")
     g.add_argument("--config", type=str, default=None,
@@ -778,6 +800,8 @@ def parse_args(argv=None):
     m.add_argument("--maps-per-level", type=int, default=1, help="số bản đồ mỗi cấp (0 = không lấy bản đồ cấp)")
     m.add_argument("--start-index", type=int, default=0, help="vị trí bắt đầu trong danh sách file đã sắp xếp")
     m.add_argument("--barn", type=int, default=0, help="thêm N bản đồ đầu của data/maps/test_barn")
+    m.add_argument("--lehman", action="store_true",
+                   help="thêm 2 mê cung Lehman–Stanley của data/maps/test_lehman")
     m.add_argument("--maps", type=str, default=None,
                    help="danh sách file bản đồ, cách nhau dấu phẩy (thay cho --split/--levels)")
 
@@ -822,7 +846,7 @@ def main():
         name = args.label
     items = select_maps(args)
     if not items:
-        fail("không có bản đồ nào để chạy (xem --levels, --maps-per-level, --barn, --maps)")
+        fail("không có bản đồ nào để chạy (xem --levels, --maps-per-level, --barn, --lehman, --maps)")
 
     window = not args.no_window
     frame_skip = args.frame_skip or (1 if window else 5)

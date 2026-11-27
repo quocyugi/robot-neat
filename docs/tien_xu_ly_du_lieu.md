@@ -2,13 +2,11 @@
 
 Phần dữ liệu của đề tài *Điều hướng robot tự hành trong môi trường có vật cản bằng NEAT*
 (IT4906 – Tính toán tiến hóa). Mọi con số dưới đây lấy từ lần chạy ngày 27/10/2026
-(`reports/data/summary.json`, `data/maps/manifest.csv`); chạy lại các script sẽ ra đúng các số này.
+(`reports/data/summary.json`, `data/maps/manifest.csv`); chạy lại các script sẽ ra đúng các số này, trừ cấp 3 (xem ghi chú ngay dưới).
 
-> Lần chạy ngày 27/10/2026 còn có 2 mê cung Lehman & Stanley (`test_lehman`, 1.602 bản đồ tổng cộng); tập này đã bỏ
-> khỏi code và dữ liệu ngày 24/11/2026 theo yêu cầu của nhóm, nên tài liệu này chỉ còn ghi 1.600 bản đồ (1.300 tự
-> sinh + 300 BARN). `reports/data/` vẫn giữ nguyên số và hình của lần chạy cũ. Bộ cấp 3 đã sinh lại ngày 12/11/2026
-> (tường dày 0,20 m, lỗi L27 trong `docs/sua_loi_code.md`), nên các số của cấp 3 ở đây và trong `manifest.csv`, kể cả
-> bản đồ cấp 3 cần 368 bước ở mục 6 và 10, là của bộ cấp 3 cũ.
+> Bộ cấp 3 đã sinh lại ngày 12/11/2026 (tường dày 0,20 m, lỗi L27 trong `docs/sua_loi_code.md`), nên các số của cấp 3
+> ở đây và trong `manifest.csv`, kể cả bản đồ cấp 3 cần 368 bước ở mục 6, là của bộ cấp 3 cũ; `reports/data/` vẫn giữ
+> số và hình của lần chạy 27/10/2026.
 
 ## 1. Tóm tắt
 
@@ -16,22 +14,24 @@ Phần dữ liệu của đề tài *Điều hướng robot tự hành trong mô
   một điểm Start và một điểm Goal. NEAT không học từ nhãn mà chấm điểm genome bằng mô phỏng trên
   các bản đồ này. Vì vậy "tiền xử lý" ở đây gồm: lấy hoặc sinh bản đồ, đưa về cùng một định dạng
   JSON, loại bản đồ hỏng, đo độ khó, chia tập và kiểm tra rò rỉ giữa các tập.
-- Dùng **bộ dữ liệu công khai BARN** đúng như overview §5.2 đã dự kiến cho tập test đặc biệt:
+- Dùng **2 bộ dữ liệu công khai** đúng như overview §5.2 đã dự kiến cho tập test đặc biệt:
   - **BARN** (Perille và cộng sự, 2020): 300 môi trường được chuyển về định dạng của dự án ở tỉ lệ thật 1:1.
     Robot của nhóm (r = 0,25 m) đi lọt cả 300. Chọn **50 bản đồ** trải đều từ dễ tới khó làm `test_barn`.
+  - **Mê cung medium và hard của Lehman & Stanley (2011)**, bài báo gốc của Novelty Search → `test_lehman`.
 - **Bộ bản đồ tự sinh** (1.000 train + 100 val + 200 test, 4 cấp) được sinh lại sau khi sửa các lỗi
   trong `generator.py`. Lỗi nặng nhất là **seed của các tập chồng nhau**: chạy code gốc thì 40/50
   bản đồ test cấp 1 và 41/48 bản đồ test cấp 3 giống hệt một bản đồ train.
-- Sau tiền xử lý, cả 1.600 bản đồ (1.300 tự sinh + 300 BARN) đều qua đủ các bước kiểm tra:
+- Sau tiền xử lý, cả 1.602 bản đồ (1.300 tự sinh + 300 BARN + 2 mê cung) đều qua đủ các bước kiểm tra:
   A* có đường, τ đúng dải cấp, S/G đủ thoáng, không trùng giữa các tập, và **robot bám theo đường A* trong
-  chính `RobotNavEnv` tới được đích trong 500 bước** (1.600/1.600).
+  chính `RobotNavEnv` tới được đích trong 500 bước** (1.602/1.602).
 
-## 2. Hai nguồn bản đồ
+## 2. Ba nguồn bản đồ
 
 | Nguồn | Số bản đồ | Thư mục | Dùng để |
 |---|---|---|---|
 | Tự sinh, 4 cấp độ (Empty, Sparse, Corridors, U-Traps) | 1.000 train, 100 val, 200 test | `data/maps/{train,val,test}/level_k/` | Huấn luyện, chọn cấp curriculum (val), test chính |
 | BARN (công khai) | 300 → chọn 50 | `data/maps/test_barn/` (50), `data/maps/barn_all/` (300) | Câu hỏi Q3: tổng quát hoá zero-shot |
+| Mê cung Lehman & Stanley (công khai) | 2 | `data/maps/test_lehman/` | Test bẫy đánh lừa kinh điển của Novelty Search |
 
 Bản đồ công khai **chỉ dùng để test**, không đưa vào train/val, để câu trả lời cho Q3 là zero-shot thật.
 
@@ -46,7 +46,7 @@ python scripts/pregenerate_maps.py       # sinh 1.300 bản đồ, ~26 phút (ri
 python scripts/preprocess_data.py        # tiền xử lý + kiểm tra + hình, ~3 phút
 ```
 
-- Nguồn công khai (BARN) được cố định theo mã commit trong `download_public_data.py`, nên ai tải lại cũng ra
+- Hai nguồn công khai được cố định theo mã commit trong `download_public_data.py`, nên ai tải lại cũng ra
   đúng các file đã dùng (đã kiểm tra: khớp từng byte). Nguồn và giấy phép ghi trong `data/raw/SOURCES.txt`.
 - `data/raw/` không cần đưa lên git (đã thêm vào `.gitignore`).
 - Python 3.14 chưa có bản cài sẵn của `pygame`; dùng `pip install pygame-ce` (bản thay thế, code vẫn
@@ -99,8 +99,26 @@ có thêm `difficulty_rank` (1 = dễ nhất), `difficulty_score`, `difficulty_g
 
 ![Cách chọn 50 bản đồ BARN](../reports/data/figures/05_barn_chon_50.png)
 
-Mục 4.2 cũ (2 mê cung Lehman & Stanley, tập `test_lehman`) đã bỏ cùng tập này ngày 24/11/2026 theo yêu cầu của nhóm;
-hình `reports/data/figures/03_me_cung_lehman.png` của lần chạy cũ vẫn còn trong `reports/`.
+### 4.2. Mê cung Lehman & Stanley
+
+**Nguồn.** File `medium_maze.txt`, `hard_maze.txt` trong repo goNEAT_NS (giấy phép MIT), là hai mê cung của bài báo
+Novelty Search gốc (Lehman & Stanley, 2011) mà overview §4.2 trích kết quả 3/40 và 39/40.
+Định dạng: số tường, toạ độ Start, góc hướng ban đầu, toạ độ lối ra, rồi mỗi dòng một tường `x1 y1 x2 y2` (pixel).
+
+**Chuyển đổi.** Robot gốc có bán kính 8 pixel nên chọn tỉ lệ 0,25 / 8 = 0,03125 m/pixel: hành lang so với robot
+giữ đúng như trong bài báo. Mê cung medium thành 9,06 × 4,06 m, mê cung hard thành 6,09 × 6,09 m, đặt giữa arena.
+File gốc dùng toạ độ màn hình (trục y hướng xuống) nên lật trục y để hình giống hình trong bài báo; lật gương
+không làm đổi độ khó.
+
+| Mê cung | τ | Đường tối ưu | Khe hẹp nhất | Độ sâu bẫy | Robot bám đường A* cần |
+|---|---|---|---|---|---|
+| medium | 1,13 | 8,91 m | 0,39 m | 0,61 m | 218 / 500 bước |
+| hard | 2,93 | 15,01 m | 0,37 m | 2,83 m | 365 / 500 bước |
+
+Mê cung hard cần đi 15 m, tức ít nhất 300 bước ở tốc độ tối đa 0,5 m/s, chiếm phần lớn ngân sách 500 bước.
+Genome nào đi vòng nhiều sẽ hết giờ trước khi tới đích.
+
+![Mê cung Lehman & Stanley](../reports/data/figures/03_me_cung_lehman.png)
 
 ## 5. Bộ bản đồ tự sinh: lỗi trong code gốc và cách sửa
 
@@ -141,7 +159,7 @@ rồi gắn cờ nếu vi phạm:
 | τ nằm trong dải của cấp | `tau_ngoai_dai_cap` |
 | τ đã lưu khớp τ tính lại (lệch ≤ 0,01) | `tau_da_luu_lech` |
 | Không trùng nội dung với bản đồ khác (so mã băm của start, goal, segments làm tròn tới mm) | `trung_giua_tap`, `trung_trong_tap` |
-| Mô phỏng: robot bám đường A* trong `RobotNavEnv` tới đích, không va chạm, trong 500 bước (áp dụng cả cho BARN) | `oracle_va_cham`, `oracle_het_500_buoc` |
+| Mô phỏng: robot bám đường A* trong `RobotNavEnv` tới đích, không va chạm, trong 500 bước (áp dụng cả cho BARN, Lehman) | `oracle_va_cham`, `oracle_het_500_buoc` |
 
 Bước mô phỏng dùng một bộ điều khiển đơn giản "biết trước bản đồ": lệch hướng thì quay tại chỗ, đúng hướng thì đi
 thẳng tới điểm gãy kế tiếp của đường A*. Bước này chỉ để chắc rằng bản đồ đi được thật với động học, cách bắt va chạm
@@ -156,10 +174,11 @@ và giới hạn thời gian của môi trường, không phải một baseline 
 | test | 50 | 50 | 50 | 50 | 0 | 200/200 |
 | test_barn | 50 bản đồ | | | | 0 | 50/50 |
 | barn_extra (250 bản đồ BARN còn lại, nằm trong `barn_all/`) | 250 bản đồ | | | | 0 | 250/250 |
+| test_lehman | 2 bản đồ | | | | 0 | 2/2 |
 
 - Không bản đồ nào trùng nội dung với bản đồ khác, cả giữa các tập lẫn trong cùng một tập
   (code gốc: 99/163 bản đồ test là bản sao của bản đồ train).
-- Robot bám đường A* tới đích ở cả 1.600 bản đồ; lâu nhất 368/500 bước (một bản đồ cấp 3).
+- Robot bám đường A* tới đích ở cả 1.602 bản đồ; lâu nhất 368/500 bước (một bản đồ cấp 3), mê cung hard 365 bước.
   Nghĩa là mọi bản đồ đều giải được trong ngân sách thời gian của môi trường.
 
 ## 7. Chỉ số độ khó
@@ -192,9 +211,8 @@ Trung vị các chỉ số theo nhóm (cấp 1–4 gộp cả train, val, test):
 | Cấp 3 | 325 | 1,41 | 1,46 | 9,5 | 0,58 | 1,52 | 98% | 208 |
 | Cấp 4 | 325 | 1,72 | 1,79 | 9,7 | 0,62 | 2,59 | 100% | 219 |
 | BARN (50 test) | 50 | 1,03 | 1,08 | 8,4 | 0,43 | 0,00 | 88% | 179 |
-
-(Hình phân bố chỉ số phía trên là hình của lần chạy 27/10/2026 nên còn nhóm Lehman; chạy lại
-`scripts/preprocess_data.py` sẽ vẽ hình không có nhóm này.)
+| Lehman medium | 1 | 1,13 | 1,16 | 8,9 | 0,39 | 0,61 | có | 218 |
+| Lehman hard | 1 | 2,93 | 3,05 | 15,0 | 0,37 | 2,83 | có | 365 |
 
 - Bốn cấp tự sinh tăng dần đúng thiết kế ở cả τ lẫn độ sâu bẫy; cấp 4 có độ sâu bẫy lớn nhất (trung vị 2,59 m,
   75% bản đồ từ 2,48 m trở lên), tức là bẫy đánh lừa thật chứ không chỉ là đường vòng.
@@ -209,6 +227,7 @@ Trung vị các chỉ số theo nhóm (cấp 1–4 gộp cả train, val, test):
 data/
 ├── raw/                         # dữ liệu gốc tải về (không đưa lên git)
 │   ├── barn/                    #   world_*.world, path_files/, LICENSE
+│   ├── lehman_stanley/          #   medium_maze.txt, hard_maze.txt, LICENSE
 │   └── SOURCES.txt              #   nguồn, commit, giấy phép, trích dẫn
 └── maps/
     ├── train/level_{1..4}/      # 250 bản đồ / cấp
@@ -216,10 +235,11 @@ data/
     ├── test/level_{1..4}/       # 50 bản đồ / cấp
     ├── test_barn/               # 50 bản đồ BARN (tập test Q3)
     ├── barn_all/                # đủ 300 bản đồ BARN đã chuyển
+    ├── test_lehman/             # 2 mê cung Lehman & Stanley
     └── manifest.csv             # 1 dòng / bản đồ: tập, cấp, chỉ số, cờ lỗi, mã băm
 reports/data/
 ├── summary.json                 # số lượng, cờ lỗi, trùng lặp, thống kê theo nhóm (lần chạy 27/10/2026)
-└── figures/                     # các hình trong tài liệu này (01, 02, 04, 05)
+└── figures/                     # 5 hình trong tài liệu này
 ```
 
 Ví dụ file `data/maps/train/level_4/map_000000.json` (rút gọn: toạ độ làm tròn 4 chữ số, bớt phần tử
@@ -252,13 +272,13 @@ và báo cáo.
 Bản đồ này là ô đầu tiên của hàng cấp 4 trong hình ở mục 5: Start nằm trong lòng bẫy chữ U, robot phải lùi
 ra khỏi bẫy (độ sâu bẫy 2,59 m) rồi mới vòng tới đích.
 
-Bản đồ BARN có thêm `source_info` (file gốc, tỉ lệ, cách đặt, hạng độ khó) và `start_heading` (hướng ban đầu theo
-bản gốc).
+Bản đồ BARN và Lehman có thêm `source_info` (file gốc, tỉ lệ, cách đặt, hạng độ khó với BARN) và `start_heading`
+(hướng ban đầu theo bản gốc).
 
 ## 9. Dùng dữ liệu khi huấn luyện và đánh giá
 
 - `CurriculumManager` đọc sẵn `data/maps/train/level_k` và `data/maps/val/level_k` như cũ, không phải sửa gì.
-- Tập test chính: `data/maps/test/level_k`. Tập test đặc biệt: `data/maps/test_barn`.
+- Tập test chính: `data/maps/test/level_k`. Tập test đặc biệt: `data/maps/test_barn` và `data/maps/test_lehman`.
   Đọc giống hệt bản đồ tự sinh:
 
 ```python
@@ -282,23 +302,27 @@ for fp in sorted(Path("data/maps/test_barn").glob("*.json")):
 2. **BARN trong arena 10 m.** Goal chỉ cách vùng vật cản 1,5 m thay vì 3,4 m như bản gốc; vùng vật cản và Start giữ
    nguyên. Robot luôn bắt đầu với θ = 0 vì `RobotNavEnv.reset()` không đọc `start_heading` (BARN gốc quay mặt về +y).
    Nếu muốn giống bản gốc, sửa 1 dòng trong `reset()`: `self.theta = float(self.map_data.get("start_heading", 0.0))`.
-3. **Ngân sách thời gian.** Code dùng 500 bước (50 s), overview §1.1 ghi 60 s (600 bước). Với 500 bước, bản đồ lâu
-   nhất (một bản đồ cấp 3) đã cần 368 bước dù đi đúng đường tối ưu.
+   Đã sửa ngày 12/11/2026: env đọc `start_heading` (`docs/sua_loi_code.md`, mục *Sửa kèm theo*).
+3. **Ngân sách thời gian.** Code dùng 500 bước (50 s), overview §1.1 ghi 60 s (600 bước). Với 500 bước, mê cung hard
+   đã cần 365 bước dù đi đúng đường tối ưu.
 4. `scripts/train_neat.py` và `scripts/visualize.py` chưa thêm thư mục gốc vào `sys.path`; chạy bằng
    `python -m scripts.train_neat ...` hoặc thêm 2 dòng như trong `pregenerate_maps.py`.
+   Đã sửa ngày 12/11/2026: cả hai script đã thêm thư mục gốc vào `sys.path`.
 5. **Ngoài phần dữ liệu, phát hiện khi chạy thử huấn luyện:** `configs/neat_feedforward.ini` và
    `configs/neat_recurrent.ini` thiếu các tham số bắt buộc của neat-python 2.0.0 (bản `pip install neat-python` cài hiện nay):
    `no_fitness_termination` ở mục `[NEAT]` và 7 tham số `response_*` ở mục `[DefaultGenome]`, nên `neat.Config(...)`
    báo lỗi ngay. Với bản config bổ sung đủ các tham số đó (để trong thư mục tạm, không sửa file của repo), vòng
    huấn luyện của repo chạy 2 thế hệ trên bộ dữ liệu mới không lỗi (quần thể 150, ~12,5 s/thế hệ).
+   Đã sửa ngày 12/11/2026: hai file config đã có đủ các tham số này (L01 và nhóm khóa `response_*`,
+   `docs/sua_loi_code.md`).
 
 ## 11. Các file đã thêm và sửa
 
 | File | Nội dung |
 |---|---|
-| `scripts/download_public_data.py` (mới) | Tải BARN, cố định commit, ghi `SOURCES.txt` |
+| `scripts/download_public_data.py` (mới) | Tải BARN và 2 mê cung, cố định commit, ghi `SOURCES.txt` |
 | `scripts/preprocess_data.py` (mới) | Chuyển dữ liệu công khai, kiểm tra chất lượng, mô phỏng, manifest, hình |
-| `src/maps/public_maps.py` (mới) | Đọc world BARN, đổi lưới thành đoạn thẳng, đặt vào arena |
+| `src/maps/public_maps.py` (mới) | Đọc world BARN, đổi lưới thành đoạn thẳng, đọc mê cung Lehman, đặt vào arena |
 | `src/maps/map_metrics.py` (mới) | Bộ chỉ số độ khó ở mục 7 |
 | `src/maps/validator.py` (sửa) | Thêm trường khoảng cách, làm mượt đường A*, trả thêm `length_smooth`, `tortuosity_smooth`; các khoá cũ giữ nguyên |
 | `src/maps/generator.py` (sửa) | 6 điểm ở mục 5, lưu thêm `metrics` đầy đủ, `optimal_path`, `inflation_radius`, `source` |
@@ -309,5 +333,8 @@ for fp in sorted(Path("data/maps/test_barn").glob("*.json")):
 ## Tài liệu tham khảo
 
 - D. Perille, A. Truong, X. Xiao, P. Stone. *Benchmarking Metric Ground Navigation*. IEEE SSRR 2020. arXiv:2008.13315.
+- J. Lehman, K. O. Stanley. *Abandoning Objectives: Evolution Through the Search for Novelty Alone*.
+  Evolutionary Computation 19(2), 2011.
 - P. Anderson và cộng sự. *On Evaluation of Embodied Navigation Agents*. arXiv:1807.06757, 2018 (chỉ số SPL).
 - Repo The BARN Challenge: https://github.com/Daffan/the-barn-challenge (commit `bf5a226`, MIT).
+- Repo goNEAT_NS: https://github.com/yaricom/goNEAT_NS (commit `2ad1fce`, MIT).

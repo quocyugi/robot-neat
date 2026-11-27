@@ -2,6 +2,8 @@
 > Cập nhật lần cuối: 2026-10-02
 > File này tổng hợp MỌI quyết định thiết kế đã được chốt sau khi brainstorm.
 > Mỗi khi brainstorm xong 1 chủ đề → cập nhật bảng tương ứng ở đây.
+>
+> Ghi chú 25/11/2026: bảng giữ nguyên quyết định lúc thiết kế. Khi cài đặt và sửa lỗi đã đổi: #10 không làm (giữ ngưỡng phân loài 3,0, L11); #15 `max_stagnation` = 20; #16 mô tả hành vi là vị trí cuối trên 4 bản đồ probe, 8 chiều (L06, L07); #20 λ bình thường 0,6, sàn 0,2 (L09); #24 baseline trong code là GA B1, GA B2 và APF (B3, B4 đã bỏ ngày 25/11/2026); #25 ngân sách benchmark 180.000 lượt đánh giá. Trạng thái của code: `README.md`, `docs/sua_loi_code.md`, `docs/sua_cau_hinh_NEAT_GA.md`.
 
 ---
 

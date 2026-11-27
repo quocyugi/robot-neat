@@ -1,8 +1,8 @@
 """
 Map Metrics — Chỉ số độ khó của một bản đồ
 ============================================
-Tính cùng một bộ chỉ số cho MỌI bản đồ (tự sinh và BARN) để kiểm tra chất
-lượng dữ liệu, xếp cấp độ và báo cáo.
+Tính cùng một bộ chỉ số cho MỌI bản đồ (tự sinh, BARN, mê cung
+Lehman–Stanley) để kiểm tra chất lượng dữ liệu, xếp cấp độ và báo cáo.
 
 Các chỉ số (đơn vị mét nếu không ghi khác)
 -------------------------------------------
@@ -130,7 +130,7 @@ def compute_map_metrics(
 
 
 def assign_level_from_tau(tau: float) -> int:
-    """Xếp cấp 1–4 theo τ (dùng cho bản đồ ngoài như BARN)."""
+    """Xếp cấp 1–4 theo τ (dùng cho bản đồ ngoài như BARN, mê cung Lehman)."""
     level = 1
     for bound in LEVEL_TAU_BOUNDS:
         if tau >= bound:

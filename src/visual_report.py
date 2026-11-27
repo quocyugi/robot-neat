@@ -79,7 +79,7 @@ BLUE_RAMP = ("#cde2fb", "#b7d3f6", "#9ec5f4", "#86b6ef", "#6da7ec", "#5598e7", "
              "#2a78d6", "#256abf", "#1c5cab", "#184f95", "#104281", "#0d366b")
 
 MEAN_SET = "mean_levels_1_4"
-SET_ORDER = ("test/level_1", "test/level_2", "test/level_3", "test/level_4", "test_barn")
+SET_ORDER = ("test/level_1", "test/level_2", "test/level_3", "test/level_4", "test_barn", "test_lehman")
 
 
 # ════════════════════════════════════════════════════════════════════════
@@ -124,7 +124,7 @@ def set_label(name: str) -> str:
     m = re.fullmatch(r"(train|val|test)/level_(\d+)", name)
     if m:
         return f"Cấp {m.group(2)}" if m.group(1) == "test" else f"Cấp {m.group(2)} ({m.group(1)})"
-    return {"test_barn": "BARN", MEAN_SET: "TB cấp 1–4"}.get(name, name)
+    return {"test_barn": "BARN", "test_lehman": "Lehman", MEAN_SET: "TB cấp 1–4"}.get(name, name)
 
 
 def display_path(p: Path | str) -> str:
@@ -1016,9 +1016,17 @@ def eval_report(results: dict, policy: str, base: Path | str, source: str = "") 
     subtitle = f"{policy} · {vn_int(total)} bản đồ test (không dùng khi huấn luyện){mean_txt}"
     legend = [(f"{OUTCOMES[k][0]}", OUTCOMES[k][1]) for k in OUTCOME_ORDER]
 
+    def _tc(r: dict):
+        """TC (tổng số va chạm); kết quả cũ chưa có TC thì suy từ CR × n (mỗi lượt nhiều nhất 1 va chạm)."""
+        if r.get("TC") is not None:
+            return int(r["TC"])
+        if r.get("CR") is not None and r.get("n") is not None:
+            return int(round(r["CR"] * r["n"]))
+        return None
+
     # Bảng
     cols = [Col("Tập test"), Col("Số bản đồ", "right"), Col("Tới đích", "right", "SR"),
-            Col("Va chạm", "right", "CR"), Col("Hết giờ", "right"),
+            Col("Va chạm", "right", "CR"), Col("Tổng va chạm", "right", "TC"), Col("Hết giờ", "right"),
             Col("Tỉ lệ kết quả", "left", "xanh: tới đích · đỏ: va chạm · cam: hết giờ", min_w=260, grow=True,
                 max_w=520),
             Col("SPL", "right", "0–1"), Col("MTT", "right", "giây")]
@@ -1030,8 +1038,10 @@ def eval_report(results: dict, policy: str, base: Path | str, source: str = "") 
             timeout = max(0.0, 1 - r["SR"] - r["CR"])
         bar = [(r.get("SR") or 0, OUTCOMES["goal"][1]), (r.get("CR") or 0, OUTCOMES["collision"][1]),
                (timeout or 0, OUTCOMES["timeout"][1])]
+        tc = _tc(r)
         rows.append(Row([Cell(set_label(s)), Cell(vn_int(r["n"])), Cell(vn_pct(r.get("SR")), weight="semibold"),
-                         Cell(vn_pct(r.get("CR"))), Cell(vn_pct(timeout)), Cell(bar=bar),
+                         Cell(vn_pct(r.get("CR"))), Cell(vn_int(tc) if tc is not None else "—"),
+                         Cell(vn_pct(timeout)), Cell(bar=bar),
                          Cell(vn_num(r["SPL"], 2) if r.get("SPL") is not None else "—"),
                          Cell(vn_num(r["MTT"], 1) if r.get("MTT") is not None else "—")]))
     if mean and len(levels) >= 2:
@@ -1042,13 +1052,21 @@ def eval_report(results: dict, policy: str, base: Path | str, source: str = "") 
         bar = [(mean.get("SR") or 0, OUTCOMES["goal"][1]), (mean.get("CR") or 0, OUTCOMES["collision"][1]),
                (t_mean or 0, OUTCOMES["timeout"][1])]
         n_lv = sum(int(results[s]["n"]) for s in levels)
+        tc_lv = [_tc(results[s]) for s in levels]
+        tc_mean = mean.get("TC") if mean.get("TC") is not None else (
+            sum(tc_lv) if all(v is not None for v in tc_lv) else None)
         rows.append(Row([Cell(set_label(MEAN_SET)), Cell(vn_int(n_lv)), Cell(vn_pct(mean.get("SR"))),
-                         Cell(vn_pct(mean.get("CR"))), Cell(vn_pct(t_mean)), Cell(bar=bar),
-                         Cell(vn_num(spl_mean, 2) if spl_mean is not None else "—"), Cell("—")],
+                         Cell(vn_pct(mean.get("CR"))), Cell(vn_int(tc_mean) if tc_mean is not None else "—"),
+                         Cell(vn_pct(t_mean)), Cell(bar=bar),
+                         Cell(vn_num(spl_mean, 2) if spl_mean is not None else "—"),
+                         Cell(vn_num(mean["MTT"], 1) if mean.get("MTT") is not None else "—")],
                         rule_above=True, bold=True))
     notes = [OUTCOME_NOTE]
     if mean:
-        notes.append("TB cấp 1–4: trung bình cộng của 4 cấp, không gồm BARN.")
+        notes.append("TB cấp 1–4: SR, CR, hết giờ, SPL là trung bình cộng của 4 cấp; TC là tổng của 4 cấp; "
+                     "MTT tính trên mọi lượt tới đích của 4 cấp; không gồm BARN"
+                     + (" và Lehman." if "test_lehman" in sets else "."))
+    notes.append("TC: tổng số lần va chạm. Lượt dừng ngay ở lần va chạm đầu tiên nên TC = số lượt va chạm.")
     if source:
         notes.append(f"Số liệu: {source}.")
     table_png(table_path, Header("Kết quả chấm trên tập test", subtitle), [Table(cols, rows)], notes)
@@ -1504,14 +1522,14 @@ class MethodRow:
     values: dict          # tập -> {"mean", "min", "max", "n_seeds"} (tỉ lệ 0–1)
 
 
-_BASELINE_KEYS = ("ga",)
+_BASELINE_KEYS = ("ga", "apf")
 
 
 def is_baseline(name: str) -> bool:
-    """Baseline = không phải NEAT: GA B1, GA B2."""
+    """Baseline = không phải NEAT: GA B1, GA B2, APF (B5)."""
     import unicodedata
     key = unicodedata.normalize("NFC", name).casefold()
-    if re.search(r"\bb[12]\b", key):
+    if re.search(r"\bb[125]\b", key):
         return True
     return any(re.search(rf"(^|[^a-zà-ỹ]){re.escape(k)}($|[^a-zà-ỹ])", key) for k in _BASELINE_KEYS)
 
