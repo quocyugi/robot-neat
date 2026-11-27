@@ -29,7 +29,7 @@ from typing import Any, Iterable, Optional
 import numpy as np
 
 from src.env.geodesic import DEFAULT_CACHE_DIR, ensure_cached, get_geodesic
-from src.env.kinematics import LIDAR_MODE, LIDAR_NUM_RAYS, lidar_settings_from_env
+from src.env.kinematics import LIDAR_MODE, LIDAR_NUM_RAYS, ROBOT, SECTOR_LAYOUT, robot_settings_from_env
 from src.env.robot_env import RobotNavEnv
 from src.neat_engine.evaluator import compute_episode_fitness
 
@@ -158,13 +158,14 @@ class ParallelEvaluator:
         self.workers = max(1, int(workers))
         self.pool = None
         if self.workers > 1:
-            # Worker kiểu spawn đọc biến cảm biến lúc import: biến bị đổi sau khi tiến trình này đã
-            # import src thì worker chạy cảm biến khác tiến trình cha (kết quả phụ thuộc số worker).
-            env_sensor = lidar_settings_from_env()
-            if env_sensor != (LIDAR_MODE, LIDAR_NUM_RAYS):
+            # Worker kiểu spawn đọc biến robot / cảm biến lúc import: biến bị đổi sau khi tiến trình này đã
+            # import src thì worker chạy robot / cảm biến khác tiến trình cha (kết quả phụ thuộc số worker).
+            env_sensor = robot_settings_from_env()
+            have = (ROBOT, LIDAR_MODE, LIDAR_NUM_RAYS, SECTOR_LAYOUT)
+            if env_sensor != have:
                 raise RuntimeError(
-                    f"cảm biến đã import là {(LIDAR_MODE, LIDAR_NUM_RAYS)}, nhưng NEAT_LIDAR_MODE / NEAT_LIDAR_N "
-                    f"nay cho {env_sensor}: đặt hai biến TRƯỚC khi import src"
+                    f"robot / cảm biến đã import là {have}, nhưng NEAT_ROBOT / NEAT_LIDAR_MODE / NEAT_LIDAR_N / "
+                    f"NEAT_SECTOR_LAYOUT nay cho {env_sensor}: đặt các biến TRƯỚC khi import src"
                 )
             # Mỗi worker một luồng BLAS, tránh 4 worker x 16 luồng tranh nhau CPU
             for var in ("OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS"):

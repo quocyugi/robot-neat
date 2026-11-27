@@ -16,6 +16,12 @@ x, y vào một mảng tải lên; mỗi bước 1 lần tải lên, 2 lần t�
 
 startup_check() so kernel với FastLiDAR2D.scan và check_collision trên các tư thế ngẫu nhiên (bản đồ
 tổng hợp có đoạn suy biến); lệch một bit là từ chối GPU (BatchEvaluator quay về đường mặc định).
+
+Waffle (NEAT_ROBOT=waffle): kernel không đổi. Kernel nhận đúng điểm cần quét / kiểm (X[e], X[n + e]),
+nên BodyCenterGeometry (src/batch/sim.py) truyền tâm thân tính ở host; bán kính đĩa va chạm là tham số
+robot_radius (mặc định KM.COLL_RADIUS: 0,25 với robot cũ, 0,2077 với Waffle); cạnh quạt đọc từ
+lidar.sector_edges (bố cục e32 không đều dùng được vì kernel lấy cạnh i và (i + 1) mod N từ mảng).
+startup_check kiểm cả bố cục quạt và bán kính của robot đang chạy.
 Lỗi CUDA lúc chạy (hết bộ nhớ GPU khi nhiều job cùng dùng, lỗi chạy kernel) được báo thành GpuUnavailable
 (job dừng có lý do, không ra số sai).
 """
@@ -151,12 +157,12 @@ class GpuGeometry:
     """Cùng giao diện với sim.HostGeometry (setup / collide / scan / keep), mảng vào ra là NumPy ở host."""
 
     def __init__(self, lidar, robot_radius: float | None = None):
-        from src.env.kinematics import ROBOT_RADIUS
+        from src.env.kinematics import COLL_RADIUS
         self.cp, fns = _module()
         self.k_rays, self.k_sector, self.k_coll = fns["rays"], fns["sector"], fns["coll"]
         self.mode, self.N, self.R = lidar.mode, int(lidar.num_rays), float(lidar.max_range)
         self.ang = np.asarray(lidar.ray_angles if self.mode == "rays" else lidar.sector_edges, dtype=np.float64)
-        self.radius = float(ROBOT_RADIUS if robot_radius is None else robot_radius)
+        self.radius = float(COLL_RADIUS if robot_radius is None else robot_radius)
         self._prox = None
         self._pose = None                                   # (x, y, thobs) của LiDAR giữ trong _prox
 
@@ -264,14 +270,16 @@ def startup_check(lidar, n_poses: int = 96, seed: int = 2024) -> list[str]:
     trả danh sách chỗ lệch (rỗng = trùng từng bit)."""
     from src.batch.sim import MapInfo
     from src.env.collision import check_collision
+    from src.env.kinematics import COLL_RADIUS
     from src.env.lidar import FastLiDAR2D
     from src.batch.numerics import synthetic_maps, random_poses
     problems = []
     rng = np.random.default_rng(seed)
-    modes = [("rays", lidar.num_rays)] + ([("sector", lidar.num_rays)] if lidar.num_rays >= 2 else [])
-    for mode, n in modes:
-        lid = FastLiDAR2D(n, lidar.max_range, mode)
-        geom = GpuGeometry(lid)
+    layout = getattr(lidar, "layout", "") if lidar.mode == "sector" else ""   # bố cục quạt của robot đang chạy
+    modes = [("rays", lidar.num_rays, "")] + ([("sector", lidar.num_rays, layout)] if lidar.num_rays >= 2 else [])
+    for mode, n, lay in modes:
+        lid = FastLiDAR2D(n, lidar.max_range, mode, lay)
+        geom = GpuGeometry(lid, COLL_RADIUS)
         for segs in synthetic_maps(rng):
             mi = MapInfo("check", {}, segs, np.zeros(2), np.zeros(2), 0.0, 0.0, None, None, 0.0)
             x, y, th_py, th32 = random_poses(rng, n_poses, segs)
@@ -281,7 +289,7 @@ def startup_check(lidar, n_poses: int = 96, seed: int = 2024) -> list[str]:
                 coll = geom.collide(x, y, thobs)
                 prox = geom.scan(x, y, thobs)
                 ref_p = np.array([lid.scan(np.array([x[i], y[i]]), th_list[i], segs) for i in range(n_poses)])
-                ref_c = np.array([check_collision(np.array([x[i], y[i]]), segs) for i in range(n_poses)])
+                ref_c = np.array([check_collision(np.array([x[i], y[i]]), segs, COLL_RADIUS) for i in range(n_poses)])
                 if not np.array_equal(prox, ref_p) or prox.dtype != ref_p.dtype:
                     problems.append(f"GPU {mode}:{n} lệch FastLiDAR2D.scan ở {int((prox != ref_p).any(axis=1).sum())} tư thế")
                 if not np.array_equal(coll, ref_c):

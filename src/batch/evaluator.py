@@ -37,7 +37,7 @@ import numpy as np
 from src.batch import numerics
 from src.batch.backend import Backend, GpuUnavailable
 from src.batch.policies import APFPolicy, MLPPolicy, NeatPolicy, Unsupported, neat_slots
-from src.batch.sim import Episode, HostGeometry, segments_ok, simulate
+from src.batch.sim import Episode, make_host_geometry, robot_geometry, segments_ok, simulate
 from src.env import kinematics as KM
 from src.env.geodesic import DEFAULT_CACHE_DIR
 from src.env.lidar import FastLiDAR2D
@@ -83,7 +83,7 @@ class _Engine:
 
     def __init__(self, device: str = "cpu", exact: bool = True, gpu_variant: str = "hybrid",
                  max_episodes: Optional[int] = None, lidar_chunk: Optional[int] = None):
-        self.lidar = FastLiDAR2D(KM.LIDAR_NUM_RAYS, KM.LIDAR_MAX_RANGE, KM.LIDAR_MODE)
+        self.lidar = FastLiDAR2D(KM.LIDAR_NUM_RAYS, KM.LIDAR_MAX_RANGE, KM.LIDAR_MODE, KM.SECTOR_LAYOUT)
         self.max_episodes = int(max_episodes or DEFAULT_MAX_EPISODES[device])
         self.lidar_chunk = lidar_chunk
         self.stats = {"tasks": 0, "episodes": 0, "fallback_tasks": 0}
@@ -94,12 +94,14 @@ class _Engine:
         elif exact and gpu_variant == "hybrid":
             from src.batch import gpu
             self.be = Backend("numpy", True)
-            gpu.GpuGeometry(self.lidar)                      # biên dịch kernel ngay, lỗi báo sớm
+            gpu.GpuGeometry(self.lidar, KM.COLL_RADIUS)      # biên dịch kernel ngay, lỗi báo sớm
+            # Waffle: kernel không đổi; tâm thân (gốc LiDAR, tâm đĩa va chạm) tính ở host (BodyCenterGeometry)
+            gpu_geom = lambda: robot_geometry(self.be, gpu.GpuGeometry(self.lidar, KM.COLL_RADIUS))  # noqa: E731
             problems = gpu.startup_check(self.lidar)
-            problems += _recheck_after_gpu(self.be, lambda: gpu.GpuGeometry(self.lidar))
+            problems += _recheck_after_gpu(self.be, gpu_geom)
             if problems:
                 raise NumericsMismatch("; ".join(problems))
-            self._geom = lambda: gpu.GpuGeometry(self.lidar)
+            self._geom = gpu_geom
         else:
             self.be = Backend("cupy", exact)
             self._geom = self._host_geometry
@@ -109,7 +111,7 @@ class _Engine:
                     raise NumericsMismatch("; ".join(problems))
 
     def _host_geometry(self):
-        return HostGeometry(self.be, self.lidar, self.lidar_chunk)
+        return make_host_geometry(self.be, self.lidar, self.lidar_chunk)
 
     # ── tách nhóm ──
     def _classify(self, spec, paths, opts, pol_cache: dict, map_ok: dict):
@@ -263,12 +265,13 @@ class BatchEvaluator:
                              max_episodes=max_episodes, lidar_chunk=lidar_chunk)
         self._engine = _Engine(**engine_kwargs)
         if device == "cpu" and self.workers > 1:
-            # như ParallelEvaluator: worker spawn đọc lại cảm biến lúc import, mỗi worker một luồng BLAS
-            env_sensor = KM.lidar_settings_from_env()
-            if env_sensor != (KM.LIDAR_MODE, KM.LIDAR_NUM_RAYS):
+            # như ParallelEvaluator: worker spawn đọc lại robot và cảm biến lúc import, mỗi worker một luồng BLAS
+            env_sensor = KM.robot_settings_from_env()
+            have = (KM.ROBOT, KM.LIDAR_MODE, KM.LIDAR_NUM_RAYS, KM.SECTOR_LAYOUT)
+            if env_sensor != have:
                 raise RuntimeError(
-                    f"cảm biến đã import là {(KM.LIDAR_MODE, KM.LIDAR_NUM_RAYS)}, nhưng NEAT_LIDAR_MODE / NEAT_LIDAR_N "
-                    f"nay cho {env_sensor}: đặt hai biến TRƯỚC khi import src")
+                    f"robot / cảm biến đã import là {have}, nhưng NEAT_ROBOT / NEAT_LIDAR_MODE / NEAT_LIDAR_N / "
+                    f"NEAT_SECTOR_LAYOUT nay cho {env_sensor}: đặt các biến TRƯỚC khi import src")
             for var in ("OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS"):
                 os.environ.setdefault(var, "1")
             self.pool = mp.get_context("spawn").Pool(self.workers, initializer=_worker_init,

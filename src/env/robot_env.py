@@ -30,6 +30,14 @@ Reference
 - brainstorm/01_env/gymnasium_api.md  (Decisions #6, #7)
 - brainstorm/01_env/ray_casting.md    (Decisions #1–#3)
 - brainstorm/02_neat/fitness_design.md (Decisions #8, #9)
+
+Robot Waffle (NEAT_ROBOT=waffle, src/env/kinematics.py)
+-------------------------------------------------------
+Hành động [o1, o2] là lệnh (tốc độ tiến, tốc độ quay) thay cho hai bánh; động học là
+kinematics.waffle_step (cùng hàm với đường theo lô, gọi với lô 1 lượt). Va chạm và gốc LiDAR
+ở tâm thân (body_center(): lùi BODY_OFFSET sau tâm quay theo hướng thân), đĩa va chạm bán kính
+COLL_RADIUS. Đích, quỹ đạo, độ dài đường đi và phần đuôi quan sát (rho, sin phi, cos phi) tính
+từ tâm quay như robot cũ. Robot cũ giữ nguyên từng dòng mã.
 """
 
 from __future__ import annotations
@@ -44,6 +52,7 @@ from src.env.kinematics import (
     ROBOT_RADIUS, WHEEL_BASE, V_MAX, DT, MAX_STEPS,
     GOAL_RADIUS, LIDAR_MAX_RANGE, LIDAR_NUM_RAYS, LIDAR_MODE,
     ARENA_DIAGONAL, step_kinematics, is_spinning,
+    ROBOT, SECTOR_LAYOUT, COLL_RADIUS, BODY_OFFSET, waffle_step,
 )
 from src.env.lidar import FastLiDAR2D
 from src.env.collision import check_collision
@@ -97,8 +106,8 @@ class RobotNavEnv(gym.Env):
         )
 
         # ── Internals ────────────────────────────────────────────────
-        # Kiểu cảm biến (tia điểm / hình quạt) theo NEAT_LIDAR_MODE
-        self._lidar = FastLiDAR2D(LIDAR_NUM_RAYS, LIDAR_MAX_RANGE, LIDAR_MODE)
+        # Kiểu cảm biến (tia điểm / hình quạt) theo NEAT_LIDAR_MODE, bố cục quạt theo NEAT_SECTOR_LAYOUT
+        self._lidar = FastLiDAR2D(LIDAR_NUM_RAYS, LIDAR_MAX_RANGE, LIDAR_MODE, SECTOR_LAYOUT)
         self._renderer = Renderer(render_mode)
         self.render_mode = render_mode
 
@@ -143,24 +152,28 @@ class RobotNavEnv(gym.Env):
         self, action: np.ndarray
     ) -> tuple[np.ndarray, float, bool, bool, dict]:
         self.step_count += 1
-        oL, oR = np.clip(action, -1.0, 1.0)
+        if ROBOT == "waffle":
+            # Waffle: động học (v, w) + kẹp bánh, va chạm ở tâm thân (r = COLL_RADIUS)
+            collided = self._move_waffle(action)
+        else:
+            oL, oR = np.clip(action, -1.0, 1.0)
 
-        # ── Kinematics ────────────────────────────────────────────────
-        vL = V_MAX * oL
-        vR = V_MAX * oR
+            # ── Kinematics ────────────────────────────────────────────────
+            vL = V_MAX * oL
+            vR = V_MAX * oR
 
-        if is_spinning(vL, vR):
-            self.spin_count += 1
+            if is_spinning(vL, vR):
+                self.spin_count += 1
 
-        x_new, y_new, theta_new = step_kinematics(
-            self.pos[0], self.pos[1], self.theta, oL, oR,
-        )
-        self.pos = np.array([x_new, y_new])
-        self.theta = theta_new
-        self.trajectory.append(self.pos.copy())
+            x_new, y_new, theta_new = step_kinematics(
+                self.pos[0], self.pos[1], self.theta, oL, oR,
+            )
+            self.pos = np.array([x_new, y_new])
+            self.theta = theta_new
+            self.trajectory.append(self.pos.copy())
 
-        # ── Collision & goal check ────────────────────────────────────
-        collided = check_collision(self.pos, self.segments, ROBOT_RADIUS)
+            # ── Collision & goal check ────────────────────────────────────
+            collided = check_collision(self.pos, self.segments, ROBOT_RADIUS)
         dist_to_goal = float(np.linalg.norm(self.pos - self.goal_pos))
         self.d_min = min(self.d_min, dist_to_goal)
         reached_goal = dist_to_goal <= GOAL_RADIUS
@@ -195,6 +208,29 @@ class RobotNavEnv(gym.Env):
         # Reward is unused — NEAT evaluates fitness *after* the episode
         reward = 0.0
         return obs, reward, terminated, truncated, info
+
+    # ================================================================== #
+    #  Waffle (NEAT_ROBOT=waffle)                                          #
+    # ================================================================== #
+
+    def body_center(self) -> np.ndarray:
+        """Tâm thân: lùi BODY_OFFSET sau tâm quay theo hướng thân (robot cũ: BODY_OFFSET = 0).
+        Lượng giác trên góc float64 (float(theta)) như đường theo lô (src/batch/sim.py, BodyCenterGeometry)."""
+        th = float(self.theta)
+        return np.array([self.pos[0] - BODY_OFFSET * np.cos(th), self.pos[1] - BODY_OFFSET * np.sin(th)])
+
+    def _move_waffle(self, action) -> bool:
+        """Một bước Waffle bằng kinematics.waffle_step với lô 1 lượt; trả cờ va chạm ở tư thế mới."""
+        a32 = np.asarray(action, dtype=np.float32).reshape(1, 2)
+        th32 = np.array([self.theta], dtype=np.float32)          # bước 1: float32 của hướng xuất phát
+        xn, yn, th, spin = waffle_step(np, np.cos, np.sin, np.array([self.pos[0]]), np.array([self.pos[1]]),
+                                       th32, a32)
+        if spin[0]:
+            self.spin_count += 1
+        self.pos = np.array([xn[0], yn[0]])
+        self.theta = th[0]                                       # np.float32 như robot cũ
+        self.trajectory.append(self.pos.copy())
+        return check_collision(self.body_center(), self.segments, COLL_RADIUS)
 
     def render(self) -> np.ndarray | None:
         if self.render_mode is None:
@@ -231,9 +267,10 @@ class RobotNavEnv(gym.Env):
         [14]     cos(φ)  heading-to-goal angle
         (N hướng: [0..N-1] độ gần, rồi ρ, sin φ, cos φ; N = LIDAR_NUM_RAYS, mặc định 12)
         """
-        # LiDAR proximity (12-D; N-D với NEAT_LIDAR_N, tia điểm hoặc hình quạt)
+        # LiDAR proximity (12-D; N-D với NEAT_LIDAR_N, tia điểm hoặc hình quạt); Waffle quét từ tâm thân
+        origin = self.body_center() if ROBOT == "waffle" else self.pos
         proximity = self._lidar.scan(
-            self.pos, self.theta, self.segments,
+            origin, self.theta, self.segments,
         )
         self._last_proximity = proximity       # cache for render
 

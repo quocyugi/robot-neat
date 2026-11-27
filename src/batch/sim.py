@@ -25,6 +25,12 @@ lidar.py, collision.py, geodesic.py, src/neat_engine/parallel.py):
 
 Hình học (LiDAR + va chạm) là một đối tượng thay được: HostGeometry (xp, theo bucket số đoạn) hoặc
 GpuGeometry (src/batch/gpu.py, kernel CUDA gộp). Cả hai có setup / collide / scan / keep.
+
+Waffle (NEAT_ROBOT=waffle): động học là kinematics.waffle_step (cùng hàm với RobotNavEnv); hình học
+điểm (HostGeometry / GpuGeometry, bán kính đĩa KM.COLL_RADIUS) được bọc bởi BodyCenterGeometry, đổi
+tâm quay sang tâm thân (x - BODY_OFFSET cos th, y - BODY_OFFSET sin th, cos / sin float64 ở host) rồi
+mới quét LiDAR và kiểm va chạm, đúng như RobotNavEnv.body_center. Kernel GPU không đổi. robot_geometry()
+chọn đúng cách bọc; robot cũ nhận nguyên hình học điểm (không bọc).
 """
 
 from __future__ import annotations
@@ -108,6 +114,8 @@ def bucketize(ms, tol: float = 1.3, slack: int = 4) -> dict:
 def kinematics_step(be, x, y, th32, act32):
     """RobotNavEnv.step (phần động học) cho A lượt: trả (x mới, y mới, góc float32 mới, cờ quay tại chỗ)."""
     xp = be.xp
+    if KM.ROBOT == "waffle":                           # cùng hàm với RobotNavEnv._move_waffle
+        return KM.waffle_step(xp, be.cos, be.sin, x, y, th32, act32)
     a = xp.clip(act32, -ONE32, ONE32)                  # oL, oR = np.clip(action, -1.0, 1.0)
     oL, oR = a[:, 0], a[:, 1]
     vL, vR = VMAX32 * oL, VMAX32 * oR
@@ -146,8 +154,10 @@ class HostGeometry:
     bucket là một lát liền); đoạn của mỗi lượt đệm tới M lớn nhất của bucket, đoạn đệm bị che bằng
     mặt nạ. min theo trục đoạn không phụ thuộc thứ tự, nên chia lô con (lidar_chunk) không đổi bit nào."""
 
-    def __init__(self, be, lidar, lidar_chunk: Optional[int] = None):
+    def __init__(self, be, lidar, lidar_chunk: Optional[int] = None, radius: Optional[float] = None):
         self.be, self.xp = be, be.xp
+        # bán kính đĩa va chạm: mặc định KM.COLL_RADIUS (robot cũ: = ROBOT_RADIUS 0,25; Waffle: 0,2077)
+        self.radius = float(KM.COLL_RADIUS if radius is None else radius)
         self.mode, self.N, self.R = lidar.mode, int(lidar.num_rays), lidar.max_range
         self.ray_angles = be.dev(np.asarray(lidar.ray_angles, dtype=np.float64))
         self.sector_edges = be.dev(np.asarray(lidar.sector_edges, dtype=np.float64))
@@ -192,7 +202,7 @@ class HostGeometry:
         self.counts = counts
 
     def collide(self, x, y, thobs=None):
-        """check_collision(pos, segments, ROBOT_RADIUS) cho mọi lượt (bool (A,))."""
+        """check_collision(pos, segments, self.radius) cho mọi lượt (bool (A,))."""
         xp = self.xp
         coll = xp.zeros(x.shape[0], dtype=bool)
         lo = 0
@@ -209,7 +219,7 @@ class HostGeometry:
             cx, cy = S["ax"] + t * S["sx"], S["ay"] + t * S["sy"]           # closest = A + t AB
             qx, qy = px - cx, py - cy
             d = xp.sqrt(qx * qx + qy * qy)
-            coll[sl] = xp.any((d <= KM.ROBOT_RADIUS) & S["mk"], axis=1)
+            coll[sl] = xp.any((d <= self.radius) & S["mk"], axis=1)
         return coll
 
     def scan(self, x, y, thobs):
@@ -290,6 +300,47 @@ class HostGeometry:
         d2 = xp.where(inside & mk[:, None, :], h2[:, None, :] + ss[:, None, :] * (dt * dt), xp.inf)
         d = xp.sqrt(xp.min(d2, axis=2))
         return (1.0 - xp.minimum(d, self.R) / self.R).astype(xp.float32)
+
+
+# ── Waffle: LiDAR và đĩa va chạm ở tâm thân ───────────────────────────────
+class BodyCenterGeometry:
+    """Bọc một hình học điểm (HostGeometry / GpuGeometry): mọi lời gọi collide / scan nhận tâm quay (x, y) và
+    góc thobs (float64), đổi sang tâm thân bx = x - off cos(thobs), by = y - off sin(thobs) (cos, sin float64
+    bằng be.cos / be.sin, cùng phép như RobotNavEnv.body_center) rồi gọi hình học bên trong. Cùng tư thế cho
+    cùng (bx, by) tới từng bit, nên bộ đệm LiDAR của GpuGeometry (collide rồi scan cùng tư thế) vẫn trúng."""
+
+    def __init__(self, be, inner, offset: float):
+        self.be, self.inner, self.off = be, inner, float(offset)
+
+    def center(self, x, y, thobs):
+        c, s = self.be.cos(thobs), self.be.sin(thobs)
+        return x - self.off * c, y - self.off * s
+
+    def setup(self, infos, bucket_ids):
+        self.inner.setup(infos, bucket_ids)
+
+    def keep(self, keep):
+        self.inner.keep(keep)
+
+    def collide(self, x, y, thobs):
+        bx, by = self.center(x, y, thobs)
+        return self.inner.collide(bx, by, thobs)
+
+    def scan(self, x, y, thobs):
+        bx, by = self.center(x, y, thobs)
+        return self.inner.scan(bx, by, thobs)
+
+
+def robot_geometry(be, inner):
+    """Hình học theo robot đang chạy: Waffle bọc BodyCenterGeometry; robot cũ trả nguyên `inner`."""
+    if KM.ROBOT == "waffle":
+        return BodyCenterGeometry(be, inner, KM.BODY_OFFSET)
+    return inner
+
+
+def make_host_geometry(be, lidar, lidar_chunk: Optional[int] = None):
+    """HostGeometry với bán kính va chạm của robot đang chạy, bọc theo robot_geometry."""
+    return robot_geometry(be, HostGeometry(be, lidar, lidar_chunk, radius=KM.COLL_RADIUS))
 
 
 # ── Vòng lockstep ──────────────────────────────────────────────────────────

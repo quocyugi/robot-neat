@@ -27,13 +27,48 @@ Hai kiểu cảm biến (chọn bằng NEAT_LIDAR_MODE, xem src/env/kinematics.p
   nên vật cản mảnh lọt giữa hai tia điểm vẫn được thấy. Tính giải tích, vector hóa trên
   (N, số đoạn): không bắn tia dày trong vòng lặp lượt chạy.
 scan() gọi đúng hàm theo self.mode; RobotNavEnv gọi scan().
+
+Bố cục hình quạt không đều (layout, NEAT_SECTOR_LAYOUT ở src/env/kinematics.py)
+-------------------------------------------------------------------------------
+Mọi đường chạy (sector_distances ở đây, HostGeometry._sectors ở src/batch/sim.py, kernel "sector"
+ở src/batch/gpu.py) đọc cạnh quạt từ cùng mảng sector_edges: quạt i nằm giữa cạnh i và cạnh
+(i + 1) mod N. Bố cục "e32" chỉ thay mảng này (cạnh dưới, độ): quạt j = 0..29 là
+[-135 + 9j; -135 + 9(j + 1)] (270 độ phía trước, từ phải sang trái; hướng trước 0 độ là cạnh giữa
+quạt 14 và 15), quạt 30 là [135; 180], quạt 31 là [180; 225] = [-180; -135]. Phép thử "trong quạt"
+của sector_distances đúng khi mỗi quạt mở không quá pi: check_sector_edges kiểm điều đó và việc
+các quạt khép đúng một vòng. ray_angles của bố cục này là hướng giữa từng quạt (chỉ để vẽ).
 """
 
 from __future__ import annotations
 
 import numpy as np
 
-from src.env.kinematics import LIDAR_MODE, LIDAR_MODES, LIDAR_NUM_RAYS, LIDAR_MAX_RANGE
+from src.env.kinematics import LIDAR_MODE, LIDAR_MODES, LIDAR_NUM_RAYS, LIDAR_MAX_RANGE, SECTOR_LAYOUTS
+
+
+def sector_layout(num_rays: int, layout: str) -> tuple[np.ndarray, np.ndarray]:
+    """(cạnh dưới của từng quạt, hướng giữa từng quạt) theo bố cục không đều; rad, float64."""
+    if layout == "e32":
+        if num_rays != 32:
+            raise ValueError(f"bố cục e32 cần 32 quạt (num_rays = {num_rays})")
+        lower = [-135.0 + 9.0 * j for j in range(31)] + [180.0]        # 30 quạt 9 độ, quạt [135; 180], [180; 225]
+        mid = [-130.5 + 9.0 * j for j in range(30)] + [157.5, -157.5]
+        return np.radians(np.array(lower)), np.radians(np.array(mid))
+    raise ValueError(f"layout={layout!r}: chỉ nhận {SECTOR_LAYOUTS}")
+
+
+def check_sector_edges(edges: np.ndarray) -> None:
+    """Báo lỗi nếu cạnh quạt không tăng dần, có quạt mở quá pi, hoặc các quạt không khép đúng một vòng."""
+    e = np.asarray(edges, dtype=np.float64)
+    if e.ndim != 1 or e.size < 2:
+        raise ValueError("cần ít nhất 2 cạnh quạt")
+    width = np.diff(np.concatenate((e, e[:1] + 2.0 * np.pi)))   # quạt cuối quấn về cạnh 0
+    if not np.all(width > 0.0):
+        raise ValueError("cạnh quạt phải tăng dần và quạt cuối kết thúc ở cạnh 0 + 2 pi")
+    if not np.all(width <= np.pi):
+        raise ValueError(f"có quạt mở quá pi ({float(np.degrees(width.max())):.3f} độ)")
+    if abs(float(width.sum()) - 2.0 * np.pi) > 1e-9:
+        raise ValueError("các quạt không khép đúng một vòng")
 
 
 class FastLiDAR2D:
@@ -44,6 +79,7 @@ class FastLiDAR2D:
         num_rays: int = LIDAR_NUM_RAYS,
         max_range: float = LIDAR_MAX_RANGE,
         mode: str = LIDAR_MODE,
+        layout: str = "",
     ):
         self.num_rays = num_rays
         self.max_range = max_range
@@ -55,12 +91,20 @@ class FastLiDAR2D:
             raise ValueError(f"mode={mode!r}: chỉ nhận {LIDAR_MODES}")
         if mode == "sector" and num_rays < 2:
             raise ValueError("kiểu 'sector' cần num_rays >= 2")
+        if layout not in SECTOR_LAYOUTS:
+            raise ValueError(f"layout={layout!r}: chỉ nhận {SECTOR_LAYOUTS}")
+        if layout and mode != "sector":
+            raise ValueError(f"bố cục quạt {layout!r} chỉ dùng với mode='sector'")
         self.mode = mode
+        self.layout = layout
         # Cạnh dưới của hình quạt i ở góc 2*pi*i/N - pi/N (so với hướng robot);
         # cạnh trên của hình quạt i là cạnh dưới của hình quạt i + 1.
         # Chỉ tính khi num_rays > 0: kiểu "rays" dựng được với mọi num_rays, kể cả 0
         # (không chia cho 0; sector_edges khi đó là mảng rỗng như ray_angles).
-        if num_rays > 0:
+        if layout:
+            self.sector_edges, self.ray_angles = sector_layout(num_rays, layout)
+            check_sector_edges(self.sector_edges)
+        elif num_rays > 0:
             self.sector_edges: np.ndarray = self.ray_angles - np.pi / num_rays
         else:
             self.sector_edges = np.empty(0)

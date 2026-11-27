@@ -222,11 +222,13 @@ class MLPPolicy:
 
 # ── APF (B5) ──────────────────────────────────────────────────────────────
 class APFPolicy:
-    """APFController.activate theo lô, đúng thứ tự phép tính (vòng i = 0..n-1 tuần tự)."""
+    """APFController.activate theo lô, đúng thứ tự phép tính (vòng i = 0..n-1 tuần tự).
+    ctrl.vw (Waffle): đầu ra (speed, turn) thay cho hai bánh, như APFController.activate."""
 
     def __init__(self, be, n: int, ctrl):
         self.be, self.n = be, int(n)
         self.k_att, self.k_rep, self.d_safe = ctrl.k_att, ctrl.k_rep, ctrl.d_safe
+        self.vw = bool(getattr(ctrl, "vw", False))
         ang = np.linspace(0, 2 * np.pi, self.n, endpoint=False)
         self.cos = [float(np.cos(a)) for a in ang]       # np.cos(angle) vô hướng như APFController
         self.sin = [float(np.sin(a)) for a in ang]
@@ -254,4 +256,6 @@ class APFPolicy:
         tx, ty = fx + rx, fy + ry                        # f_total = f_att + f_rep
         speed = xp.clip(tx * 0.5, -1.0, 1.0)
         turn = xp.clip(ty * 0.5, -1.0, 1.0)
+        if self.vw:                                      # Waffle: [float(speed), float(turn)]
+            return xp.stack([speed, turn], axis=1)
         return xp.stack([xp.clip(speed - turn, -1.0, 1.0), xp.clip(speed + turn, -1.0, 1.0)], axis=1)

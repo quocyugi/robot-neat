@@ -1,0 +1,19 @@
+{
+ "counts": {
+  "train/level_1": 150,
+  "val/level_1": 50,
+  "test/level_1": 50,
+  "test_barn": 50,
+  "test_barn2": 50,
+  "test_lehman": 2
+ },
+ "overlap_by_name": {
+  "train|val": 0,
+  "train|test": 0,
+  "val|test": 0,
+  "train|test2": 0,
+  "val|test2": 0,
+  "test|test2": 0
+ },
+ "note": "slot 1 = BARN only (round-6 split)"
+}

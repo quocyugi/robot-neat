@@ -17,6 +17,11 @@ với simulate theo lô cho FixedMLP, APF và mạng NEAT hồi quy dựng tay, 
 đích, va chạm và hết giờ. Phép so trọn lượt bắt được việc sửa RobotNavEnv.step, compute_episode_fitness hay
 run_episode (đọc thêm khóa info, đổi công thức, thêm khóa kết quả) mà bản theo lô chưa chép theo.
 self_check() trả danh sách chỗ lệch; rỗng là đạt.
+
+Waffle (NEAT_ROBOT=waffle): khoảng góc kiểm mở tới [-200; 200] (quay tối đa 1,82 rad/s x 100 s), động
+học so kinematics_step theo lô với waffle_step từng lượt (lô 1), hình học dùng bán kính KM.COLL_RADIUS và
+bố cục quạt đang chạy, quan sát và trọn lượt đi qua BodyCenterGeometry (tâm thân); APF chỉ được so khi
+apf_unsupported_reason() là None (Waffle: quạt đều 12). Robot cũ giữ nguyên mọi phép kiểm.
 """
 
 from __future__ import annotations
@@ -87,9 +92,13 @@ def _scalar_vs_array(rng, problems):
     if not np.array_equal(np.linalg.norm(v, axis=1), np.sqrt(v[:, 0] * v[:, 0] + v[:, 1] * v[:, 1])):
         problems.append("np.linalg.norm(axis=1) khác sqrt(x0*x0 + x1*x1)")
     # góc LiDAR thật = thobs + ray_angles / sector_edges: |thobs - h0| <= 125 (|omega| <= 2,5 rad/s, 500 bước của
-    # 0,1 s), h0 <= pi/2, góc tia < 2 pi, tức trong khoảng [-126; 133]; kiểm [-140; 140] và các điểm sát k pi/2
-    kq = np.arange(-89, 90) * (np.pi / 2)
-    t = rng.permutation(np.concatenate([rng.uniform(-140.0, 140.0, 3000), kq, np.nextafter(kq, np.inf),
+    # 0,1 s), h0 <= pi/2, góc tia < 2 pi, tức trong khoảng [-126; 133]; kiểm [-140; 140] và các điểm sát k pi/2.
+    # Waffle: |omega| <= 1,82 rad/s, 1.000 bước, nên |thobs - h0| <= 182 và góc cạnh quạt trong [-186; 191];
+    # kiểm [-200; 200] và k pi/2 với |k| <= 127
+    from src.env import kinematics as KM
+    lim, kmax = (200.0, 128) if KM.ROBOT == "waffle" else (140.0, 90)
+    kq = np.arange(1 - kmax, kmax) * (np.pi / 2)
+    t = rng.permutation(np.concatenate([rng.uniform(-lim, lim, 3000), kq, np.nextafter(kq, np.inf),
                                         np.nextafter(kq, -np.inf)]))
     m = t[:2400].reshape(200, 12)
     for name, fn in (("cos", np.cos), ("sin", np.sin)):
@@ -125,6 +134,21 @@ def _kinematics_check(rng, problems):
     y = rng.uniform(0.0, 10.0, n)
     th_py = [float(v) for v in rng.uniform(-7.0, 7.0, n)]
     th32 = rng.uniform(-7.0, 7.0, n).astype(np.float32)
+    if KM.ROBOT == "waffle":
+        # theo lô (A lượt) so với waffle_step của RobotNavEnv (lô 1 lượt): (v, w) có o1 < 0, |o| > 1, bánh bão hòa,
+        # 0 và -0.0, ngưỡng xoay tại chỗ
+        act[6:16] = np.array([[1.0, 0.0], [0.0, 1.0], [1.0, 0.1], [-0.5, 0.3], [0.0, 0.0], [-0.0, -0.0],
+                              [1.3, -1.3], [0.0961538, 0.0], [0.05, -0.3], [0.5, 0.95]], dtype=np.float32)
+        for th_arr in (np.array(th_py).astype(np.float32), th32):
+            xn, yn, thn, spin = kinematics_step(be, x, y, th_arr, act)
+            for i in range(n):
+                xs, ys, ts, ss = KM.waffle_step(np, np.cos, np.sin, x[i:i + 1], y[i:i + 1], th_arr[i:i + 1], act[i:i + 1])
+                if (not same_bits(float(xs[0]), float(xn[i])) or not same_bits(float(ys[0]), float(yn[i]))
+                        or ts[0].tobytes() != thn[i].tobytes() or type(ts[0]) is not type(thn[i])
+                        or thn.dtype != np.float32 or bool(ss[0]) != bool(spin[i])):
+                    problems.append(f"động học Waffle theo lô khác waffle_step từng lượt (hành động {act[i].tolist()})")
+                    return
+        return
     for th_list, th_arr in ((th_py, np.array(th_py).astype(np.float32)), (list(th32), th32)):
         xn, yn, thn, spin = kinematics_step(be, x, y, th_arr, act)
         for i in range(n):
@@ -153,14 +177,18 @@ def _geometry_check(rng, problems):
     Ms = [mi.segs.shape[0] for mi in infos for _ in range(n)]
     bm = bucketize(Ms)
     ep_infos = [mi for mi in infos for _ in range(n)]
-    modes = [("rays", KM.LIDAR_NUM_RAYS), ("rays", 12)] + ([("sector", KM.LIDAR_NUM_RAYS)] if KM.LIDAR_NUM_RAYS >= 2 else []) \
-        + [("sector", 12)]
-    ref_c = np.array([check_collision(np.array([xs[i], ys[i]]), ep_infos[i].segs) for i in range(len(xs))])
-    for mode, N in dict.fromkeys(modes):
-        lid = FastLiDAR2D(N, KM.LIDAR_MAX_RANGE, mode)
+    modes = [("rays", KM.LIDAR_NUM_RAYS, ""), ("rays", 12, "")] \
+        + ([("sector", KM.LIDAR_NUM_RAYS, "")] if KM.LIDAR_NUM_RAYS >= 2 else []) + [("sector", 12, "")]
+    if KM.SECTOR_LAYOUT:                                       # bố cục quạt không đều đang chạy (e32)
+        modes.append(("sector", KM.LIDAR_NUM_RAYS, KM.SECTOR_LAYOUT))
+    # bán kính đĩa va chạm của robot đang chạy (robot cũ: ROBOT_RADIUS = mặc định của check_collision)
+    ref_c = np.array([check_collision(np.array([xs[i], ys[i]]), ep_infos[i].segs, KM.COLL_RADIUS)
+                      for i in range(len(xs))])
+    for mode, N, layout in dict.fromkeys(modes):
+        lid = FastLiDAR2D(N, KM.LIDAR_MAX_RANGE, mode, layout)
         geoms = []
         for chunk in (None, 5):                                # chia lô con không đổi kết quả
-            geom = HostGeometry(be, lid, lidar_chunk=chunk)
+            geom = HostGeometry(be, lid, lidar_chunk=chunk, radius=KM.COLL_RADIUS)
             geom.setup(ep_infos, [bm[M] for M in Ms])
             geoms.append(geom)
         for which in (2, 3):                                   # góc float Python, góc float32
@@ -170,15 +198,15 @@ def _geometry_check(rng, problems):
             for geom in geoms:
                 prox = geom.scan(xs, ys, thobs)
                 if prox.dtype != np.float32 or not np.array_equal(prox, ref):
-                    problems.append(f"LiDAR {mode}:{N} theo lô khác FastLiDAR2D.scan")
+                    problems.append(f"LiDAR {mode}:{N}{':' + layout if layout else ''} theo lô khác FastLiDAR2D.scan")
                     return
         for geom in geoms:
             if not np.array_equal(geom.collide(xs, ys), ref_c):
                 problems.append("va chạm theo lô khác check_collision")
                 return
     # nén theo lượt còn chạy (bucket giữ liền) cho cùng kết quả
-    lid = FastLiDAR2D(KM.LIDAR_NUM_RAYS, KM.LIDAR_MAX_RANGE, KM.LIDAR_MODE)
-    geom = HostGeometry(be, lid)
+    lid = FastLiDAR2D(KM.LIDAR_NUM_RAYS, KM.LIDAR_MAX_RANGE, KM.LIDAR_MODE, KM.SECTOR_LAYOUT)
+    geom = HostGeometry(be, lid, radius=KM.COLL_RADIUS)
     geom.setup(ep_infos, [bm[M] for M in Ms])
     keep = rng.uniform(size=len(xs)) < 0.6
     geom.keep(keep)
@@ -192,7 +220,7 @@ def _geometry_check(rng, problems):
 
 def _obs_and_geo_check(rng, problems):
     from src.batch.backend import Backend
-    from src.batch.sim import HostGeometry, MapInfo, geo_lookup, obs_tail
+    from src.batch.sim import HostGeometry, MapInfo, geo_lookup, obs_tail, robot_geometry
     from src.env.geodesic import GeodesicField
     from src.env.robot_env import RobotNavEnv
     be = Backend("numpy")
@@ -203,7 +231,7 @@ def _obs_and_geo_check(rng, problems):
     n = 40
     x, y, th_py, th32 = random_poses(rng, n, segs)
     mi = MapInfo("check", m, env.segments, env.start_pos, env.goal_pos, 0.5, 0.0, None, None, 0.0)
-    geom = HostGeometry(be, env._lidar)
+    geom = robot_geometry(be, HostGeometry(be, env._lidar))      # Waffle: quét từ tâm thân như env._get_obs
     geom.setup([mi] * n, [0] * n)
     gx, gy = np.full(n, env.goal_pos[0]), np.full(n, env.goal_pos[1])
     for th_list in (th_py, list(th32)):
@@ -303,15 +331,16 @@ def _episode_groups(rng, p_open: str, p_clut: str) -> list:
     import neat.activations as A
     import neat.aggregations as G
     from neat.nn import RecurrentNetwork
-    from src.baselines.apf import APFController
+    from src.baselines.apf import APFController, apf_unsupported_reason
     from src.baselines.fixed_ga import FixedMLP
     from src.batch.policies import APFPolicy, MLPPolicy, NeatPolicy
     from src.env import kinematics as KM
     N = KM.LIDAR_NUM_RAYS
     # FixedMLP [N + 3, 4, 2]: đi thẳng (tới đích; trên bản đồ rối thì va chạm), quay tại chỗ (hết giờ, đếm bước
-    # quay), trọng số ngẫu nhiên
+    # quay), trọng số ngẫu nhiên. Waffle ra lệnh (tốc độ tiến, tốc độ quay): đi thẳng (0,6; 0), quay tại chỗ (0; 0,6)
+    biases = ((0.6, 0.0), (0.0, 0.6), None) if KM.ROBOT == "waffle" else ((0.6, 0.6), (0.6, -0.6), None)
     mlps = []
-    for out_bias in ((0.6, 0.6), (0.6, -0.6), None):
+    for out_bias in biases:
         net = FixedMLP([KM.OBS_DIM, 4, 2])
         flat = rng.normal(0.0, 0.5, net.num_params) if out_bias is None else np.zeros(net.num_params)
         if out_bias is not None:
@@ -334,16 +363,16 @@ def _episode_groups(rng, p_open: str, p_clut: str) -> list:
                  (0, A.tanh_activation, G.sum_aggregation, 0.5, 1.0, [(2, w()), (ins[N + 2], w()), (ins[1], w())]),
                  (1, A.tanh_activation, G.sum_aggregation, 0.5, 1.0, [(3, w()), (ins[N + 1], w()), (1, w())])]
         nets.append(RecurrentNetwork(ins, [0, 1], evals))
-    apf = APFController()
     geo, euc = "geodesic", "euclid"
-    return [
-        ("FixedMLP", lambda be: (lambda t: MLPPolicy(be, mlps, t)),
-         [(mlps[0], 0, p_open, geo), (mlps[1], 1, p_open, euc), (mlps[0], 0, p_clut, euc), (mlps[2], 2, p_clut, geo)]),
-        ("APF", lambda be: (lambda t: APFPolicy(be, N, apf)),
-         [(apf, 0, p_open, euc), (apf, 0, p_clut, geo)]),
-        ("NEAT hồi quy", lambda be: (lambda t: NeatPolicy(be, nets, True, t)),
-         [(nets[0], 0, p_clut, geo), (nets[1], 1, p_clut, euc), (nets[0], 0, p_open, euc), (nets[1], 1, p_open, geo)]),
-    ]
+    groups = [("FixedMLP", lambda be: (lambda t: MLPPolicy(be, mlps, t)),
+               [(mlps[0], 0, p_open, geo), (mlps[1], 1, p_open, euc), (mlps[0], 0, p_clut, euc), (mlps[2], 2, p_clut, geo)])]
+    if apf_unsupported_reason() is None:          # APF chỉ chạy với quạt đều (Waffle: quạt 12); e32 thì bỏ nhóm APF
+        apf = APFController()
+        groups.append(("APF", lambda be: (lambda t: APFPolicy(be, N, apf)),
+                       [(apf, 0, p_open, euc), (apf, 0, p_clut, geo)]))
+    groups.append(("NEAT hồi quy", lambda be: (lambda t: NeatPolicy(be, nets, True, t)),
+                   [(nets[0], 0, p_clut, geo), (nets[1], 1, p_clut, euc), (nets[0], 0, p_open, euc), (nets[1], 1, p_open, geo)]))
+    return groups
 
 
 def episode_check(be=None, geom_factory=None, seed: int = 20261127) -> list[str]:
@@ -352,15 +381,15 @@ def episode_check(be=None, geom_factory=None, seed: int = 20261127) -> list[str]
     Bản đồ tổng hợp được đặt tạm vào PAR._MAPS / PAR._GEO dưới khóa giả (load_map và _geodesic đọc bộ đệm trước),
     xong thì gỡ ra."""
     from src.batch.backend import Backend
-    from src.batch.sim import Episode, HostGeometry, simulate
+    from src.batch.sim import Episode, make_host_geometry, simulate
     from src.env import kinematics as KM
     from src.env.lidar import FastLiDAR2D
     from src.neat_engine import parallel as PAR
     rng = np.random.default_rng(seed)
     be = be if be is not None else Backend("numpy")
     if geom_factory is None:
-        lidar = FastLiDAR2D(KM.LIDAR_NUM_RAYS, KM.LIDAR_MAX_RANGE, KM.LIDAR_MODE)
-        geom_factory = lambda: HostGeometry(be, lidar)  # noqa: E731
+        lidar = FastLiDAR2D(KM.LIDAR_NUM_RAYS, KM.LIDAR_MAX_RANGE, KM.LIDAR_MODE, KM.SECTOR_LAYOUT)
+        geom_factory = lambda: make_host_geometry(be, lidar)  # noqa: E731
     maps = _episode_maps(rng)
     problems: list[str] = []
     for path, (m, field) in maps.items():

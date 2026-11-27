@@ -23,12 +23,13 @@ Dự án sử dụng thuật toán **NEAT (NeuroEvolution of Augmenting Topologi
 
 ```
 robot-neat/
-├── configs/                    # Cấu hình NEAT (feedforward, recurrent; neat_lehman_ref.ini cho LNS_ref; *_n24, *_n36: cảm biến 24, 36 hướng)
+├── configs/                    # Cấu hình NEAT (feedforward, recurrent; neat_lehman_ref.ini cho LNS_ref; *_n24, *_n36: cảm biến 24, 36 hướng; neat_recurrent_n32.ini: Waffle 32 quạt)
 ├── data/raw/                   # Dữ liệu gốc tải về (BARN, mê cung Lehman) — không đưa lên git
 ├── data/maps/                  # Bản đồ đã xử lý (có sẵn trong repo): train/val/test, test_barn, barn_all, test_lehman, manifest.csv
+├── data/maps_barn/             # 300 world BARN chia 150 học / 50 val / 50 test_barn / 50 test_barn2 (barn_layout.json), cho bài chỉ học BARN
 ├── src/
 │   ├── env/                    # Môi trường Gymnasium 2D
-│   │   ├── kinematics.py       #   Hằng số vật lý & động học vi sai
+│   │   ├── kinematics.py       #   Hằng số vật lý & động học vi sai (robot cũ; TurtleBot3 Waffle Pi khi NEAT_ROBOT=waffle)
 │   │   ├── lidar.py            #   LiDAR 12 tia vectorised ray-casting (tùy chọn: N hướng hình quạt)
 │   │   ├── collision.py        #   Phát hiện va chạm point-to-segment
 │   │   ├── renderer.py         #   Pygame renderer (human + rgb_array)
@@ -69,7 +70,7 @@ robot-neat/
 │   ├── plot_benchmark.py       #   Biểu đồ, ảnh bảng, trang HTML so sánh các phương pháp
 │   ├── demo.py                 #   Cửa sổ demo (HUD tiếng Việt, xuất GIF)
 │   └── visualize.py            #   Replay genome trên Pygame
-├── tests/                      # Kiểm thử các bản sửa lỗi
+├── tests/                      # Kiểm thử các bản sửa lỗi, đánh giá theo lô và robot Waffle
 ├── lehman_maze/                # Cài lại thí nghiệm mê cung Lehman–Stanley (novelty search), xem lehman_maze/README.md
 ├── brainstorm/                 # Kết quả brainstorm (35 quyết định)
 ├── docs/tien_xu_ly_du_lieu.md  # Báo cáo phần tiền xử lý dữ liệu
@@ -197,6 +198,7 @@ chỉ chấm trên tập test.
 ```bash
 python tests/test_fixes.py          # 16 phép thử nhanh, mỗi phép một mã lỗi hoặc một luật (vài giây)
 python tests/test_reproducible.py   # cùng seed cho cùng log với 1 hay 4 worker (1–3 phút)
+python tests/test_waffle.py         # robot Waffle, cảm biến (c) và (e), robot cũ không đổi (1–2 phút)
 ```
 
 ### 7. Demo và kết quả benchmark
@@ -267,6 +269,30 @@ Khi thư mục repo có dấu (ví dụ `...\môn tính toán tiến hóa\...`),
 NVRTC không mở được header của CuPy: `src/batch/backend.py` tự nạp CuPy qua tên ngắn 8.3 của thư mục `site-packages`,
 cách chắc chắn nhất là gọi python của `.venv` bằng đường dẫn ngắn, dạng
 `C:\Users\<tên>~1\Desktop\MNTNHT~1\robot-neat\.venv\Scripts\python.exe` (xem tên ngắn của từng thư mục bằng `dir /x`).
+
+### 9. Robot TurtleBot3 Waffle Pi (tùy chọn)
+Mặc định vẫn là robot đĩa cũ ở trên, chạy trùng từng bit như trước. Đặt `NEAT_ROBOT=waffle` TRƯỚC khi chạy script
+(cùng quy tắc với biến cảm biến) để dùng bản mô phỏng rút gọn của TurtleBot3 Waffle Pi:
+- **Điều khiển bằng tốc độ tiến v và tốc độ quay ω.** Hai đầu ra o1, o2 (kẹp về [−1; 1]) cho v = 0,26·max(o1; 0) m/s
+  (không lùi) và ω = 1,82·o2 rad/s; đổi sang hai bánh v_L = v − 0,1435ω, v_R = v + 0,1435ω, mỗi bánh kẹp
+  ±0,26669 m/s như firmware OpenCR, hai bánh cách nhau 0,287 m.
+- **Thân và LiDAR.** Thân xấp xỉ bằng đĩa bao r = 0,2077 m đặt ở tâm thân, lùi 0,064 m sau tâm quay; va chạm kiểm
+  cuối mỗi bước. LiDAR LDS-01 quét từ tâm thân, tầm 3,5 m, chỉ dùng kiểu hình quạt (`NEAT_LIDAR_MODE=sector`).
+- **Đích và thời gian.** Tới đích khi tâm quay cách G ≤ 0,30 m; mỗi lượt tối đa 1.000 bước (100 s).
+- **Hai cách gộp tia:** (c) 12 quạt 30° (`NEAT_LIDAR_N=12`, config gốc, 15 đầu vào); (e) 30 quạt 9° trên 270° phía
+  trước và 2 quạt 45° phía sau (`NEAT_LIDAR_N=32`, `NEAT_SECTOR_LAYOUT=e32`, `configs/neat_recurrent_n32.ini`,
+  35 đầu vào). GA tự lấy lớp vào N + 3; APF của Waffle dùng 12 quạt.
+
+`summary.json` ghi robot và cảm biến trong `"sensor"`; chấm lại champion bằng `scripts/evaluate.py` phải đặt đúng các
+biến này (script dừng nếu khác). `batch` và `gpu` chạy được với Waffle và trùng từng bit với đường mặc định
+(`python tests/test_waffle.py`). Bài chỉ học BARN dùng `data/maps_barn/` với `--levels 1` (một ô: 150 bản đồ học,
+50 val để chọn champion; `test_barn` trùng `data/maps/test_barn`, `test_barn2` là 50 world BARN khác chỉ để chấm).
+```bash
+# PowerShell: $env:NEAT_ROBOT = "waffle"; $env:NEAT_LIDAR_MODE = "sector"; $env:NEAT_LIDAR_N = "12"
+NEAT_ROBOT=waffle NEAT_LIDAR_MODE=sector NEAT_LIDAR_N=12 python scripts/train_neat.py --config configs/neat_recurrent.ini \
+    --data-dir data/maps_barn --levels 1 --generations 150 --no-novelty --no-curriculum --seed 0 --backend gpu
+# cảm biến (e): NEAT_LIDAR_N=32 NEAT_SECTOR_LAYOUT=e32 và --config configs/neat_recurrent_n32.ini
+```
 
 ---
 
