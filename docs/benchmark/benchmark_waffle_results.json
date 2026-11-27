@@ -1,0 +1,8851 @@
+{
+ "title": "Benchmark robot TurtleBot3 Waffle Pi: P1 chỉ học BARN, P2 chỉ học cấp 1–4",
+ "data_cutoff": "27/11/2026 22:10:38",
+ "report": "docs/benchmark_waffle.md",
+ "units": {
+  "SR": "tỉ lệ 0–1 (như test_results.json; báo cáo nhân 100 thành %)",
+  "CR": "tỉ lệ 0–1",
+  "timeout": "tỉ lệ 0–1 (hết giờ)",
+  "TC": "số lượt kết thúc vì va chạm",
+  "n_timeout": "số lượt hết giờ",
+  "n_success": "số lượt tới đích",
+  "SPL": "0–1",
+  "MTT": "giây, chỉ lượt tới đích",
+  "diff_points": "điểm %"
+ },
+ "metric_definitions": {
+  "SR": "tỉ lệ lượt tới đích (tâm quay cách đích ≤ 0,30 m) trước khi va chạm và trước khi hết giờ",
+  "CR": "tỉ lệ lượt kết thúc vì va chạm; lượt dừng ngay ở va chạm đầu tiên",
+  "TC": "tổng số va chạm trên tập = số lượt kết thúc vì va chạm (mỗi lượt có nhiều nhất 1 va chạm)",
+  "timeout": "tỉ lệ lượt không tới đích, không va chạm sau số bước tối đa; SR + CR + timeout = 1",
+  "SPL": "trung bình trên mọi lượt của S·l/max(p, l): S = 1 nếu tới đích, l = metrics.optimal_path_length của bản đồ (đường A* đã làm mượt), p = quãng đường robot đã đi",
+  "MTT": "số bước trung bình × 0,1 s, chỉ tính lượt tới đích",
+  "val_SR": "SR của champion trên bản đồ val (khóa chọn champion), không phải số test"
+ },
+ "aggregation": "Nhiều seed: SR, CR, timeout, SPL trung bình theo seed (mean) kèm min, max; TC, n_timeout: trung bình mỗi seed kèm min, max, total; MTT.pooled = tổng số bước của mọi lượt tới đích × 0,1 / số lượt tới đích (mọi seed), min/max là MTT từng seed. barn_100 = test_barn + test_barn2 của cùng seed; mean_levels_1_4 = cấp 1–4 của cùng seed (SR, CR, timeout trung bình 4 cấp; SPL = tổng SPL từng lượt / số lượt; TC, n_timeout cộng 4 cấp; MTT gộp). SPL ở mọi chỗ tính từ từng lượt trong test_episodes.json và chỉ làm tròn một lần khi ghi (4 chữ số).",
+ "robot": {
+  "name": "TurtleBot3 Waffle Pi (mô phỏng rút gọn, NEAT_ROBOT=waffle)",
+  "constants": {
+   "v_max": 0.26,
+   "w_max": 1.82,
+   "half_sep": 0.1435,
+   "sep": 0.287,
+   "wheel_max": 0.26669137,
+   "max_steps": 1000,
+   "lidar_range": 3.5,
+   "coll_radius": 0.2077,
+   "body_offset": 0.064,
+   "goal_radius": 0.3,
+   "dt": 0.1,
+   "spin_v": 0.025,
+   "spin_w": 0.5,
+   "reverse": false
+  }
+ },
+ "sensors": {
+  "c": {
+   "label": "(c) 12 quạt 30°",
+   "inputs": 15,
+   "env": {
+    "NEAT_ROBOT": "waffle",
+    "NEAT_LIDAR_MODE": "sector",
+    "NEAT_LIDAR_N": "12"
+   },
+   "neat_config": "configs/neat_recurrent.ini"
+  },
+  "e": {
+   "label": "(e) 30 quạt 9° + 2 quạt 45°",
+   "inputs": 35,
+   "env": {
+    "NEAT_ROBOT": "waffle",
+    "NEAT_LIDAR_MODE": "sector",
+    "NEAT_LIDAR_N": "32",
+    "NEAT_SECTOR_LAYOUT": "e32"
+   },
+   "neat_config": "configs/neat_recurrent_n32.ini"
+  }
+ },
+ "protocols": {
+  "P1": {
+   "title": "P1: chỉ học BARN",
+   "data_dir": "data/maps_barn",
+   "levels": [
+    1
+   ],
+   "train_maps": 150,
+   "maps_per_generation": 8,
+   "generations": 150,
+   "pop_size": 150,
+   "train_episodes": 180000,
+   "val_maps": 50,
+   "champion_selection": "mỗi 10 thế hệ, 5 cá thể có fitness huấn luyện cao nhất chấm trên mọi bản đồ val; giữ cá thể có khóa (SR val, fitness val) lớn nhất",
+   "probe_maps_novelty": 1,
+   "test_sets": {
+    "test/level_1": 50,
+    "test_barn": 50,
+    "test_barn2": 50,
+    "test_lehman": 2
+   },
+   "main_metric": "barn_100",
+   "set_labels": {
+    "test_barn": "test_barn (50 bản đồ BARN)",
+    "test_barn2": "test_barn2 (50 world BARN khác, không dùng khi học)",
+    "barn_100": "test_barn + test_barn2 (100 bản đồ BARN)",
+    "test_lehman": "mê cung Lehman–Stanley (2 bản đồ)"
+   }
+  },
+  "P2": {
+   "title": "P2: chỉ học cấp 1–4",
+   "data_dir": "data/maps",
+   "levels": null,
+   "train_maps": 1000,
+   "maps_per_generation": 8,
+   "generations": 150,
+   "pop_size": 150,
+   "train_episodes": 180000,
+   "val_maps": 100,
+   "champion_selection": "mỗi 10 thế hệ, 5 cá thể có fitness huấn luyện cao nhất chấm trên mọi bản đồ val; giữ cá thể có khóa (SR val, fitness val) lớn nhất",
+   "probe_maps_novelty": 4,
+   "test_sets": {
+    "test/level_1": 50,
+    "test/level_2": 50,
+    "test/level_3": 50,
+    "test/level_4": 50,
+    "test_barn": 50,
+    "test_lehman": 2
+   },
+   "main_metric": "mean_levels_1_4",
+   "set_labels": {
+    "test/level_1": "cấp 1 (50 bản đồ)",
+    "test/level_2": "cấp 2 (50 bản đồ)",
+    "test/level_3": "cấp 3 (50 bản đồ)",
+    "test/level_4": "cấp 4 (50 bản đồ)",
+    "mean_levels_1_4": "trung bình cấp 1–4 (200 bản đồ)",
+    "test_barn": "test_barn (50 bản đồ BARN)",
+    "test_lehman": "mê cung Lehman–Stanley (2 bản đồ)"
+   }
+  }
+ },
+ "notes": [
+  "P1: test/level_1 của data/maps_barn là bản sao từng byte của test_barn (cùng 50 bản đồ); số của hai tập trùng nhau ở mọi lượt (đã kiểm từng lượt), bảng dùng test_barn.",
+  "SPL: tính lại từ từng lượt trong test_episodes.json (cùng công thức với test_results.json), làm tròn một lần khi ghi; SPL của từng tập gốc vì thế trùng số 4 chữ số trong test_results.json, còn SPL gộp (barn_100, mean_levels_1_4) và SPL trung bình theo seed không lấy từ số đã làm tròn.",
+  "dir: thư mục của lượt chạy trong thư mục kết quả benchmark lúc chạy; thư mục này không đưa lên repo, số của nó đã chép đủ vào per_seed.",
+  "code_sha256: băm cây mã (src, configs, scripts) của bản sao mã dùng khi chạy benchmark, đọc từ job.json từng lượt; mã của nhánh có thêm vài thay đổi sau bản sao đó (xem báo cáo, mục 9)."
+ ],
+ "code_sha256": [
+  "590c095ac64777d2666c56c894c26bd1985e437110c281df1e467701a940a6f5"
+ ],
+ "method_order": {
+  "P1": [
+   "NEAT R0 (c)",
+   "NEAT R0 (e)",
+   "NEAT M5 (c)",
+   "NEAT M5 (e)",
+   "NEAT LNS (c)",
+   "NEAT LNS (e)",
+   "GA B1 (c)",
+   "GA B1 (e)",
+   "APF (c)"
+  ],
+  "P2": [
+   "NEAT R0 (c)",
+   "NEAT R0 (e)",
+   "NEAT M5 (c)",
+   "NEAT M5 (e)",
+   "GA B1 (c)",
+   "GA B1 (e)",
+   "APF (c)"
+  ]
+ },
+ "branches": {
+  "P1": {
+   "NEAT R0 (c)": {
+    "family": "NEAT",
+    "method_label": "NEAT R0",
+    "sensor": "c",
+    "sensor_label": "(c) 12 quạt 30°",
+    "dir": "P1/waffle_R0_sec12",
+    "status": "done",
+    "seeds_expected": [
+     0,
+     1,
+     2
+    ],
+    "seeds_done": [
+     0,
+     1,
+     2
+    ],
+    "seeds_status": {
+     "seed_0": "done",
+     "seed_1": "done",
+     "seed_2": "done"
+    },
+    "per_seed": [
+     {
+      "seed": 0,
+      "dir": "P1/waffle_R0_sec12/seed_0",
+      "status": "done",
+      "backend": "gpu",
+      "code_sha256": "590c095ac64777d2666c56c894c26bd1985e437110c281df1e467701a940a6f5",
+      "data_dir": "data/maps_barn",
+      "started": "27/11/2026 14:46:09",
+      "finished": "27/11/2026 15:12:03",
+      "job_minutes": 25.9,
+      "champion_generation": 110,
+      "val_SR": 0.64,
+      "pop_size": 150,
+      "generations": 150,
+      "maps_per_eval": 8,
+      "train_episodes": 180000,
+      "champion_nodes": 7,
+      "champion_connections": 18,
+      "sets": {
+       "test/level_1": {
+        "n": 50,
+        "SR": 0.62,
+        "CR": 0.38,
+        "timeout": 0.0,
+        "TC": 19,
+        "n_timeout": 0,
+        "n_success": 31,
+        "SPL": 0.4797,
+        "MTT": 57.62
+       },
+       "test_barn": {
+        "n": 50,
+        "SR": 0.62,
+        "CR": 0.38,
+        "timeout": 0.0,
+        "TC": 19,
+        "n_timeout": 0,
+        "n_success": 31,
+        "SPL": 0.4797,
+        "MTT": 57.62
+       },
+       "test_barn2": {
+        "n": 50,
+        "SR": 0.5,
+        "CR": 0.5,
+        "timeout": 0.0,
+        "TC": 25,
+        "n_timeout": 0,
+        "n_success": 25,
+        "SPL": 0.3827,
+        "MTT": 57.6
+       },
+       "test_lehman": {
+        "n": 2,
+        "SR": 0.0,
+        "CR": 1.0,
+        "timeout": 0.0,
+        "TC": 2,
+        "n_timeout": 0,
+        "n_success": 0,
+        "SPL": 0.0,
+        "MTT": null
+       },
+       "barn_100": {
+        "n": 100,
+        "SR": 0.56,
+        "CR": 0.44,
+        "timeout": 0.0,
+        "TC": 44,
+        "n_timeout": 0,
+        "n_success": 56,
+        "SPL": 0.4312,
+        "MTT": 57.61
+       }
+      }
+     },
+     {
+      "seed": 1,
+      "dir": "P1/waffle_R0_sec12/seed_1",
+      "status": "done",
+      "backend": "gpu",
+      "code_sha256": "590c095ac64777d2666c56c894c26bd1985e437110c281df1e467701a940a6f5",
+      "data_dir": "data/maps_barn",
+      "started": "27/11/2026 15:12:05",
+      "finished": "27/11/2026 15:44:38",
+      "job_minutes": 32.6,
+      "champion_generation": 120,
+      "val_SR": 0.66,
+      "pop_size": 150,
+      "generations": 150,
+      "maps_per_eval": 8,
+      "train_episodes": 180000,
+      "champion_nodes": 8,
+      "champion_connections": 20,
+      "sets": {
+       "test/level_1": {
+        "n": 50,
+        "SR": 0.58,
+        "CR": 0.42,
+        "timeout": 0.0,
+        "TC": 21,
+        "n_timeout": 0,
+        "n_success": 29,
+        "SPL": 0.4628,
+        "MTT": 58.53
+       },
+       "test_barn": {
+        "n": 50,
+        "SR": 0.58,
+        "CR": 0.42,
+        "timeout": 0.0,
+        "TC": 21,
+        "n_timeout": 0,
+        "n_success": 29,
+        "SPL": 0.4628,
+        "MTT": 58.53
+       },
+       "test_barn2": {
+        "n": 50,
+        "SR": 0.44,
+        "CR": 0.56,
+        "timeout": 0.0,
+        "TC": 28,
+        "n_timeout": 0,
+        "n_success": 22,
+        "SPL": 0.3551,
+        "MTT": 57.63
+       },
+       "test_lehman": {
+        "n": 2,
+        "SR": 0.0,
+        "CR": 1.0,
+        "timeout": 0.0,
+        "TC": 2,
+        "n_timeout": 0,
+        "n_success": 0,
+        "SPL": 0.0,
+        "MTT": null
+       },
+       "barn_100": {
+        "n": 100,
+        "SR": 0.51,
+        "CR": 0.49,
+        "timeout": 0.0,
+        "TC": 49,
+        "n_timeout": 0,
+        "n_success": 51,
+        "SPL": 0.4089,
+        "MTT": 58.14
+       }
+      }
+     },
+     {
+      "seed": 2,
+      "dir": "P1/waffle_R0_sec12/seed_2",
+      "status": "done",
+      "backend": "gpu",
+      "code_sha256": "590c095ac64777d2666c56c894c26bd1985e437110c281df1e467701a940a6f5",
+      "data_dir": "data/maps_barn",
+      "started": "27/11/2026 15:50:09",
+      "finished": "27/11/2026 16:18:34",
+      "job_minutes": 28.4,
+      "champion_generation": 150,
+      "val_SR": 0.7,
+      "pop_size": 150,
+      "generations": 150,
+      "maps_per_eval": 8,
+      "train_episodes": 180000,
+      "champion_nodes": 9,
+      "champion_connections": 16,
+      "sets": {
+       "test/level_1": {
+        "n": 50,
+        "SR": 0.8,
+        "CR": 0.2,
+        "timeout": 0.0,
+        "TC": 10,
+        "n_timeout": 0,
+        "n_success": 40,
+        "SPL": 0.6889,
+        "MTT": 48.52
+       },
+       "test_barn": {
+        "n": 50,
+        "SR": 0.8,
+        "CR": 0.2,
+        "timeout": 0.0,
+        "TC": 10,
+        "n_timeout": 0,
+        "n_success": 40,
+        "SPL": 0.6889,
+        "MTT": 48.52
+       },
+       "test_barn2": {
+        "n": 50,
+        "SR": 0.6,
+        "CR": 0.38,
+        "timeout": 0.02,
+        "TC": 19,
+        "n_timeout": 1,
+        "n_success": 30,
+        "SPL": 0.5369,
+        "MTT": 47.2
+       },
+       "test_lehman": {
+        "n": 2,
+        "SR": 0.0,
+        "CR": 1.0,
+        "timeout": 0.0,
+        "TC": 2,
+        "n_timeout": 0,
+        "n_success": 0,
+        "SPL": 0.0,
+        "MTT": null
+       },
+       "barn_100": {
+        "n": 100,
+        "SR": 0.7,
+        "CR": 0.29,
+        "timeout": 0.01,
+        "TC": 29,
+        "n_timeout": 1,
+        "n_success": 70,
+        "SPL": 0.6129,
+        "MTT": 47.95
+       }
+      }
+     }
+    ],
+    "val_SR": {
+     "mean": 0.6667,
+     "min": 0.64,
+     "max": 0.7
+    },
+    "champion_generations": [
+     110,
+     120,
+     150
+    ],
+    "aggregate": {
+     "test_barn": {
+      "seeds": 3,
+      "n_per_seed": 50,
+      "SR": {
+       "mean": 0.6667,
+       "min": 0.58,
+       "max": 0.8
+      },
+      "CR": {
+       "mean": 0.3333,
+       "min": 0.2,
+       "max": 0.42
+      },
+      "timeout": {
+       "mean": 0.0,
+       "min": 0.0,
+       "max": 0.0
+      },
+      "SPL": {
+       "mean": 0.5438,
+       "min": 0.4628,
+       "max": 0.6889
+      },
+      "TC": {
+       "mean": 16.67,
+       "min": 10,
+       "max": 21,
+       "total": 50
+      },
+      "n_timeout": {
+       "mean": 0.0,
+       "min": 0,
+       "max": 0,
+       "total": 0
+      },
+      "n_success_total": 100,
+      "MTT": {
+       "pooled": 54.25,
+       "min": 48.52,
+       "max": 58.53,
+       "seeds_without_success": 0
+      }
+     },
+     "test_barn2": {
+      "seeds": 3,
+      "n_per_seed": 50,
+      "SR": {
+       "mean": 0.5133,
+       "min": 0.44,
+       "max": 0.6
+      },
+      "CR": {
+       "mean": 0.48,
+       "min": 0.38,
+       "max": 0.56
+      },
+      "timeout": {
+       "mean": 0.0067,
+       "min": 0.0,
+       "max": 0.02
+      },
+      "SPL": {
+       "mean": 0.4249,
+       "min": 0.3551,
+       "max": 0.5369
+      },
+      "TC": {
+       "mean": 24.0,
+       "min": 19,
+       "max": 28,
+       "total": 72
+      },
+      "n_timeout": {
+       "mean": 0.33,
+       "min": 0,
+       "max": 1,
+       "total": 1
+      },
+      "n_success_total": 77,
+      "MTT": {
+       "pooled": 53.55,
+       "min": 47.2,
+       "max": 57.63,
+       "seeds_without_success": 0
+      }
+     },
+     "barn_100": {
+      "seeds": 3,
+      "n_per_seed": 100,
+      "SR": {
+       "mean": 0.59,
+       "min": 0.51,
+       "max": 0.7
+      },
+      "CR": {
+       "mean": 0.4067,
+       "min": 0.29,
+       "max": 0.49
+      },
+      "timeout": {
+       "mean": 0.0033,
+       "min": 0.0,
+       "max": 0.01
+      },
+      "SPL": {
+       "mean": 0.4843,
+       "min": 0.4089,
+       "max": 0.6129
+      },
+      "TC": {
+       "mean": 40.67,
+       "min": 29,
+       "max": 49,
+       "total": 122
+      },
+      "n_timeout": {
+       "mean": 0.33,
+       "min": 0,
+       "max": 1,
+       "total": 1
+      },
+      "n_success_total": 177,
+      "MTT": {
+       "pooled": 53.95,
+       "min": 47.95,
+       "max": 58.14,
+       "seeds_without_success": 0
+      }
+     },
+     "test_lehman": {
+      "seeds": 3,
+      "n_per_seed": 2,
+      "SR": {
+       "mean": 0.0,
+       "min": 0.0,
+       "max": 0.0
+      },
+      "CR": {
+       "mean": 1.0,
+       "min": 1.0,
+       "max": 1.0
+      },
+      "timeout": {
+       "mean": 0.0,
+       "min": 0.0,
+       "max": 0.0
+      },
+      "SPL": {
+       "mean": 0.0,
+       "min": 0.0,
+       "max": 0.0
+      },
+      "TC": {
+       "mean": 2.0,
+       "min": 2,
+       "max": 2,
+       "total": 6
+      },
+      "n_timeout": {
+       "mean": 0.0,
+       "min": 0,
+       "max": 0,
+       "total": 0
+      },
+      "n_success_total": 0,
+      "MTT": {
+       "pooled": null,
+       "min": null,
+       "max": null,
+       "seeds_without_success": 3
+      }
+     }
+    },
+    "code_sha256": [
+     "590c095ac64777d2666c56c894c26bd1985e437110c281df1e467701a940a6f5"
+    ]
+   },
+   "NEAT R0 (e)": {
+    "family": "NEAT",
+    "method_label": "NEAT R0",
+    "sensor": "e",
+    "sensor_label": "(e) 30 quạt 9° + 2 quạt 45°",
+    "dir": "P1/waffle_R0_e32",
+    "status": "done",
+    "seeds_expected": [
+     0,
+     1,
+     2
+    ],
+    "seeds_done": [
+     0,
+     1,
+     2
+    ],
+    "seeds_status": {
+     "seed_0": "done",
+     "seed_1": "done",
+     "seed_2": "done"
+    },
+    "per_seed": [
+     {
+      "seed": 0,
+      "dir": "P1/waffle_R0_e32/seed_0",
+      "status": "done",
+      "backend": "gpu",
+      "code_sha256": "590c095ac64777d2666c56c894c26bd1985e437110c281df1e467701a940a6f5",
+      "data_dir": "data/maps_barn",
+      "started": "27/11/2026 14:46:09",
+      "finished": "27/11/2026 15:30:01",
+      "job_minutes": 43.9,
+      "champion_generation": 90,
+      "val_SR": 0.64,
+      "pop_size": 150,
+      "generations": 150,
+      "maps_per_eval": 8,
+      "train_episodes": 180000,
+      "champion_nodes": 6,
+      "champion_connections": 15,
+      "sets": {
+       "test/level_1": {
+        "n": 50,
+        "SR": 0.64,
+        "CR": 0.36,
+        "timeout": 0.0,
+        "TC": 18,
+        "n_timeout": 0,
+        "n_success": 32,
+        "SPL": 0.5198,
+        "MTT": 55.98
+       },
+       "test_barn": {
+        "n": 50,
+        "SR": 0.64,
+        "CR": 0.36,
+        "timeout": 0.0,
+        "TC": 18,
+        "n_timeout": 0,
+        "n_success": 32,
+        "SPL": 0.5198,
+        "MTT": 55.98
+       },
+       "test_barn2": {
+        "n": 50,
+        "SR": 0.5,
+        "CR": 0.5,
+        "timeout": 0.0,
+        "TC": 25,
+        "n_timeout": 0,
+        "n_success": 25,
+        "SPL": 0.4134,
+        "MTT": 55.58
+       },
+       "test_lehman": {
+        "n": 2,
+        "SR": 0.0,
+        "CR": 1.0,
+        "timeout": 0.0,
+        "TC": 2,
+        "n_timeout": 0,
+        "n_success": 0,
+        "SPL": 0.0,
+        "MTT": null
+       },
+       "barn_100": {
+        "n": 100,
+        "SR": 0.57,
+        "CR": 0.43,
+        "timeout": 0.0,
+        "TC": 43,
+        "n_timeout": 0,
+        "n_success": 57,
+        "SPL": 0.4666,
+        "MTT": 55.8
+       }
+      }
+     },
+     {
+      "seed": 1,
+      "dir": "P1/waffle_R0_e32/seed_1",
+      "status": "done",
+      "backend": "gpu",
+      "code_sha256": "590c095ac64777d2666c56c894c26bd1985e437110c281df1e467701a940a6f5",
+      "data_dir": "data/maps_barn",
+      "started": "27/11/2026 15:06:23",
+      "finished": "27/11/2026 15:58:17",
+      "job_minutes": 51.9,
+      "champion_generation": 140,
+      "val_SR": 0.48,
+      "pop_size": 150,
+      "generations": 150,
+      "maps_per_eval": 8,
+      "train_episodes": 180000,
+      "champion_nodes": 9,
+      "champion_connections": 19,
+      "sets": {
+       "test/level_1": {
+        "n": 50,
+        "SR": 0.46,
+        "CR": 0.52,
+        "timeout": 0.02,
+        "TC": 26,
+        "n_timeout": 1,
+        "n_success": 23,
+        "SPL": 0.4043,
+        "MTT": 68.8
+       },
+       "test_barn": {
+        "n": 50,
+        "SR": 0.46,
+        "CR": 0.52,
+        "timeout": 0.02,
+        "TC": 26,
+        "n_timeout": 1,
+        "n_success": 23,
+        "SPL": 0.4043,
+        "MTT": 68.8
+       },
+       "test_barn2": {
+        "n": 50,
+        "SR": 0.46,
+        "CR": 0.48,
+        "timeout": 0.06,
+        "TC": 24,
+        "n_timeout": 3,
+        "n_success": 23,
+        "SPL": 0.4194,
+        "MTT": 65.3
+       },
+       "test_lehman": {
+        "n": 2,
+        "SR": 0.0,
+        "CR": 1.0,
+        "timeout": 0.0,
+        "TC": 2,
+        "n_timeout": 0,
+        "n_success": 0,
+        "SPL": 0.0,
+        "MTT": null
+       },
+       "barn_100": {
+        "n": 100,
+        "SR": 0.46,
+        "CR": 0.5,
+        "timeout": 0.04,
+        "TC": 50,
+        "n_timeout": 4,
+        "n_success": 46,
+        "SPL": 0.4118,
+        "MTT": 67.05
+       }
+      }
+     },
+     {
+      "seed": 2,
+      "dir": "P1/waffle_R0_e32/seed_2",
+      "status": "done",
+      "backend": "gpu",
+      "code_sha256": "590c095ac64777d2666c56c894c26bd1985e437110c281df1e467701a940a6f5",
+      "data_dir": "data/maps_barn",
+      "started": "27/11/2026 15:44:43",
+      "finished": "27/11/2026 16:19:04",
+      "job_minutes": 34.4,
+      "champion_generation": 70,
+      "val_SR": 0.42,
+      "pop_size": 150,
+      "generations": 150,
+      "maps_per_eval": 8,
+      "train_episodes": 180000,
+      "champion_nodes": 4,
+      "champion_connections": 10,
+      "sets": {
+       "test/level_1": {
+        "n": 50,
+        "SR": 0.36,
+        "CR": 0.64,
+        "timeout": 0.0,
+        "TC": 32,
+        "n_timeout": 0,
+        "n_success": 18,
+        "SPL": 0.3595,
+        "MTT": 39.01
+       },
+       "test_barn": {
+        "n": 50,
+        "SR": 0.36,
+        "CR": 0.64,
+        "timeout": 0.0,
+        "TC": 32,
+        "n_timeout": 0,
+        "n_success": 18,
+        "SPL": 0.3595,
+        "MTT": 39.01
+       },
+       "test_barn2": {
+        "n": 50,
+        "SR": 0.3,
+        "CR": 0.7,
+        "timeout": 0.0,
+        "TC": 35,
+        "n_timeout": 0,
+        "n_success": 15,
+        "SPL": 0.3,
+        "MTT": 39.26
+       },
+       "test_lehman": {
+        "n": 2,
+        "SR": 0.0,
+        "CR": 1.0,
+        "timeout": 0.0,
+        "TC": 2,
+        "n_timeout": 0,
+        "n_success": 0,
+        "SPL": 0.0,
+        "MTT": null
+       },
+       "barn_100": {
+        "n": 100,
+        "SR": 0.33,
+        "CR": 0.67,
+        "timeout": 0.0,
+        "TC": 67,
+        "n_timeout": 0,
+        "n_success": 33,
+        "SPL": 0.3297,
+        "MTT": 39.12
+       }
+      }
+     }
+    ],
+    "val_SR": {
+     "mean": 0.5133,
+     "min": 0.42,
+     "max": 0.64
+    },
+    "champion_generations": [
+     90,
+     140,
+     70
+    ],
+    "aggregate": {
+     "test_barn": {
+      "seeds": 3,
+      "n_per_seed": 50,
+      "SR": {
+       "mean": 0.4867,
+       "min": 0.36,
+       "max": 0.64
+      },
+      "CR": {
+       "mean": 0.5067,
+       "min": 0.36,
+       "max": 0.64
+      },
+      "timeout": {
+       "mean": 0.0067,
+       "min": 0.0,
+       "max": 0.02
+      },
+      "SPL": {
+       "mean": 0.4278,
+       "min": 0.3595,
+       "max": 0.5198
+      },
+      "TC": {
+       "mean": 25.33,
+       "min": 18,
+       "max": 32,
+       "total": 76
+      },
+      "n_timeout": {
+       "mean": 0.33,
+       "min": 0,
+       "max": 1,
+       "total": 1
+      },
+      "n_success_total": 73,
+      "MTT": {
+       "pooled": 55.83,
+       "min": 39.01,
+       "max": 68.8,
+       "seeds_without_success": 0
+      }
+     },
+     "test_barn2": {
+      "seeds": 3,
+      "n_per_seed": 50,
+      "SR": {
+       "mean": 0.42,
+       "min": 0.3,
+       "max": 0.5
+      },
+      "CR": {
+       "mean": 0.56,
+       "min": 0.48,
+       "max": 0.7
+      },
+      "timeout": {
+       "mean": 0.02,
+       "min": 0.0,
+       "max": 0.06
+      },
+      "SPL": {
+       "mean": 0.3776,
+       "min": 0.3,
+       "max": 0.4194
+      },
+      "TC": {
+       "mean": 28.0,
+       "min": 24,
+       "max": 35,
+       "total": 84
+      },
+      "n_timeout": {
+       "mean": 1.0,
+       "min": 0,
+       "max": 3,
+       "total": 3
+      },
+      "n_success_total": 63,
+      "MTT": {
+       "pooled": 55.24,
+       "min": 39.26,
+       "max": 65.3,
+       "seeds_without_success": 0
+      }
+     },
+     "barn_100": {
+      "seeds": 3,
+      "n_per_seed": 100,
+      "SR": {
+       "mean": 0.4533,
+       "min": 0.33,
+       "max": 0.57
+      },
+      "CR": {
+       "mean": 0.5333,
+       "min": 0.43,
+       "max": 0.67
+      },
+      "timeout": {
+       "mean": 0.0133,
+       "min": 0.0,
+       "max": 0.04
+      },
+      "SPL": {
+       "mean": 0.4027,
+       "min": 0.3297,
+       "max": 0.4666
+      },
+      "TC": {
+       "mean": 53.33,
+       "min": 43,
+       "max": 67,
+       "total": 160
+      },
+      "n_timeout": {
+       "mean": 1.33,
+       "min": 0,
+       "max": 4,
+       "total": 4
+      },
+      "n_success_total": 136,
+      "MTT": {
+       "pooled": 55.56,
+       "min": 39.12,
+       "max": 67.05,
+       "seeds_without_success": 0
+      }
+     },
+     "test_lehman": {
+      "seeds": 3,
+      "n_per_seed": 2,
+      "SR": {
+       "mean": 0.0,
+       "min": 0.0,
+       "max": 0.0
+      },
+      "CR": {
+       "mean": 1.0,
+       "min": 1.0,
+       "max": 1.0
+      },
+      "timeout": {
+       "mean": 0.0,
+       "min": 0.0,
+       "max": 0.0
+      },
+      "SPL": {
+       "mean": 0.0,
+       "min": 0.0,
+       "max": 0.0
+      },
+      "TC": {
+       "mean": 2.0,
+       "min": 2,
+       "max": 2,
+       "total": 6
+      },
+      "n_timeout": {
+       "mean": 0.0,
+       "min": 0,
+       "max": 0,
+       "total": 0
+      },
+      "n_success_total": 0,
+      "MTT": {
+       "pooled": null,
+       "min": null,
+       "max": null,
+       "seeds_without_success": 3
+      }
+     }
+    },
+    "code_sha256": [
+     "590c095ac64777d2666c56c894c26bd1985e437110c281df1e467701a940a6f5"
+    ]
+   },
+   "NEAT M5 (c)": {
+    "family": "NEAT",
+    "method_label": "NEAT M5",
+    "sensor": "c",
+    "sensor_label": "(c) 12 quạt 30°",
+    "dir": "P1/waffle_M5_sec12",
+    "status": "done",
+    "seeds_expected": [
+     0,
+     1,
+     2
+    ],
+    "seeds_done": [
+     0,
+     1,
+     2
+    ],
+    "seeds_status": {
+     "seed_0": "done",
+     "seed_1": "done",
+     "seed_2": "done"
+    },
+    "per_seed": [
+     {
+      "seed": 0,
+      "dir": "P1/waffle_M5_sec12/seed_0",
+      "status": "done",
+      "backend": "gpu",
+      "code_sha256": "590c095ac64777d2666c56c894c26bd1985e437110c281df1e467701a940a6f5",
+      "data_dir": "data/maps_barn",
+      "started": "27/11/2026 16:59:19",
+      "finished": "27/11/2026 17:24:59",
+      "job_minutes": 25.7,
+      "champion_generation": 120,
+      "val_SR": 0.62,
+      "pop_size": 150,
+      "generations": 150,
+      "maps_per_eval": 8,
+      "train_episodes": 180000,
+      "champion_nodes": 10,
+      "champion_connections": 14,
+      "sets": {
+       "test/level_1": {
+        "n": 50,
+        "SR": 0.54,
+        "CR": 0.44,
+        "timeout": 0.02,
+        "TC": 22,
+        "n_timeout": 1,
+        "n_success": 27,
+        "SPL": 0.5222,
+        "MTT": 51.74
+       },
+       "test_barn": {
+        "n": 50,
+        "SR": 0.54,
+        "CR": 0.44,
+        "timeout": 0.02,
+        "TC": 22,
+        "n_timeout": 1,
+        "n_success": 27,
+        "SPL": 0.5222,
+        "MTT": 51.74
+       },
+       "test_barn2": {
+        "n": 50,
+        "SR": 0.58,
+        "CR": 0.42,
+        "timeout": 0.0,
+        "TC": 21,
+        "n_timeout": 0,
+        "n_success": 29,
+        "SPL": 0.5547,
+        "MTT": 51.33
+       },
+       "test_lehman": {
+        "n": 2,
+        "SR": 0.0,
+        "CR": 1.0,
+        "timeout": 0.0,
+        "TC": 2,
+        "n_timeout": 0,
+        "n_success": 0,
+        "SPL": 0.0,
+        "MTT": null
+       },
+       "barn_100": {
+        "n": 100,
+        "SR": 0.56,
+        "CR": 0.43,
+        "timeout": 0.01,
+        "TC": 43,
+        "n_timeout": 1,
+        "n_success": 56,
+        "SPL": 0.5384,
+        "MTT": 51.53
+       }
+      }
+     },
+     {
+      "seed": 1,
+      "dir": "P1/waffle_M5_sec12/seed_1",
+      "status": "done",
+      "backend": "gpu",
+      "code_sha256": "590c095ac64777d2666c56c894c26bd1985e437110c281df1e467701a940a6f5",
+      "data_dir": "data/maps_barn",
+      "started": "27/11/2026 17:00:14",
+      "finished": "27/11/2026 17:23:21",
+      "job_minutes": 23.1,
+      "champion_generation": 110,
+      "val_SR": 0.72,
+      "pop_size": 150,
+      "generations": 150,
+      "maps_per_eval": 8,
+      "train_episodes": 180000,
+      "champion_nodes": 10,
+      "champion_connections": 15,
+      "sets": {
+       "test/level_1": {
+        "n": 50,
+        "SR": 0.62,
+        "CR": 0.36,
+        "timeout": 0.02,
+        "TC": 18,
+        "n_timeout": 1,
+        "n_success": 31,
+        "SPL": 0.6047,
+        "MTT": 41.5
+       },
+       "test_barn": {
+        "n": 50,
+        "SR": 0.62,
+        "CR": 0.36,
+        "timeout": 0.02,
+        "TC": 18,
+        "n_timeout": 1,
+        "n_success": 31,
+        "SPL": 0.6047,
+        "MTT": 41.5
+       },
+       "test_barn2": {
+        "n": 50,
+        "SR": 0.74,
+        "CR": 0.26,
+        "timeout": 0.0,
+        "TC": 13,
+        "n_timeout": 0,
+        "n_success": 37,
+        "SPL": 0.7216,
+        "MTT": 42.2
+       },
+       "test_lehman": {
+        "n": 2,
+        "SR": 0.0,
+        "CR": 1.0,
+        "timeout": 0.0,
+        "TC": 2,
+        "n_timeout": 0,
+        "n_success": 0,
+        "SPL": 0.0,
+        "MTT": null
+       },
+       "barn_100": {
+        "n": 100,
+        "SR": 0.68,
+        "CR": 0.31,
+        "timeout": 0.01,
+        "TC": 31,
+        "n_timeout": 1,
+        "n_success": 68,
+        "SPL": 0.6632,
+        "MTT": 41.88
+       }
+      }
+     },
+     {
+      "seed": 2,
+      "dir": "P1/waffle_M5_sec12/seed_2",
+      "status": "done",
+      "backend": "gpu",
+      "code_sha256": "590c095ac64777d2666c56c894c26bd1985e437110c281df1e467701a940a6f5",
+      "data_dir": "data/maps_barn",
+      "started": "27/11/2026 17:00:36",
+      "finished": "27/11/2026 17:20:48",
+      "job_minutes": 20.2,
+      "champion_generation": 70,
+      "val_SR": 0.48,
+      "pop_size": 150,
+      "generations": 150,
+      "maps_per_eval": 8,
+      "train_episodes": 180000,
+      "champion_nodes": 2,
+      "champion_connections": 5,
+      "sets": {
+       "test/level_1": {
+        "n": 50,
+        "SR": 0.38,
+        "CR": 0.62,
+        "timeout": 0.0,
+        "TC": 31,
+        "n_timeout": 0,
+        "n_success": 19,
+        "SPL": 0.3792,
+        "MTT": 36.34
+       },
+       "test_barn": {
+        "n": 50,
+        "SR": 0.38,
+        "CR": 0.62,
+        "timeout": 0.0,
+        "TC": 31,
+        "n_timeout": 0,
+        "n_success": 19,
+        "SPL": 0.3792,
+        "MTT": 36.34
+       },
+       "test_barn2": {
+        "n": 50,
+        "SR": 0.38,
+        "CR": 0.6,
+        "timeout": 0.02,
+        "TC": 30,
+        "n_timeout": 1,
+        "n_success": 19,
+        "SPL": 0.3798,
+        "MTT": 35.29
+       },
+       "test_lehman": {
+        "n": 2,
+        "SR": 0.0,
+        "CR": 1.0,
+        "timeout": 0.0,
+        "TC": 2,
+        "n_timeout": 0,
+        "n_success": 0,
+        "SPL": 0.0,
+        "MTT": null
+       },
+       "barn_100": {
+        "n": 100,
+        "SR": 0.38,
+        "CR": 0.61,
+        "timeout": 0.01,
+        "TC": 61,
+        "n_timeout": 1,
+        "n_success": 38,
+        "SPL": 0.3795,
+        "MTT": 35.82
+       }
+      }
+     }
+    ],
+    "val_SR": {
+     "mean": 0.6067,
+     "min": 0.48,
+     "max": 0.72
+    },
+    "champion_generations": [
+     120,
+     110,
+     70
+    ],
+    "aggregate": {
+     "test_barn": {
+      "seeds": 3,
+      "n_per_seed": 50,
+      "SR": {
+       "mean": 0.5133,
+       "min": 0.38,
+       "max": 0.62
+      },
+      "CR": {
+       "mean": 0.4733,
+       "min": 0.36,
+       "max": 0.62
+      },
+      "timeout": {
+       "mean": 0.0133,
+       "min": 0.0,
+       "max": 0.02
+      },
+      "SPL": {
+       "mean": 0.502,
+       "min": 0.3792,
+       "max": 0.6047
+      },
+      "TC": {
+       "mean": 23.67,
+       "min": 18,
+       "max": 31,
+       "total": 71
+      },
+      "n_timeout": {
+       "mean": 0.67,
+       "min": 0,
+       "max": 1,
+       "total": 2
+      },
+      "n_success_total": 77,
+      "MTT": {
+       "pooled": 43.82,
+       "min": 36.34,
+       "max": 51.74,
+       "seeds_without_success": 0
+      }
+     },
+     "test_barn2": {
+      "seeds": 3,
+      "n_per_seed": 50,
+      "SR": {
+       "mean": 0.5667,
+       "min": 0.38,
+       "max": 0.74
+      },
+      "CR": {
+       "mean": 0.4267,
+       "min": 0.26,
+       "max": 0.6
+      },
+      "timeout": {
+       "mean": 0.0067,
+       "min": 0.0,
+       "max": 0.02
+      },
+      "SPL": {
+       "mean": 0.552,
+       "min": 0.3798,
+       "max": 0.7216
+      },
+      "TC": {
+       "mean": 21.33,
+       "min": 13,
+       "max": 30,
+       "total": 64
+      },
+      "n_timeout": {
+       "mean": 0.33,
+       "min": 0,
+       "max": 1,
+       "total": 1
+      },
+      "n_success_total": 85,
+      "MTT": {
+       "pooled": 43.77,
+       "min": 35.29,
+       "max": 51.33,
+       "seeds_without_success": 0
+      }
+     },
+     "barn_100": {
+      "seeds": 3,
+      "n_per_seed": 100,
+      "SR": {
+       "mean": 0.54,
+       "min": 0.38,
+       "max": 0.68
+      },
+      "CR": {
+       "mean": 0.45,
+       "min": 0.31,
+       "max": 0.61
+      },
+      "timeout": {
+       "mean": 0.01,
+       "min": 0.01,
+       "max": 0.01
+      },
+      "SPL": {
+       "mean": 0.527,
+       "min": 0.3795,
+       "max": 0.6632
+      },
+      "TC": {
+       "mean": 45.0,
+       "min": 31,
+       "max": 61,
+       "total": 135
+      },
+      "n_timeout": {
+       "mean": 1.0,
+       "min": 1,
+       "max": 1,
+       "total": 3
+      },
+      "n_success_total": 162,
+      "MTT": {
+       "pooled": 43.79,
+       "min": 35.82,
+       "max": 51.53,
+       "seeds_without_success": 0
+      }
+     },
+     "test_lehman": {
+      "seeds": 3,
+      "n_per_seed": 2,
+      "SR": {
+       "mean": 0.0,
+       "min": 0.0,
+       "max": 0.0
+      },
+      "CR": {
+       "mean": 1.0,
+       "min": 1.0,
+       "max": 1.0
+      },
+      "timeout": {
+       "mean": 0.0,
+       "min": 0.0,
+       "max": 0.0
+      },
+      "SPL": {
+       "mean": 0.0,
+       "min": 0.0,
+       "max": 0.0
+      },
+      "TC": {
+       "mean": 2.0,
+       "min": 2,
+       "max": 2,
+       "total": 6
+      },
+      "n_timeout": {
+       "mean": 0.0,
+       "min": 0,
+       "max": 0,
+       "total": 0
+      },
+      "n_success_total": 0,
+      "MTT": {
+       "pooled": null,
+       "min": null,
+       "max": null,
+       "seeds_without_success": 3
+      }
+     }
+    },
+    "code_sha256": [
+     "590c095ac64777d2666c56c894c26bd1985e437110c281df1e467701a940a6f5"
+    ]
+   },
+   "NEAT M5 (e)": {
+    "family": "NEAT",
+    "method_label": "NEAT M5",
+    "sensor": "e",
+    "sensor_label": "(e) 30 quạt 9° + 2 quạt 45°",
+    "dir": "P1/waffle_M5_e32",
+    "status": "done",
+    "seeds_expected": [
+     0,
+     1,
+     2
+    ],
+    "seeds_done": [
+     0,
+     1,
+     2
+    ],
+    "seeds_status": {
+     "seed_0": "done",
+     "seed_1": "done",
+     "seed_2": "done"
+    },
+    "per_seed": [
+     {
+      "seed": 0,
+      "dir": "P1/waffle_M5_e32/seed_0",
+      "status": "done",
+      "backend": "gpu",
+      "code_sha256": "590c095ac64777d2666c56c894c26bd1985e437110c281df1e467701a940a6f5",
+      "data_dir": "data/maps_barn",
+      "started": "27/11/2026 17:58:19",
+      "finished": "27/11/2026 18:42:57",
+      "job_minutes": 44.6,
+      "champion_generation": 120,
+      "val_SR": 0.36,
+      "pop_size": 150,
+      "generations": 150,
+      "maps_per_eval": 8,
+      "train_episodes": 180000,
+      "champion_nodes": 9,
+      "champion_connections": 17,
+      "sets": {
+       "test/level_1": {
+        "n": 50,
+        "SR": 0.32,
+        "CR": 0.68,
+        "timeout": 0.0,
+        "TC": 34,
+        "n_timeout": 0,
+        "n_success": 16,
+        "SPL": 0.32,
+        "MTT": 40.11
+       },
+       "test_barn": {
+        "n": 50,
+        "SR": 0.32,
+        "CR": 0.68,
+        "timeout": 0.0,
+        "TC": 34,
+        "n_timeout": 0,
+        "n_success": 16,
+        "SPL": 0.32,
+        "MTT": 40.11
+       },
+       "test_barn2": {
+        "n": 50,
+        "SR": 0.34,
+        "CR": 0.66,
+        "timeout": 0.0,
+        "TC": 33,
+        "n_timeout": 0,
+        "n_success": 17,
+        "SPL": 0.34,
+        "MTT": 39.22
+       },
+       "test_lehman": {
+        "n": 2,
+        "SR": 0.0,
+        "CR": 1.0,
+        "timeout": 0.0,
+        "TC": 2,
+        "n_timeout": 0,
+        "n_success": 0,
+        "SPL": 0.0,
+        "MTT": null
+       },
+       "barn_100": {
+        "n": 100,
+        "SR": 0.33,
+        "CR": 0.67,
+        "timeout": 0.0,
+        "TC": 67,
+        "n_timeout": 0,
+        "n_success": 33,
+        "SPL": 0.33,
+        "MTT": 39.65
+       }
+      }
+     },
+     {
+      "seed": 1,
+      "dir": "P1/waffle_M5_e32/seed_1",
+      "status": "done",
+      "backend": "gpu",
+      "code_sha256": "590c095ac64777d2666c56c894c26bd1985e437110c281df1e467701a940a6f5",
+      "data_dir": "data/maps_barn",
+      "started": "27/11/2026 18:08:26",
+      "finished": "27/11/2026 18:50:55",
+      "job_minutes": 42.5,
+      "champion_generation": 30,
+      "val_SR": 0.4,
+      "pop_size": 150,
+      "generations": 150,
+      "maps_per_eval": 8,
+      "train_episodes": 180000,
+      "champion_nodes": 3,
+      "champion_connections": 13,
+      "sets": {
+       "test/level_1": {
+        "n": 50,
+        "SR": 0.44,
+        "CR": 0.56,
+        "timeout": 0.0,
+        "TC": 28,
+        "n_timeout": 0,
+        "n_success": 22,
+        "SPL": 0.4252,
+        "MTT": 61.33
+       },
+       "test_barn": {
+        "n": 50,
+        "SR": 0.44,
+        "CR": 0.56,
+        "timeout": 0.0,
+        "TC": 28,
+        "n_timeout": 0,
+        "n_success": 22,
+        "SPL": 0.4252,
+        "MTT": 61.33
+       },
+       "test_barn2": {
+        "n": 50,
+        "SR": 0.38,
+        "CR": 0.62,
+        "timeout": 0.0,
+        "TC": 31,
+        "n_timeout": 0,
+        "n_success": 19,
+        "SPL": 0.3677,
+        "MTT": 60.33
+       },
+       "test_lehman": {
+        "n": 2,
+        "SR": 0.0,
+        "CR": 1.0,
+        "timeout": 0.0,
+        "TC": 2,
+        "n_timeout": 0,
+        "n_success": 0,
+        "SPL": 0.0,
+        "MTT": null
+       },
+       "barn_100": {
+        "n": 100,
+        "SR": 0.41,
+        "CR": 0.59,
+        "timeout": 0.0,
+        "TC": 59,
+        "n_timeout": 0,
+        "n_success": 41,
+        "SPL": 0.3965,
+        "MTT": 60.87
+       }
+      }
+     },
+     {
+      "seed": 2,
+      "dir": "P1/waffle_M5_e32/seed_2",
+      "status": "done",
+      "backend": "gpu",
+      "code_sha256": "590c095ac64777d2666c56c894c26bd1985e437110c281df1e467701a940a6f5",
+      "data_dir": "data/maps_barn",
+      "started": "27/11/2026 18:08:54",
+      "finished": "27/11/2026 18:51:13",
+      "job_minutes": 42.3,
+      "champion_generation": 150,
+      "val_SR": 0.42,
+      "pop_size": 150,
+      "generations": 150,
+      "maps_per_eval": 8,
+      "train_episodes": 180000,
+      "champion_nodes": 13,
+      "champion_connections": 22,
+      "sets": {
+       "test/level_1": {
+        "n": 50,
+        "SR": 0.38,
+        "CR": 0.62,
+        "timeout": 0.0,
+        "TC": 31,
+        "n_timeout": 0,
+        "n_success": 19,
+        "SPL": 0.3791,
+        "MTT": 39.45
+       },
+       "test_barn": {
+        "n": 50,
+        "SR": 0.38,
+        "CR": 0.62,
+        "timeout": 0.0,
+        "TC": 31,
+        "n_timeout": 0,
+        "n_success": 19,
+        "SPL": 0.3791,
+        "MTT": 39.45
+       },
+       "test_barn2": {
+        "n": 50,
+        "SR": 0.36,
+        "CR": 0.64,
+        "timeout": 0.0,
+        "TC": 32,
+        "n_timeout": 0,
+        "n_success": 18,
+        "SPL": 0.36,
+        "MTT": 39.33
+       },
+       "test_lehman": {
+        "n": 2,
+        "SR": 0.0,
+        "CR": 1.0,
+        "timeout": 0.0,
+        "TC": 2,
+        "n_timeout": 0,
+        "n_success": 0,
+        "SPL": 0.0,
+        "MTT": null
+       },
+       "barn_100": {
+        "n": 100,
+        "SR": 0.37,
+        "CR": 0.63,
+        "timeout": 0.0,
+        "TC": 63,
+        "n_timeout": 0,
+        "n_success": 37,
+        "SPL": 0.3695,
+        "MTT": 39.39
+       }
+      }
+     }
+    ],
+    "val_SR": {
+     "mean": 0.3933,
+     "min": 0.36,
+     "max": 0.42
+    },
+    "champion_generations": [
+     120,
+     30,
+     150
+    ],
+    "aggregate": {
+     "test_barn": {
+      "seeds": 3,
+      "n_per_seed": 50,
+      "SR": {
+       "mean": 0.38,
+       "min": 0.32,
+       "max": 0.44
+      },
+      "CR": {
+       "mean": 0.62,
+       "min": 0.56,
+       "max": 0.68
+      },
+      "timeout": {
+       "mean": 0.0,
+       "min": 0.0,
+       "max": 0.0
+      },
+      "SPL": {
+       "mean": 0.3748,
+       "min": 0.32,
+       "max": 0.4252
+      },
+      "TC": {
+       "mean": 31.0,
+       "min": 28,
+       "max": 34,
+       "total": 93
+      },
+      "n_timeout": {
+       "mean": 0.0,
+       "min": 0,
+       "max": 0,
+       "total": 0
+      },
+      "n_success_total": 57,
+      "MTT": {
+       "pooled": 48.08,
+       "min": 39.45,
+       "max": 61.33,
+       "seeds_without_success": 0
+      }
+     },
+     "test_barn2": {
+      "seeds": 3,
+      "n_per_seed": 50,
+      "SR": {
+       "mean": 0.36,
+       "min": 0.34,
+       "max": 0.38
+      },
+      "CR": {
+       "mean": 0.64,
+       "min": 0.62,
+       "max": 0.66
+      },
+      "timeout": {
+       "mean": 0.0,
+       "min": 0.0,
+       "max": 0.0
+      },
+      "SPL": {
+       "mean": 0.3559,
+       "min": 0.34,
+       "max": 0.3677
+      },
+      "TC": {
+       "mean": 32.0,
+       "min": 31,
+       "max": 33,
+       "total": 96
+      },
+      "n_timeout": {
+       "mean": 0.0,
+       "min": 0,
+       "max": 0,
+       "total": 0
+      },
+      "n_success_total": 54,
+      "MTT": {
+       "pooled": 46.69,
+       "min": 39.22,
+       "max": 60.33,
+       "seeds_without_success": 0
+      }
+     },
+     "barn_100": {
+      "seeds": 3,
+      "n_per_seed": 100,
+      "SR": {
+       "mean": 0.37,
+       "min": 0.33,
+       "max": 0.41
+      },
+      "CR": {
+       "mean": 0.63,
+       "min": 0.59,
+       "max": 0.67
+      },
+      "timeout": {
+       "mean": 0.0,
+       "min": 0.0,
+       "max": 0.0
+      },
+      "SPL": {
+       "mean": 0.3653,
+       "min": 0.33,
+       "max": 0.3965
+      },
+      "TC": {
+       "mean": 63.0,
+       "min": 59,
+       "max": 67,
+       "total": 189
+      },
+      "n_timeout": {
+       "mean": 0.0,
+       "min": 0,
+       "max": 0,
+       "total": 0
+      },
+      "n_success_total": 111,
+      "MTT": {
+       "pooled": 47.4,
+       "min": 39.39,
+       "max": 60.87,
+       "seeds_without_success": 0
+      }
+     },
+     "test_lehman": {
+      "seeds": 3,
+      "n_per_seed": 2,
+      "SR": {
+       "mean": 0.0,
+       "min": 0.0,
+       "max": 0.0
+      },
+      "CR": {
+       "mean": 1.0,
+       "min": 1.0,
+       "max": 1.0
+      },
+      "timeout": {
+       "mean": 0.0,
+       "min": 0.0,
+       "max": 0.0
+      },
+      "SPL": {
+       "mean": 0.0,
+       "min": 0.0,
+       "max": 0.0
+      },
+      "TC": {
+       "mean": 2.0,
+       "min": 2,
+       "max": 2,
+       "total": 6
+      },
+      "n_timeout": {
+       "mean": 0.0,
+       "min": 0,
+       "max": 0,
+       "total": 0
+      },
+      "n_success_total": 0,
+      "MTT": {
+       "pooled": null,
+       "min": null,
+       "max": null,
+       "seeds_without_success": 3
+      }
+     }
+    },
+    "code_sha256": [
+     "590c095ac64777d2666c56c894c26bd1985e437110c281df1e467701a940a6f5"
+    ]
+   },
+   "NEAT LNS (c)": {
+    "family": "NEAT",
+    "method_label": "NEAT LNS",
+    "sensor": "c",
+    "sensor_label": "(c) 12 quạt 30°",
+    "dir": "P1/waffle_LNS_sec12",
+    "status": "done",
+    "seeds_expected": [
+     0,
+     1,
+     2
+    ],
+    "seeds_done": [
+     0,
+     1,
+     2
+    ],
+    "seeds_status": {
+     "seed_0": "done",
+     "seed_1": "done",
+     "seed_2": "done"
+    },
+    "per_seed": [
+     {
+      "seed": 0,
+      "dir": "P1/waffle_LNS_sec12/seed_0",
+      "status": "done",
+      "backend": "gpu",
+      "code_sha256": "590c095ac64777d2666c56c894c26bd1985e437110c281df1e467701a940a6f5",
+      "data_dir": "data/maps_barn",
+      "started": "27/11/2026 19:49:30",
+      "finished": "27/11/2026 20:46:41",
+      "job_minutes": 57.2,
+      "champion_generation": 120,
+      "val_SR": 0.52,
+      "pop_size": 150,
+      "generations": 150,
+      "maps_per_eval": 8,
+      "train_episodes": 180000,
+      "champion_nodes": 10,
+      "champion_connections": 19,
+      "sets": {
+       "test/level_1": {
+        "n": 50,
+        "SR": 0.46,
+        "CR": 0.52,
+        "timeout": 0.02,
+        "TC": 26,
+        "n_timeout": 1,
+        "n_success": 23,
+        "SPL": 0.4525,
+        "MTT": 52.7
+       },
+       "test_barn": {
+        "n": 50,
+        "SR": 0.46,
+        "CR": 0.52,
+        "timeout": 0.02,
+        "TC": 26,
+        "n_timeout": 1,
+        "n_success": 23,
+        "SPL": 0.4525,
+        "MTT": 52.7
+       },
+       "test_barn2": {
+        "n": 50,
+        "SR": 0.44,
+        "CR": 0.54,
+        "timeout": 0.02,
+        "TC": 27,
+        "n_timeout": 1,
+        "n_success": 22,
+        "SPL": 0.4318,
+        "MTT": 52.4
+       },
+       "test_lehman": {
+        "n": 2,
+        "SR": 0.0,
+        "CR": 1.0,
+        "timeout": 0.0,
+        "TC": 2,
+        "n_timeout": 0,
+        "n_success": 0,
+        "SPL": 0.0,
+        "MTT": null
+       },
+       "barn_100": {
+        "n": 100,
+        "SR": 0.45,
+        "CR": 0.53,
+        "timeout": 0.02,
+        "TC": 53,
+        "n_timeout": 2,
+        "n_success": 45,
+        "SPL": 0.4421,
+        "MTT": 52.55
+       }
+      }
+     },
+     {
+      "seed": 1,
+      "dir": "P1/waffle_LNS_sec12/seed_1",
+      "status": "done",
+      "backend": "gpu",
+      "code_sha256": "590c095ac64777d2666c56c894c26bd1985e437110c281df1e467701a940a6f5",
+      "data_dir": "data/maps_barn",
+      "started": "27/11/2026 19:49:30",
+      "finished": "27/11/2026 20:48:03",
+      "job_minutes": 58.6,
+      "champion_generation": 150,
+      "val_SR": 0.54,
+      "pop_size": 150,
+      "generations": 150,
+      "maps_per_eval": 8,
+      "train_episodes": 180000,
+      "champion_nodes": 8,
+      "champion_connections": 15,
+      "sets": {
+       "test/level_1": {
+        "n": 50,
+        "SR": 0.34,
+        "CR": 0.66,
+        "timeout": 0.0,
+        "TC": 33,
+        "n_timeout": 0,
+        "n_success": 17,
+        "SPL": 0.2852,
+        "MTT": 56.02
+       },
+       "test_barn": {
+        "n": 50,
+        "SR": 0.34,
+        "CR": 0.66,
+        "timeout": 0.0,
+        "TC": 33,
+        "n_timeout": 0,
+        "n_success": 17,
+        "SPL": 0.2852,
+        "MTT": 56.02
+       },
+       "test_barn2": {
+        "n": 50,
+        "SR": 0.36,
+        "CR": 0.64,
+        "timeout": 0.0,
+        "TC": 32,
+        "n_timeout": 0,
+        "n_success": 18,
+        "SPL": 0.2851,
+        "MTT": 60.61
+       },
+       "test_lehman": {
+        "n": 2,
+        "SR": 0.0,
+        "CR": 1.0,
+        "timeout": 0.0,
+        "TC": 2,
+        "n_timeout": 0,
+        "n_success": 0,
+        "SPL": 0.0,
+        "MTT": null
+       },
+       "barn_100": {
+        "n": 100,
+        "SR": 0.35,
+        "CR": 0.65,
+        "timeout": 0.0,
+        "TC": 65,
+        "n_timeout": 0,
+        "n_success": 35,
+        "SPL": 0.2852,
+        "MTT": 58.38
+       }
+      }
+     },
+     {
+      "seed": 2,
+      "dir": "P1/waffle_LNS_sec12/seed_2",
+      "status": "done",
+      "backend": "gpu",
+      "code_sha256": "590c095ac64777d2666c56c894c26bd1985e437110c281df1e467701a940a6f5",
+      "data_dir": "data/maps_barn",
+      "started": "27/11/2026 19:49:30",
+      "finished": "27/11/2026 20:42:34",
+      "job_minutes": 53.1,
+      "champion_generation": 50,
+      "val_SR": 0.24,
+      "pop_size": 150,
+      "generations": 150,
+      "maps_per_eval": 8,
+      "train_episodes": 180000,
+      "champion_nodes": 4,
+      "champion_connections": 11,
+      "sets": {
+       "test/level_1": {
+        "n": 50,
+        "SR": 0.14,
+        "CR": 0.82,
+        "timeout": 0.04,
+        "TC": 41,
+        "n_timeout": 2,
+        "n_success": 7,
+        "SPL": 0.1348,
+        "MTT": 74.8
+       },
+       "test_barn": {
+        "n": 50,
+        "SR": 0.14,
+        "CR": 0.82,
+        "timeout": 0.04,
+        "TC": 41,
+        "n_timeout": 2,
+        "n_success": 7,
+        "SPL": 0.1348,
+        "MTT": 74.8
+       },
+       "test_barn2": {
+        "n": 50,
+        "SR": 0.16,
+        "CR": 0.74,
+        "timeout": 0.1,
+        "TC": 37,
+        "n_timeout": 5,
+        "n_success": 8,
+        "SPL": 0.1564,
+        "MTT": 74.67
+       },
+       "test_lehman": {
+        "n": 2,
+        "SR": 0.0,
+        "CR": 1.0,
+        "timeout": 0.0,
+        "TC": 2,
+        "n_timeout": 0,
+        "n_success": 0,
+        "SPL": 0.0,
+        "MTT": null
+       },
+       "barn_100": {
+        "n": 100,
+        "SR": 0.15,
+        "CR": 0.78,
+        "timeout": 0.07,
+        "TC": 78,
+        "n_timeout": 7,
+        "n_success": 15,
+        "SPL": 0.1456,
+        "MTT": 74.73
+       }
+      }
+     }
+    ],
+    "val_SR": {
+     "mean": 0.4333,
+     "min": 0.24,
+     "max": 0.54
+    },
+    "champion_generations": [
+     120,
+     150,
+     50
+    ],
+    "aggregate": {
+     "test_barn": {
+      "seeds": 3,
+      "n_per_seed": 50,
+      "SR": {
+       "mean": 0.3133,
+       "min": 0.14,
+       "max": 0.46
+      },
+      "CR": {
+       "mean": 0.6667,
+       "min": 0.52,
+       "max": 0.82
+      },
+      "timeout": {
+       "mean": 0.02,
+       "min": 0.0,
+       "max": 0.04
+      },
+      "SPL": {
+       "mean": 0.2908,
+       "min": 0.1348,
+       "max": 0.4525
+      },
+      "TC": {
+       "mean": 33.33,
+       "min": 26,
+       "max": 41,
+       "total": 100
+      },
+      "n_timeout": {
+       "mean": 1.0,
+       "min": 0,
+       "max": 2,
+       "total": 3
+      },
+      "n_success_total": 47,
+      "MTT": {
+       "pooled": 57.19,
+       "min": 52.7,
+       "max": 74.8,
+       "seeds_without_success": 0
+      }
+     },
+     "test_barn2": {
+      "seeds": 3,
+      "n_per_seed": 50,
+      "SR": {
+       "mean": 0.32,
+       "min": 0.16,
+       "max": 0.44
+      },
+      "CR": {
+       "mean": 0.64,
+       "min": 0.54,
+       "max": 0.74
+      },
+      "timeout": {
+       "mean": 0.04,
+       "min": 0.0,
+       "max": 0.1
+      },
+      "SPL": {
+       "mean": 0.2911,
+       "min": 0.1564,
+       "max": 0.4318
+      },
+      "TC": {
+       "mean": 32.0,
+       "min": 27,
+       "max": 37,
+       "total": 96
+      },
+      "n_timeout": {
+       "mean": 2.0,
+       "min": 0,
+       "max": 5,
+       "total": 6
+      },
+      "n_success_total": 48,
+      "MTT": {
+       "pooled": 59.19,
+       "min": 52.4,
+       "max": 74.67,
+       "seeds_without_success": 0
+      }
+     },
+     "barn_100": {
+      "seeds": 3,
+      "n_per_seed": 100,
+      "SR": {
+       "mean": 0.3167,
+       "min": 0.15,
+       "max": 0.45
+      },
+      "CR": {
+       "mean": 0.6533,
+       "min": 0.53,
+       "max": 0.78
+      },
+      "timeout": {
+       "mean": 0.03,
+       "min": 0.0,
+       "max": 0.07
+      },
+      "SPL": {
+       "mean": 0.291,
+       "min": 0.1456,
+       "max": 0.4421
+      },
+      "TC": {
+       "mean": 65.33,
+       "min": 53,
+       "max": 78,
+       "total": 196
+      },
+      "n_timeout": {
+       "mean": 3.0,
+       "min": 0,
+       "max": 7,
+       "total": 9
+      },
+      "n_success_total": 95,
+      "MTT": {
+       "pooled": 58.2,
+       "min": 52.55,
+       "max": 74.73,
+       "seeds_without_success": 0
+      }
+     },
+     "test_lehman": {
+      "seeds": 3,
+      "n_per_seed": 2,
+      "SR": {
+       "mean": 0.0,
+       "min": 0.0,
+       "max": 0.0
+      },
+      "CR": {
+       "mean": 1.0,
+       "min": 1.0,
+       "max": 1.0
+      },
+      "timeout": {
+       "mean": 0.0,
+       "min": 0.0,
+       "max": 0.0
+      },
+      "SPL": {
+       "mean": 0.0,
+       "min": 0.0,
+       "max": 0.0
+      },
+      "TC": {
+       "mean": 2.0,
+       "min": 2,
+       "max": 2,
+       "total": 6
+      },
+      "n_timeout": {
+       "mean": 0.0,
+       "min": 0,
+       "max": 0,
+       "total": 0
+      },
+      "n_success_total": 0,
+      "MTT": {
+       "pooled": null,
+       "min": null,
+       "max": null,
+       "seeds_without_success": 3
+      }
+     }
+    },
+    "code_sha256": [
+     "590c095ac64777d2666c56c894c26bd1985e437110c281df1e467701a940a6f5"
+    ]
+   },
+   "NEAT LNS (e)": {
+    "family": "NEAT",
+    "method_label": "NEAT LNS",
+    "sensor": "e",
+    "sensor_label": "(e) 30 quạt 9° + 2 quạt 45°",
+    "dir": "P1/waffle_LNS_e32",
+    "status": "done",
+    "seeds_expected": [
+     0,
+     1,
+     2
+    ],
+    "seeds_done": [
+     0,
+     1,
+     2
+    ],
+    "seeds_status": {
+     "seed_0": "done",
+     "seed_1": "done",
+     "seed_2": "done"
+    },
+    "per_seed": [
+     {
+      "seed": 0,
+      "dir": "P1/waffle_LNS_e32/seed_0",
+      "status": "done",
+      "backend": "gpu",
+      "code_sha256": "590c095ac64777d2666c56c894c26bd1985e437110c281df1e467701a940a6f5",
+      "data_dir": "data/maps_barn",
+      "started": "27/11/2026 20:42:38",
+      "finished": "27/11/2026 21:37:41",
+      "job_minutes": 55.0,
+      "champion_generation": 10,
+      "val_SR": 0.22,
+      "pop_size": 150,
+      "generations": 150,
+      "maps_per_eval": 8,
+      "train_episodes": 180000,
+      "champion_nodes": 2,
+      "champion_connections": 49,
+      "sets": {
+       "test/level_1": {
+        "n": 50,
+        "SR": 0.22,
+        "CR": 0.78,
+        "timeout": 0.0,
+        "TC": 39,
+        "n_timeout": 0,
+        "n_success": 11,
+        "SPL": 0.2192,
+        "MTT": 55.16
+       },
+       "test_barn": {
+        "n": 50,
+        "SR": 0.22,
+        "CR": 0.78,
+        "timeout": 0.0,
+        "TC": 39,
+        "n_timeout": 0,
+        "n_success": 11,
+        "SPL": 0.2192,
+        "MTT": 55.16
+       },
+       "test_barn2": {
+        "n": 50,
+        "SR": 0.26,
+        "CR": 0.74,
+        "timeout": 0.0,
+        "TC": 37,
+        "n_timeout": 0,
+        "n_success": 13,
+        "SPL": 0.259,
+        "MTT": 56.6
+       },
+       "test_lehman": {
+        "n": 2,
+        "SR": 0.0,
+        "CR": 1.0,
+        "timeout": 0.0,
+        "TC": 2,
+        "n_timeout": 0,
+        "n_success": 0,
+        "SPL": 0.0,
+        "MTT": null
+       },
+       "barn_100": {
+        "n": 100,
+        "SR": 0.24,
+        "CR": 0.76,
+        "timeout": 0.0,
+        "TC": 76,
+        "n_timeout": 0,
+        "n_success": 24,
+        "SPL": 0.2391,
+        "MTT": 55.94
+       }
+      }
+     },
+     {
+      "seed": 1,
+      "dir": "P1/waffle_LNS_e32/seed_1",
+      "status": "done",
+      "backend": "gpu",
+      "code_sha256": "590c095ac64777d2666c56c894c26bd1985e437110c281df1e467701a940a6f5",
+      "data_dir": "data/maps_barn",
+      "started": "27/11/2026 20:46:45",
+      "finished": "27/11/2026 21:41:12",
+      "job_minutes": 54.5,
+      "champion_generation": 80,
+      "val_SR": 0.44,
+      "pop_size": 150,
+      "generations": 150,
+      "maps_per_eval": 8,
+      "train_episodes": 180000,
+      "champion_nodes": 8,
+      "champion_connections": 19,
+      "sets": {
+       "test/level_1": {
+        "n": 50,
+        "SR": 0.46,
+        "CR": 0.54,
+        "timeout": 0.0,
+        "TC": 27,
+        "n_timeout": 0,
+        "n_success": 23,
+        "SPL": 0.3141,
+        "MTT": 74.86
+       },
+       "test_barn": {
+        "n": 50,
+        "SR": 0.46,
+        "CR": 0.54,
+        "timeout": 0.0,
+        "TC": 27,
+        "n_timeout": 0,
+        "n_success": 23,
+        "SPL": 0.3141,
+        "MTT": 74.86
+       },
+       "test_barn2": {
+        "n": 50,
+        "SR": 0.34,
+        "CR": 0.66,
+        "timeout": 0.0,
+        "TC": 33,
+        "n_timeout": 0,
+        "n_success": 17,
+        "SPL": 0.2276,
+        "MTT": 76.31
+       },
+       "test_lehman": {
+        "n": 2,
+        "SR": 0.0,
+        "CR": 1.0,
+        "timeout": 0.0,
+        "TC": 2,
+        "n_timeout": 0,
+        "n_success": 0,
+        "SPL": 0.0,
+        "MTT": null
+       },
+       "barn_100": {
+        "n": 100,
+        "SR": 0.4,
+        "CR": 0.6,
+        "timeout": 0.0,
+        "TC": 60,
+        "n_timeout": 0,
+        "n_success": 40,
+        "SPL": 0.2709,
+        "MTT": 75.48
+       }
+      }
+     },
+     {
+      "seed": 2,
+      "dir": "P1/waffle_LNS_e32/seed_2",
+      "status": "done",
+      "backend": "gpu",
+      "code_sha256": "590c095ac64777d2666c56c894c26bd1985e437110c281df1e467701a940a6f5",
+      "data_dir": "data/maps_barn",
+      "started": "27/11/2026 20:48:15",
+      "finished": "27/11/2026 21:45:11",
+      "job_minutes": 56.9,
+      "champion_generation": 130,
+      "val_SR": 0.24,
+      "pop_size": 150,
+      "generations": 150,
+      "maps_per_eval": 8,
+      "train_episodes": 180000,
+      "champion_nodes": 6,
+      "champion_connections": 16,
+      "sets": {
+       "test/level_1": {
+        "n": 50,
+        "SR": 0.26,
+        "CR": 0.66,
+        "timeout": 0.08,
+        "TC": 33,
+        "n_timeout": 4,
+        "n_success": 13,
+        "SPL": 0.1332,
+        "MTT": 85.92
+       },
+       "test_barn": {
+        "n": 50,
+        "SR": 0.26,
+        "CR": 0.66,
+        "timeout": 0.08,
+        "TC": 33,
+        "n_timeout": 4,
+        "n_success": 13,
+        "SPL": 0.1332,
+        "MTT": 85.92
+       },
+       "test_barn2": {
+        "n": 50,
+        "SR": 0.12,
+        "CR": 0.86,
+        "timeout": 0.02,
+        "TC": 43,
+        "n_timeout": 1,
+        "n_success": 6,
+        "SPL": 0.0593,
+        "MTT": 86.53
+       },
+       "test_lehman": {
+        "n": 2,
+        "SR": 0.0,
+        "CR": 1.0,
+        "timeout": 0.0,
+        "TC": 2,
+        "n_timeout": 0,
+        "n_success": 0,
+        "SPL": 0.0,
+        "MTT": null
+       },
+       "barn_100": {
+        "n": 100,
+        "SR": 0.19,
+        "CR": 0.76,
+        "timeout": 0.05,
+        "TC": 76,
+        "n_timeout": 5,
+        "n_success": 19,
+        "SPL": 0.0962,
+        "MTT": 86.11
+       }
+      }
+     }
+    ],
+    "val_SR": {
+     "mean": 0.3,
+     "min": 0.22,
+     "max": 0.44
+    },
+    "champion_generations": [
+     10,
+     80,
+     130
+    ],
+    "aggregate": {
+     "test_barn": {
+      "seeds": 3,
+      "n_per_seed": 50,
+      "SR": {
+       "mean": 0.3133,
+       "min": 0.22,
+       "max": 0.46
+      },
+      "CR": {
+       "mean": 0.66,
+       "min": 0.54,
+       "max": 0.78
+      },
+      "timeout": {
+       "mean": 0.0267,
+       "min": 0.0,
+       "max": 0.08
+      },
+      "SPL": {
+       "mean": 0.2222,
+       "min": 0.1332,
+       "max": 0.3141
+      },
+      "TC": {
+       "mean": 33.0,
+       "min": 27,
+       "max": 39,
+       "total": 99
+      },
+      "n_timeout": {
+       "mean": 1.33,
+       "min": 0,
+       "max": 4,
+       "total": 4
+      },
+      "n_success_total": 47,
+      "MTT": {
+       "pooled": 73.31,
+       "min": 55.16,
+       "max": 85.92,
+       "seeds_without_success": 0
+      }
+     },
+     "test_barn2": {
+      "seeds": 3,
+      "n_per_seed": 50,
+      "SR": {
+       "mean": 0.24,
+       "min": 0.12,
+       "max": 0.34
+      },
+      "CR": {
+       "mean": 0.7533,
+       "min": 0.66,
+       "max": 0.86
+      },
+      "timeout": {
+       "mean": 0.0067,
+       "min": 0.0,
+       "max": 0.02
+      },
+      "SPL": {
+       "mean": 0.182,
+       "min": 0.0593,
+       "max": 0.259
+      },
+      "TC": {
+       "mean": 37.67,
+       "min": 33,
+       "max": 43,
+       "total": 113
+      },
+      "n_timeout": {
+       "mean": 0.33,
+       "min": 0,
+       "max": 1,
+       "total": 1
+      },
+      "n_success_total": 36,
+      "MTT": {
+       "pooled": 70.9,
+       "min": 56.6,
+       "max": 86.53,
+       "seeds_without_success": 0
+      }
+     },
+     "barn_100": {
+      "seeds": 3,
+      "n_per_seed": 100,
+      "SR": {
+       "mean": 0.2767,
+       "min": 0.19,
+       "max": 0.4
+      },
+      "CR": {
+       "mean": 0.7067,
+       "min": 0.6,
+       "max": 0.76
+      },
+      "timeout": {
+       "mean": 0.0167,
+       "min": 0.0,
+       "max": 0.05
+      },
+      "SPL": {
+       "mean": 0.2021,
+       "min": 0.0962,
+       "max": 0.2709
+      },
+      "TC": {
+       "mean": 70.67,
+       "min": 60,
+       "max": 76,
+       "total": 212
+      },
+      "n_timeout": {
+       "mean": 1.67,
+       "min": 0,
+       "max": 5,
+       "total": 5
+      },
+      "n_success_total": 83,
+      "MTT": {
+       "pooled": 72.26,
+       "min": 55.94,
+       "max": 86.11,
+       "seeds_without_success": 0
+      }
+     },
+     "test_lehman": {
+      "seeds": 3,
+      "n_per_seed": 2,
+      "SR": {
+       "mean": 0.0,
+       "min": 0.0,
+       "max": 0.0
+      },
+      "CR": {
+       "mean": 1.0,
+       "min": 1.0,
+       "max": 1.0
+      },
+      "timeout": {
+       "mean": 0.0,
+       "min": 0.0,
+       "max": 0.0
+      },
+      "SPL": {
+       "mean": 0.0,
+       "min": 0.0,
+       "max": 0.0
+      },
+      "TC": {
+       "mean": 2.0,
+       "min": 2,
+       "max": 2,
+       "total": 6
+      },
+      "n_timeout": {
+       "mean": 0.0,
+       "min": 0,
+       "max": 0,
+       "total": 0
+      },
+      "n_success_total": 0,
+      "MTT": {
+       "pooled": null,
+       "min": null,
+       "max": null,
+       "seeds_without_success": 3
+      }
+     }
+    },
+    "code_sha256": [
+     "590c095ac64777d2666c56c894c26bd1985e437110c281df1e467701a940a6f5"
+    ]
+   },
+   "GA B1 (c)": {
+    "family": "GA",
+    "method_label": "GA B1",
+    "sensor": "c",
+    "sensor_label": "(c) 12 quạt 30°",
+    "dir": "P1/waffle_ga_b1_sec12",
+    "status": "done",
+    "seeds_expected": [
+     0,
+     1,
+     2
+    ],
+    "seeds_done": [
+     0,
+     1,
+     2
+    ],
+    "seeds_status": {
+     "seed_0": "done",
+     "seed_1": "done",
+     "seed_2": "done"
+    },
+    "per_seed": [
+     {
+      "seed": 0,
+      "dir": "P1/waffle_ga_b1_sec12/seed_0",
+      "status": "done",
+      "backend": "gpu",
+      "code_sha256": "590c095ac64777d2666c56c894c26bd1985e437110c281df1e467701a940a6f5",
+      "data_dir": "data/maps_barn",
+      "started": "27/11/2026 14:46:09",
+      "finished": "27/11/2026 15:05:46",
+      "job_minutes": 19.6,
+      "champion_generation": 140,
+      "val_SR": 0.7,
+      "pop_size": 150,
+      "generations": 150,
+      "maps_per_eval": 8,
+      "train_episodes": 180000,
+      "layers": [
+       15,
+       8,
+       2
+      ],
+      "recheck_sets": 3,
+      "sets": {
+       "test/level_1": {
+        "n": 50,
+        "SR": 0.6,
+        "CR": 0.4,
+        "timeout": 0.0,
+        "TC": 20,
+        "n_timeout": 0,
+        "n_success": 30,
+        "SPL": 0.569,
+        "MTT": 39.45
+       },
+       "test_barn": {
+        "n": 50,
+        "SR": 0.6,
+        "CR": 0.4,
+        "timeout": 0.0,
+        "TC": 20,
+        "n_timeout": 0,
+        "n_success": 30,
+        "SPL": 0.569,
+        "MTT": 39.45
+       },
+       "test_barn2": {
+        "n": 50,
+        "SR": 0.62,
+        "CR": 0.38,
+        "timeout": 0.0,
+        "TC": 19,
+        "n_timeout": 0,
+        "n_success": 31,
+        "SPL": 0.5915,
+        "MTT": 38.75
+       },
+       "test_lehman": {
+        "n": 2,
+        "SR": 0.0,
+        "CR": 1.0,
+        "timeout": 0.0,
+        "TC": 2,
+        "n_timeout": 0,
+        "n_success": 0,
+        "SPL": 0.0,
+        "MTT": null
+       },
+       "barn_100": {
+        "n": 100,
+        "SR": 0.61,
+        "CR": 0.39,
+        "timeout": 0.0,
+        "TC": 39,
+        "n_timeout": 0,
+        "n_success": 61,
+        "SPL": 0.5803,
+        "MTT": 39.09
+       }
+      }
+     },
+     {
+      "seed": 1,
+      "dir": "P1/waffle_ga_b1_sec12/seed_1",
+      "status": "done",
+      "backend": "gpu",
+      "code_sha256": "590c095ac64777d2666c56c894c26bd1985e437110c281df1e467701a940a6f5",
+      "data_dir": "data/maps_barn",
+      "started": "27/11/2026 15:30:04",
+      "finished": "27/11/2026 15:50:09",
+      "job_minutes": 20.1,
+      "champion_generation": 150,
+      "val_SR": 0.72,
+      "pop_size": 150,
+      "generations": 150,
+      "maps_per_eval": 8,
+      "train_episodes": 180000,
+      "layers": [
+       15,
+       8,
+       2
+      ],
+      "recheck_sets": 3,
+      "sets": {
+       "test/level_1": {
+        "n": 50,
+        "SR": 0.6,
+        "CR": 0.4,
+        "timeout": 0.0,
+        "TC": 20,
+        "n_timeout": 0,
+        "n_success": 30,
+        "SPL": 0.5245,
+        "MTT": 43.11
+       },
+       "test_barn": {
+        "n": 50,
+        "SR": 0.6,
+        "CR": 0.4,
+        "timeout": 0.0,
+        "TC": 20,
+        "n_timeout": 0,
+        "n_success": 30,
+        "SPL": 0.5245,
+        "MTT": 43.11
+       },
+       "test_barn2": {
+        "n": 50,
+        "SR": 0.6,
+        "CR": 0.4,
+        "timeout": 0.0,
+        "TC": 20,
+        "n_timeout": 0,
+        "n_success": 30,
+        "SPL": 0.5494,
+        "MTT": 40.81
+       },
+       "test_lehman": {
+        "n": 2,
+        "SR": 0.0,
+        "CR": 1.0,
+        "timeout": 0.0,
+        "TC": 2,
+        "n_timeout": 0,
+        "n_success": 0,
+        "SPL": 0.0,
+        "MTT": null
+       },
+       "barn_100": {
+        "n": 100,
+        "SR": 0.6,
+        "CR": 0.4,
+        "timeout": 0.0,
+        "TC": 40,
+        "n_timeout": 0,
+        "n_success": 60,
+        "SPL": 0.537,
+        "MTT": 41.96
+       }
+      }
+     },
+     {
+      "seed": 2,
+      "dir": "P1/waffle_ga_b1_sec12/seed_2",
+      "status": "done",
+      "backend": "gpu",
+      "code_sha256": "590c095ac64777d2666c56c894c26bd1985e437110c281df1e467701a940a6f5",
+      "data_dir": "data/maps_barn",
+      "started": "27/11/2026 15:58:20",
+      "finished": "27/11/2026 16:19:00",
+      "job_minutes": 20.7,
+      "champion_generation": 140,
+      "val_SR": 0.7,
+      "pop_size": 150,
+      "generations": 150,
+      "maps_per_eval": 8,
+      "train_episodes": 180000,
+      "layers": [
+       15,
+       8,
+       2
+      ],
+      "recheck_sets": 3,
+      "sets": {
+       "test/level_1": {
+        "n": 50,
+        "SR": 0.68,
+        "CR": 0.32,
+        "timeout": 0.0,
+        "TC": 16,
+        "n_timeout": 0,
+        "n_success": 34,
+        "SPL": 0.5632,
+        "MTT": 46.24
+       },
+       "test_barn": {
+        "n": 50,
+        "SR": 0.68,
+        "CR": 0.32,
+        "timeout": 0.0,
+        "TC": 16,
+        "n_timeout": 0,
+        "n_success": 34,
+        "SPL": 0.5632,
+        "MTT": 46.24
+       },
+       "test_barn2": {
+        "n": 50,
+        "SR": 0.56,
+        "CR": 0.44,
+        "timeout": 0.0,
+        "TC": 22,
+        "n_timeout": 0,
+        "n_success": 28,
+        "SPL": 0.5025,
+        "MTT": 41.5
+       },
+       "test_lehman": {
+        "n": 2,
+        "SR": 0.0,
+        "CR": 1.0,
+        "timeout": 0.0,
+        "TC": 2,
+        "n_timeout": 0,
+        "n_success": 0,
+        "SPL": 0.0,
+        "MTT": null
+       },
+       "barn_100": {
+        "n": 100,
+        "SR": 0.62,
+        "CR": 0.38,
+        "timeout": 0.0,
+        "TC": 38,
+        "n_timeout": 0,
+        "n_success": 62,
+        "SPL": 0.5329,
+        "MTT": 44.1
+       }
+      }
+     }
+    ],
+    "val_SR": {
+     "mean": 0.7067,
+     "min": 0.7,
+     "max": 0.72
+    },
+    "champion_generations": [
+     140,
+     150,
+     140
+    ],
+    "aggregate": {
+     "test_barn": {
+      "seeds": 3,
+      "n_per_seed": 50,
+      "SR": {
+       "mean": 0.6267,
+       "min": 0.6,
+       "max": 0.68
+      },
+      "CR": {
+       "mean": 0.3733,
+       "min": 0.32,
+       "max": 0.4
+      },
+      "timeout": {
+       "mean": 0.0,
+       "min": 0.0,
+       "max": 0.0
+      },
+      "SPL": {
+       "mean": 0.5523,
+       "min": 0.5245,
+       "max": 0.569
+      },
+      "TC": {
+       "mean": 18.67,
+       "min": 16,
+       "max": 20,
+       "total": 56
+      },
+      "n_timeout": {
+       "mean": 0.0,
+       "min": 0,
+       "max": 0,
+       "total": 0
+      },
+      "n_success_total": 94,
+      "MTT": {
+       "pooled": 43.07,
+       "min": 39.45,
+       "max": 46.24,
+       "seeds_without_success": 0
+      }
+     },
+     "test_barn2": {
+      "seeds": 3,
+      "n_per_seed": 50,
+      "SR": {
+       "mean": 0.5933,
+       "min": 0.56,
+       "max": 0.62
+      },
+      "CR": {
+       "mean": 0.4067,
+       "min": 0.38,
+       "max": 0.44
+      },
+      "timeout": {
+       "mean": 0.0,
+       "min": 0.0,
+       "max": 0.0
+      },
+      "SPL": {
+       "mean": 0.5478,
+       "min": 0.5025,
+       "max": 0.5915
+      },
+      "TC": {
+       "mean": 20.33,
+       "min": 19,
+       "max": 22,
+       "total": 61
+      },
+      "n_timeout": {
+       "mean": 0.0,
+       "min": 0,
+       "max": 0,
+       "total": 0
+      },
+      "n_success_total": 89,
+      "MTT": {
+       "pooled": 40.31,
+       "min": 38.75,
+       "max": 41.5,
+       "seeds_without_success": 0
+      }
+     },
+     "barn_100": {
+      "seeds": 3,
+      "n_per_seed": 100,
+      "SR": {
+       "mean": 0.61,
+       "min": 0.6,
+       "max": 0.62
+      },
+      "CR": {
+       "mean": 0.39,
+       "min": 0.38,
+       "max": 0.4
+      },
+      "timeout": {
+       "mean": 0.0,
+       "min": 0.0,
+       "max": 0.0
+      },
+      "SPL": {
+       "mean": 0.55,
+       "min": 0.5329,
+       "max": 0.5803
+      },
+      "TC": {
+       "mean": 39.0,
+       "min": 38,
+       "max": 40,
+       "total": 117
+      },
+      "n_timeout": {
+       "mean": 0.0,
+       "min": 0,
+       "max": 0,
+       "total": 0
+      },
+      "n_success_total": 183,
+      "MTT": {
+       "pooled": 41.73,
+       "min": 39.09,
+       "max": 44.1,
+       "seeds_without_success": 0
+      }
+     },
+     "test_lehman": {
+      "seeds": 3,
+      "n_per_seed": 2,
+      "SR": {
+       "mean": 0.0,
+       "min": 0.0,
+       "max": 0.0
+      },
+      "CR": {
+       "mean": 1.0,
+       "min": 1.0,
+       "max": 1.0
+      },
+      "timeout": {
+       "mean": 0.0,
+       "min": 0.0,
+       "max": 0.0
+      },
+      "SPL": {
+       "mean": 0.0,
+       "min": 0.0,
+       "max": 0.0
+      },
+      "TC": {
+       "mean": 2.0,
+       "min": 2,
+       "max": 2,
+       "total": 6
+      },
+      "n_timeout": {
+       "mean": 0.0,
+       "min": 0,
+       "max": 0,
+       "total": 0
+      },
+      "n_success_total": 0,
+      "MTT": {
+       "pooled": null,
+       "min": null,
+       "max": null,
+       "seeds_without_success": 3
+      }
+     }
+    },
+    "code_sha256": [
+     "590c095ac64777d2666c56c894c26bd1985e437110c281df1e467701a940a6f5"
+    ]
+   },
+   "GA B1 (e)": {
+    "family": "GA",
+    "method_label": "GA B1",
+    "sensor": "e",
+    "sensor_label": "(e) 30 quạt 9° + 2 quạt 45°",
+    "dir": "P1/waffle_ga_b1_e32",
+    "status": "done",
+    "seeds_expected": [
+     0,
+     1,
+     2
+    ],
+    "seeds_done": [
+     0,
+     1,
+     2
+    ],
+    "seeds_status": {
+     "seed_0": "done",
+     "seed_1": "done",
+     "seed_2": "done"
+    },
+    "per_seed": [
+     {
+      "seed": 0,
+      "dir": "P1/waffle_ga_b1_e32/seed_0",
+      "status": "done",
+      "backend": "gpu",
+      "code_sha256": "590c095ac64777d2666c56c894c26bd1985e437110c281df1e467701a940a6f5",
+      "data_dir": "data/maps_barn",
+      "started": "27/11/2026 19:43:08",
+      "finished": "27/11/2026 20:30:23",
+      "job_minutes": 47.2,
+      "champion_generation": 140,
+      "val_SR": 0.62,
+      "pop_size": 150,
+      "generations": 150,
+      "maps_per_eval": 8,
+      "train_episodes": 180000,
+      "layers": [
+       35,
+       8,
+       2
+      ],
+      "recheck_sets": 3,
+      "sets": {
+       "test/level_1": {
+        "n": 50,
+        "SR": 0.6,
+        "CR": 0.4,
+        "timeout": 0.0,
+        "TC": 20,
+        "n_timeout": 0,
+        "n_success": 30,
+        "SPL": 0.554,
+        "MTT": 40.46
+       },
+       "test_barn": {
+        "n": 50,
+        "SR": 0.6,
+        "CR": 0.4,
+        "timeout": 0.0,
+        "TC": 20,
+        "n_timeout": 0,
+        "n_success": 30,
+        "SPL": 0.554,
+        "MTT": 40.46
+       },
+       "test_barn2": {
+        "n": 50,
+        "SR": 0.66,
+        "CR": 0.34,
+        "timeout": 0.0,
+        "TC": 17,
+        "n_timeout": 0,
+        "n_success": 33,
+        "SPL": 0.6096,
+        "MTT": 40.22
+       },
+       "test_lehman": {
+        "n": 2,
+        "SR": 0.0,
+        "CR": 1.0,
+        "timeout": 0.0,
+        "TC": 2,
+        "n_timeout": 0,
+        "n_success": 0,
+        "SPL": 0.0,
+        "MTT": null
+       },
+       "barn_100": {
+        "n": 100,
+        "SR": 0.63,
+        "CR": 0.37,
+        "timeout": 0.0,
+        "TC": 37,
+        "n_timeout": 0,
+        "n_success": 63,
+        "SPL": 0.5818,
+        "MTT": 40.33
+       }
+      }
+     },
+     {
+      "seed": 1,
+      "dir": "P1/waffle_ga_b1_e32/seed_1",
+      "status": "done",
+      "backend": "gpu",
+      "code_sha256": "590c095ac64777d2666c56c894c26bd1985e437110c281df1e467701a940a6f5",
+      "data_dir": "data/maps_barn",
+      "started": "27/11/2026 19:46:53",
+      "finished": "27/11/2026 20:41:28",
+      "job_minutes": 54.6,
+      "champion_generation": 150,
+      "val_SR": 0.78,
+      "pop_size": 150,
+      "generations": 150,
+      "maps_per_eval": 8,
+      "train_episodes": 180000,
+      "layers": [
+       35,
+       8,
+       2
+      ],
+      "recheck_sets": 3,
+      "sets": {
+       "test/level_1": {
+        "n": 50,
+        "SR": 0.86,
+        "CR": 0.14,
+        "timeout": 0.0,
+        "TC": 7,
+        "n_timeout": 0,
+        "n_success": 43,
+        "SPL": 0.6928,
+        "MTT": 46.6
+       },
+       "test_barn": {
+        "n": 50,
+        "SR": 0.86,
+        "CR": 0.14,
+        "timeout": 0.0,
+        "TC": 7,
+        "n_timeout": 0,
+        "n_success": 43,
+        "SPL": 0.6928,
+        "MTT": 46.6
+       },
+       "test_barn2": {
+        "n": 50,
+        "SR": 0.64,
+        "CR": 0.36,
+        "timeout": 0.0,
+        "TC": 18,
+        "n_timeout": 0,
+        "n_success": 32,
+        "SPL": 0.5257,
+        "MTT": 45.02
+       },
+       "test_lehman": {
+        "n": 2,
+        "SR": 0.0,
+        "CR": 1.0,
+        "timeout": 0.0,
+        "TC": 2,
+        "n_timeout": 0,
+        "n_success": 0,
+        "SPL": 0.0,
+        "MTT": null
+       },
+       "barn_100": {
+        "n": 100,
+        "SR": 0.75,
+        "CR": 0.25,
+        "timeout": 0.0,
+        "TC": 25,
+        "n_timeout": 0,
+        "n_success": 75,
+        "SPL": 0.6092,
+        "MTT": 45.92
+       }
+      }
+     },
+     {
+      "seed": 2,
+      "dir": "P1/waffle_ga_b1_e32/seed_2",
+      "status": "done",
+      "backend": "gpu",
+      "code_sha256": "590c095ac64777d2666c56c894c26bd1985e437110c281df1e467701a940a6f5",
+      "data_dir": "data/maps_barn",
+      "started": "27/11/2026 19:46:58",
+      "finished": "27/11/2026 20:39:33",
+      "job_minutes": 52.6,
+      "champion_generation": 150,
+      "val_SR": 0.7,
+      "pop_size": 150,
+      "generations": 150,
+      "maps_per_eval": 8,
+      "train_episodes": 180000,
+      "layers": [
+       35,
+       8,
+       2
+      ],
+      "recheck_sets": 3,
+      "sets": {
+       "test/level_1": {
+        "n": 50,
+        "SR": 0.8,
+        "CR": 0.2,
+        "timeout": 0.0,
+        "TC": 10,
+        "n_timeout": 0,
+        "n_success": 40,
+        "SPL": 0.7306,
+        "MTT": 41.51
+       },
+       "test_barn": {
+        "n": 50,
+        "SR": 0.8,
+        "CR": 0.2,
+        "timeout": 0.0,
+        "TC": 10,
+        "n_timeout": 0,
+        "n_success": 40,
+        "SPL": 0.7306,
+        "MTT": 41.51
+       },
+       "test_barn2": {
+        "n": 50,
+        "SR": 0.68,
+        "CR": 0.32,
+        "timeout": 0.0,
+        "TC": 16,
+        "n_timeout": 0,
+        "n_success": 34,
+        "SPL": 0.6266,
+        "MTT": 40.63
+       },
+       "test_lehman": {
+        "n": 2,
+        "SR": 0.0,
+        "CR": 1.0,
+        "timeout": 0.0,
+        "TC": 2,
+        "n_timeout": 0,
+        "n_success": 0,
+        "SPL": 0.0,
+        "MTT": null
+       },
+       "barn_100": {
+        "n": 100,
+        "SR": 0.74,
+        "CR": 0.26,
+        "timeout": 0.0,
+        "TC": 26,
+        "n_timeout": 0,
+        "n_success": 74,
+        "SPL": 0.6786,
+        "MTT": 41.1
+       }
+      }
+     }
+    ],
+    "val_SR": {
+     "mean": 0.7,
+     "min": 0.62,
+     "max": 0.78
+    },
+    "champion_generations": [
+     140,
+     150,
+     150
+    ],
+    "aggregate": {
+     "test_barn": {
+      "seeds": 3,
+      "n_per_seed": 50,
+      "SR": {
+       "mean": 0.7533,
+       "min": 0.6,
+       "max": 0.86
+      },
+      "CR": {
+       "mean": 0.2467,
+       "min": 0.14,
+       "max": 0.4
+      },
+      "timeout": {
+       "mean": 0.0,
+       "min": 0.0,
+       "max": 0.0
+      },
+      "SPL": {
+       "mean": 0.6591,
+       "min": 0.554,
+       "max": 0.7306
+      },
+      "TC": {
+       "mean": 12.33,
+       "min": 7,
+       "max": 20,
+       "total": 37
+      },
+      "n_timeout": {
+       "mean": 0.0,
+       "min": 0,
+       "max": 0,
+       "total": 0
+      },
+      "n_success_total": 113,
+      "MTT": {
+       "pooled": 43.17,
+       "min": 40.46,
+       "max": 46.6,
+       "seeds_without_success": 0
+      }
+     },
+     "test_barn2": {
+      "seeds": 3,
+      "n_per_seed": 50,
+      "SR": {
+       "mean": 0.66,
+       "min": 0.64,
+       "max": 0.68
+      },
+      "CR": {
+       "mean": 0.34,
+       "min": 0.32,
+       "max": 0.36
+      },
+      "timeout": {
+       "mean": 0.0,
+       "min": 0.0,
+       "max": 0.0
+      },
+      "SPL": {
+       "mean": 0.5873,
+       "min": 0.5257,
+       "max": 0.6266
+      },
+      "TC": {
+       "mean": 17.0,
+       "min": 16,
+       "max": 18,
+       "total": 51
+      },
+      "n_timeout": {
+       "mean": 0.0,
+       "min": 0,
+       "max": 0,
+       "total": 0
+      },
+      "n_success_total": 99,
+      "MTT": {
+       "pooled": 41.91,
+       "min": 40.22,
+       "max": 45.02,
+       "seeds_without_success": 0
+      }
+     },
+     "barn_100": {
+      "seeds": 3,
+      "n_per_seed": 100,
+      "SR": {
+       "mean": 0.7067,
+       "min": 0.63,
+       "max": 0.75
+      },
+      "CR": {
+       "mean": 0.2933,
+       "min": 0.25,
+       "max": 0.37
+      },
+      "timeout": {
+       "mean": 0.0,
+       "min": 0.0,
+       "max": 0.0
+      },
+      "SPL": {
+       "mean": 0.6232,
+       "min": 0.5818,
+       "max": 0.6786
+      },
+      "TC": {
+       "mean": 29.33,
+       "min": 25,
+       "max": 37,
+       "total": 88
+      },
+      "n_timeout": {
+       "mean": 0.0,
+       "min": 0,
+       "max": 0,
+       "total": 0
+      },
+      "n_success_total": 212,
+      "MTT": {
+       "pooled": 42.58,
+       "min": 40.33,
+       "max": 45.92,
+       "seeds_without_success": 0
+      }
+     },
+     "test_lehman": {
+      "seeds": 3,
+      "n_per_seed": 2,
+      "SR": {
+       "mean": 0.0,
+       "min": 0.0,
+       "max": 0.0
+      },
+      "CR": {
+       "mean": 1.0,
+       "min": 1.0,
+       "max": 1.0
+      },
+      "timeout": {
+       "mean": 0.0,
+       "min": 0.0,
+       "max": 0.0
+      },
+      "SPL": {
+       "mean": 0.0,
+       "min": 0.0,
+       "max": 0.0
+      },
+      "TC": {
+       "mean": 2.0,
+       "min": 2,
+       "max": 2,
+       "total": 6
+      },
+      "n_timeout": {
+       "mean": 0.0,
+       "min": 0,
+       "max": 0,
+       "total": 0
+      },
+      "n_success_total": 0,
+      "MTT": {
+       "pooled": null,
+       "min": null,
+       "max": null,
+       "seeds_without_success": 3
+      }
+     }
+    },
+    "code_sha256": [
+     "590c095ac64777d2666c56c894c26bd1985e437110c281df1e467701a940a6f5"
+    ]
+   },
+   "APF (c)": {
+    "family": "APF",
+    "method_label": "APF",
+    "sensor": "c",
+    "sensor_label": "(c) 12 quạt 30° (APF luôn nhìn 12 quạt)",
+    "dir": "P1/waffle_apf",
+    "status": "done",
+    "seeds_expected": [
+     0
+    ],
+    "seeds_done": [
+     0
+    ],
+    "seeds_status": {
+     "seed_0": "done"
+    },
+    "per_seed": [
+     {
+      "seed": 0,
+      "dir": "P1/waffle_apf/seed_0",
+      "status": "done",
+      "backend": "gpu",
+      "code_sha256": "590c095ac64777d2666c56c894c26bd1985e437110c281df1e467701a940a6f5",
+      "data_dir": "data/maps_barn",
+      "started": "27/11/2026 15:05:48",
+      "finished": "27/11/2026 15:06:20",
+      "job_minutes": 0.5,
+      "recheck_sets": 3,
+      "sets": {
+       "test/level_1": {
+        "n": 50,
+        "SR": 0.2,
+        "CR": 0.0,
+        "timeout": 0.8,
+        "TC": 0,
+        "n_timeout": 40,
+        "n_success": 10,
+        "SPL": 0.1942,
+        "MTT": 73.51
+       },
+       "test_barn": {
+        "n": 50,
+        "SR": 0.2,
+        "CR": 0.0,
+        "timeout": 0.8,
+        "TC": 0,
+        "n_timeout": 40,
+        "n_success": 10,
+        "SPL": 0.1942,
+        "MTT": 73.51
+       },
+       "test_barn2": {
+        "n": 50,
+        "SR": 0.28,
+        "CR": 0.0,
+        "timeout": 0.72,
+        "TC": 0,
+        "n_timeout": 36,
+        "n_success": 14,
+        "SPL": 0.2728,
+        "MTT": 75.29
+       },
+       "test_lehman": {
+        "n": 2,
+        "SR": 0.0,
+        "CR": 0.0,
+        "timeout": 1.0,
+        "TC": 0,
+        "n_timeout": 2,
+        "n_success": 0,
+        "SPL": 0.0,
+        "MTT": null
+       },
+       "barn_100": {
+        "n": 100,
+        "SR": 0.24,
+        "CR": 0.0,
+        "timeout": 0.76,
+        "TC": 0,
+        "n_timeout": 76,
+        "n_success": 24,
+        "SPL": 0.2335,
+        "MTT": 74.55
+       }
+      }
+     }
+    ],
+    "val_SR": null,
+    "aggregate": {
+     "test_barn": {
+      "seeds": 1,
+      "n_per_seed": 50,
+      "SR": {
+       "mean": 0.2,
+       "min": 0.2,
+       "max": 0.2
+      },
+      "CR": {
+       "mean": 0.0,
+       "min": 0.0,
+       "max": 0.0
+      },
+      "timeout": {
+       "mean": 0.8,
+       "min": 0.8,
+       "max": 0.8
+      },
+      "SPL": {
+       "mean": 0.1942,
+       "min": 0.1942,
+       "max": 0.1942
+      },
+      "TC": {
+       "mean": 0.0,
+       "min": 0,
+       "max": 0,
+       "total": 0
+      },
+      "n_timeout": {
+       "mean": 40.0,
+       "min": 40,
+       "max": 40,
+       "total": 40
+      },
+      "n_success_total": 10,
+      "MTT": {
+       "pooled": 73.51,
+       "min": 73.51,
+       "max": 73.51,
+       "seeds_without_success": 0
+      }
+     },
+     "test_barn2": {
+      "seeds": 1,
+      "n_per_seed": 50,
+      "SR": {
+       "mean": 0.28,
+       "min": 0.28,
+       "max": 0.28
+      },
+      "CR": {
+       "mean": 0.0,
+       "min": 0.0,
+       "max": 0.0
+      },
+      "timeout": {
+       "mean": 0.72,
+       "min": 0.72,
+       "max": 0.72
+      },
+      "SPL": {
+       "mean": 0.2728,
+       "min": 0.2728,
+       "max": 0.2728
+      },
+      "TC": {
+       "mean": 0.0,
+       "min": 0,
+       "max": 0,
+       "total": 0
+      },
+      "n_timeout": {
+       "mean": 36.0,
+       "min": 36,
+       "max": 36,
+       "total": 36
+      },
+      "n_success_total": 14,
+      "MTT": {
+       "pooled": 75.29,
+       "min": 75.29,
+       "max": 75.29,
+       "seeds_without_success": 0
+      }
+     },
+     "barn_100": {
+      "seeds": 1,
+      "n_per_seed": 100,
+      "SR": {
+       "mean": 0.24,
+       "min": 0.24,
+       "max": 0.24
+      },
+      "CR": {
+       "mean": 0.0,
+       "min": 0.0,
+       "max": 0.0
+      },
+      "timeout": {
+       "mean": 0.76,
+       "min": 0.76,
+       "max": 0.76
+      },
+      "SPL": {
+       "mean": 0.2335,
+       "min": 0.2335,
+       "max": 0.2335
+      },
+      "TC": {
+       "mean": 0.0,
+       "min": 0,
+       "max": 0,
+       "total": 0
+      },
+      "n_timeout": {
+       "mean": 76.0,
+       "min": 76,
+       "max": 76,
+       "total": 76
+      },
+      "n_success_total": 24,
+      "MTT": {
+       "pooled": 74.55,
+       "min": 74.55,
+       "max": 74.55,
+       "seeds_without_success": 0
+      }
+     },
+     "test_lehman": {
+      "seeds": 1,
+      "n_per_seed": 2,
+      "SR": {
+       "mean": 0.0,
+       "min": 0.0,
+       "max": 0.0
+      },
+      "CR": {
+       "mean": 0.0,
+       "min": 0.0,
+       "max": 0.0
+      },
+      "timeout": {
+       "mean": 1.0,
+       "min": 1.0,
+       "max": 1.0
+      },
+      "SPL": {
+       "mean": 0.0,
+       "min": 0.0,
+       "max": 0.0
+      },
+      "TC": {
+       "mean": 0.0,
+       "min": 0,
+       "max": 0,
+       "total": 0
+      },
+      "n_timeout": {
+       "mean": 2.0,
+       "min": 2,
+       "max": 2,
+       "total": 2
+      },
+      "n_success_total": 0,
+      "MTT": {
+       "pooled": null,
+       "min": null,
+       "max": null,
+       "seeds_without_success": 1
+      }
+     }
+    },
+    "code_sha256": [
+     "590c095ac64777d2666c56c894c26bd1985e437110c281df1e467701a940a6f5"
+    ]
+   }
+  },
+  "P2": {
+   "NEAT R0 (c)": {
+    "family": "NEAT",
+    "method_label": "NEAT R0",
+    "sensor": "c",
+    "sensor_label": "(c) 12 quạt 30°",
+    "dir": "P2/waffle_R0_sec12",
+    "status": "done",
+    "seeds_expected": [
+     0,
+     1,
+     2
+    ],
+    "seeds_done": [
+     0,
+     1,
+     2
+    ],
+    "seeds_status": {
+     "seed_0": "done",
+     "seed_1": "done",
+     "seed_2": "done"
+    },
+    "per_seed": [
+     {
+      "seed": 0,
+      "dir": "P2/waffle_R0_sec12/seed_0",
+      "status": "done",
+      "backend": "batch",
+      "code_sha256": "590c095ac64777d2666c56c894c26bd1985e437110c281df1e467701a940a6f5",
+      "data_dir": "data/maps",
+      "started": "27/11/2026 14:46:09",
+      "finished": "27/11/2026 16:05:23",
+      "job_minutes": 79.2,
+      "champion_generation": 150,
+      "val_SR": 0.67,
+      "pop_size": 150,
+      "generations": 150,
+      "maps_per_eval": 8,
+      "train_episodes": 180000,
+      "champion_nodes": 12,
+      "champion_connections": 26,
+      "sets": {
+       "test/level_1": {
+        "n": 50,
+        "SR": 1.0,
+        "CR": 0.0,
+        "timeout": 0.0,
+        "TC": 0,
+        "n_timeout": 0,
+        "n_success": 50,
+        "SPL": 0.9771,
+        "MTT": 38.65
+       },
+       "test/level_2": {
+        "n": 50,
+        "SR": 0.94,
+        "CR": 0.06,
+        "timeout": 0.0,
+        "TC": 3,
+        "n_timeout": 0,
+        "n_success": 47,
+        "SPL": 0.7806,
+        "MTT": 52.56
+       },
+       "test/level_3": {
+        "n": 50,
+        "SR": 0.26,
+        "CR": 0.56,
+        "timeout": 0.18,
+        "TC": 28,
+        "n_timeout": 9,
+        "n_success": 13,
+        "SPL": 0.2221,
+        "MTT": 59.93
+       },
+       "test/level_4": {
+        "n": 50,
+        "SR": 0.32,
+        "CR": 0.42,
+        "timeout": 0.26,
+        "TC": 21,
+        "n_timeout": 13,
+        "n_success": 16,
+        "SPL": 0.2415,
+        "MTT": 71.44
+       },
+       "test_barn": {
+        "n": 50,
+        "SR": 0.46,
+        "CR": 0.54,
+        "timeout": 0.0,
+        "TC": 27,
+        "n_timeout": 0,
+        "n_success": 23,
+        "SPL": 0.4462,
+        "MTT": 46.18
+       },
+       "test_lehman": {
+        "n": 2,
+        "SR": 0.0,
+        "CR": 1.0,
+        "timeout": 0.0,
+        "TC": 2,
+        "n_timeout": 0,
+        "n_success": 0,
+        "SPL": 0.0,
+        "MTT": null
+       },
+       "mean_levels_1_4": {
+        "n": 200,
+        "SR": 0.63,
+        "CR": 0.26,
+        "timeout": 0.11,
+        "TC": 52,
+        "n_timeout": 22,
+        "n_success": 126,
+        "SPL": 0.5553,
+        "MTT": 50.2
+       }
+      }
+     },
+     {
+      "seed": 1,
+      "dir": "P2/waffle_R0_sec12/seed_1",
+      "status": "done",
+      "backend": "batch",
+      "code_sha256": "590c095ac64777d2666c56c894c26bd1985e437110c281df1e467701a940a6f5",
+      "data_dir": "data/maps",
+      "started": "27/11/2026 14:46:09",
+      "finished": "27/11/2026 16:12:00",
+      "job_minutes": 85.9,
+      "champion_generation": 150,
+      "val_SR": 0.69,
+      "pop_size": 150,
+      "generations": 150,
+      "maps_per_eval": 8,
+      "train_episodes": 180000,
+      "champion_nodes": 5,
+      "champion_connections": 10,
+      "sets": {
+       "test/level_1": {
+        "n": 50,
+        "SR": 1.0,
+        "CR": 0.0,
+        "timeout": 0.0,
+        "TC": 0,
+        "n_timeout": 0,
+        "n_success": 50,
+        "SPL": 0.9242,
+        "MTT": 33.31
+       },
+       "test/level_2": {
+        "n": 50,
+        "SR": 0.9,
+        "CR": 0.06,
+        "timeout": 0.04,
+        "TC": 3,
+        "n_timeout": 2,
+        "n_success": 45,
+        "SPL": 0.7079,
+        "MTT": 51.72
+       },
+       "test/level_3": {
+        "n": 50,
+        "SR": 0.4,
+        "CR": 0.4,
+        "timeout": 0.2,
+        "TC": 20,
+        "n_timeout": 10,
+        "n_success": 20,
+        "SPL": 0.2993,
+        "MTT": 62.66
+       },
+       "test/level_4": {
+        "n": 50,
+        "SR": 0.52,
+        "CR": 0.3,
+        "timeout": 0.18,
+        "TC": 15,
+        "n_timeout": 9,
+        "n_success": 26,
+        "SPL": 0.3874,
+        "MTT": 70.01
+       },
+       "test_barn": {
+        "n": 50,
+        "SR": 0.24,
+        "CR": 0.56,
+        "timeout": 0.2,
+        "TC": 28,
+        "n_timeout": 10,
+        "n_success": 12,
+        "SPL": 0.1674,
+        "MTT": 60.58
+       },
+       "test_lehman": {
+        "n": 2,
+        "SR": 0.0,
+        "CR": 1.0,
+        "timeout": 0.0,
+        "TC": 2,
+        "n_timeout": 0,
+        "n_success": 0,
+        "SPL": 0.0,
+        "MTT": null
+       },
+       "mean_levels_1_4": {
+        "n": 200,
+        "SR": 0.705,
+        "CR": 0.19,
+        "timeout": 0.105,
+        "TC": 38,
+        "n_timeout": 21,
+        "n_success": 141,
+        "SPL": 0.5797,
+        "MTT": 50.11
+       }
+      }
+     },
+     {
+      "seed": 2,
+      "dir": "P2/waffle_R0_sec12/seed_2",
+      "status": "done",
+      "backend": "batch",
+      "code_sha256": "590c095ac64777d2666c56c894c26bd1985e437110c281df1e467701a940a6f5",
+      "data_dir": "data/maps",
+      "started": "27/11/2026 14:47:30",
+      "finished": "27/11/2026 15:48:15",
+      "job_minutes": 60.7,
+      "champion_generation": 70,
+      "val_SR": 0.54,
+      "pop_size": 150,
+      "generations": 150,
+      "maps_per_eval": 8,
+      "train_episodes": 180000,
+      "champion_nodes": 4,
+      "champion_connections": 6,
+      "sets": {
+       "test/level_1": {
+        "n": 50,
+        "SR": 0.88,
+        "CR": 0.0,
+        "timeout": 0.12,
+        "TC": 0,
+        "n_timeout": 6,
+        "n_success": 44,
+        "SPL": 0.7425,
+        "MTT": 34.33
+       },
+       "test/level_2": {
+        "n": 50,
+        "SR": 0.66,
+        "CR": 0.14,
+        "timeout": 0.2,
+        "TC": 7,
+        "n_timeout": 10,
+        "n_success": 33,
+        "SPL": 0.4907,
+        "MTT": 52.34
+       },
+       "test/level_3": {
+        "n": 50,
+        "SR": 0.3,
+        "CR": 0.48,
+        "timeout": 0.22,
+        "TC": 24,
+        "n_timeout": 11,
+        "n_success": 15,
+        "SPL": 0.2253,
+        "MTT": 60.19
+       },
+       "test/level_4": {
+        "n": 50,
+        "SR": 0.2,
+        "CR": 0.78,
+        "timeout": 0.02,
+        "TC": 39,
+        "n_timeout": 1,
+        "n_success": 10,
+        "SPL": 0.1535,
+        "MTT": 65.22
+       },
+       "test_barn": {
+        "n": 50,
+        "SR": 0.08,
+        "CR": 0.76,
+        "timeout": 0.16,
+        "TC": 38,
+        "n_timeout": 8,
+        "n_success": 4,
+        "SPL": 0.0514,
+        "MTT": 65.5
+       },
+       "test_lehman": {
+        "n": 2,
+        "SR": 0.0,
+        "CR": 1.0,
+        "timeout": 0.0,
+        "TC": 2,
+        "n_timeout": 0,
+        "n_success": 0,
+        "SPL": 0.0,
+        "MTT": null
+       },
+       "mean_levels_1_4": {
+        "n": 200,
+        "SR": 0.51,
+        "CR": 0.35,
+        "timeout": 0.14,
+        "TC": 70,
+        "n_timeout": 28,
+        "n_success": 102,
+        "SPL": 0.403,
+        "MTT": 46.99
+       }
+      }
+     }
+    ],
+    "val_SR": {
+     "mean": 0.6333,
+     "min": 0.54,
+     "max": 0.69
+    },
+    "champion_generations": [
+     150,
+     150,
+     70
+    ],
+    "aggregate": {
+     "test/level_1": {
+      "seeds": 3,
+      "n_per_seed": 50,
+      "SR": {
+       "mean": 0.96,
+       "min": 0.88,
+       "max": 1.0
+      },
+      "CR": {
+       "mean": 0.0,
+       "min": 0.0,
+       "max": 0.0
+      },
+      "timeout": {
+       "mean": 0.04,
+       "min": 0.0,
+       "max": 0.12
+      },
+      "SPL": {
+       "mean": 0.8813,
+       "min": 0.7425,
+       "max": 0.9771
+      },
+      "TC": {
+       "mean": 0.0,
+       "min": 0,
+       "max": 0,
+       "total": 0
+      },
+      "n_timeout": {
+       "mean": 2.0,
+       "min": 0,
+       "max": 6,
+       "total": 6
+      },
+      "n_success_total": 144,
+      "MTT": {
+       "pooled": 35.47,
+       "min": 33.31,
+       "max": 38.65,
+       "seeds_without_success": 0
+      }
+     },
+     "test/level_2": {
+      "seeds": 3,
+      "n_per_seed": 50,
+      "SR": {
+       "mean": 0.8333,
+       "min": 0.66,
+       "max": 0.94
+      },
+      "CR": {
+       "mean": 0.0867,
+       "min": 0.06,
+       "max": 0.14
+      },
+      "timeout": {
+       "mean": 0.08,
+       "min": 0.0,
+       "max": 0.2
+      },
+      "SPL": {
+       "mean": 0.6597,
+       "min": 0.4907,
+       "max": 0.7806
+      },
+      "TC": {
+       "mean": 4.33,
+       "min": 3,
+       "max": 7,
+       "total": 13
+      },
+      "n_timeout": {
+       "mean": 4.0,
+       "min": 0,
+       "max": 10,
+       "total": 12
+      },
+      "n_success_total": 125,
+      "MTT": {
+       "pooled": 52.2,
+       "min": 51.72,
+       "max": 52.56,
+       "seeds_without_success": 0
+      }
+     },
+     "test/level_3": {
+      "seeds": 3,
+      "n_per_seed": 50,
+      "SR": {
+       "mean": 0.32,
+       "min": 0.26,
+       "max": 0.4
+      },
+      "CR": {
+       "mean": 0.48,
+       "min": 0.4,
+       "max": 0.56
+      },
+      "timeout": {
+       "mean": 0.2,
+       "min": 0.18,
+       "max": 0.22
+      },
+      "SPL": {
+       "mean": 0.2489,
+       "min": 0.2221,
+       "max": 0.2993
+      },
+      "TC": {
+       "mean": 24.0,
+       "min": 20,
+       "max": 28,
+       "total": 72
+      },
+      "n_timeout": {
+       "mean": 10.0,
+       "min": 9,
+       "max": 11,
+       "total": 30
+      },
+      "n_success_total": 48,
+      "MTT": {
+       "pooled": 61.15,
+       "min": 59.93,
+       "max": 62.66,
+       "seeds_without_success": 0
+      }
+     },
+     "test/level_4": {
+      "seeds": 3,
+      "n_per_seed": 50,
+      "SR": {
+       "mean": 0.3467,
+       "min": 0.2,
+       "max": 0.52
+      },
+      "CR": {
+       "mean": 0.5,
+       "min": 0.3,
+       "max": 0.78
+      },
+      "timeout": {
+       "mean": 0.1533,
+       "min": 0.02,
+       "max": 0.26
+      },
+      "SPL": {
+       "mean": 0.2608,
+       "min": 0.1535,
+       "max": 0.3874
+      },
+      "TC": {
+       "mean": 25.0,
+       "min": 15,
+       "max": 39,
+       "total": 75
+      },
+      "n_timeout": {
+       "mean": 7.67,
+       "min": 1,
+       "max": 13,
+       "total": 23
+      },
+      "n_success_total": 52,
+      "MTT": {
+       "pooled": 69.53,
+       "min": 65.22,
+       "max": 71.44,
+       "seeds_without_success": 0
+      }
+     },
+     "mean_levels_1_4": {
+      "seeds": 3,
+      "n_per_seed": 200,
+      "SR": {
+       "mean": 0.615,
+       "min": 0.51,
+       "max": 0.705
+      },
+      "CR": {
+       "mean": 0.2667,
+       "min": 0.19,
+       "max": 0.35
+      },
+      "timeout": {
+       "mean": 0.1183,
+       "min": 0.105,
+       "max": 0.14
+      },
+      "SPL": {
+       "mean": 0.5127,
+       "min": 0.403,
+       "max": 0.5797
+      },
+      "TC": {
+       "mean": 53.33,
+       "min": 38,
+       "max": 70,
+       "total": 160
+      },
+      "n_timeout": {
+       "mean": 23.67,
+       "min": 21,
+       "max": 28,
+       "total": 71
+      },
+      "n_success_total": 369,
+      "MTT": {
+       "pooled": 49.28,
+       "min": 46.99,
+       "max": 50.2,
+       "seeds_without_success": 0
+      }
+     },
+     "test_barn": {
+      "seeds": 3,
+      "n_per_seed": 50,
+      "SR": {
+       "mean": 0.26,
+       "min": 0.08,
+       "max": 0.46
+      },
+      "CR": {
+       "mean": 0.62,
+       "min": 0.54,
+       "max": 0.76
+      },
+      "timeout": {
+       "mean": 0.12,
+       "min": 0.0,
+       "max": 0.2
+      },
+      "SPL": {
+       "mean": 0.2217,
+       "min": 0.0514,
+       "max": 0.4462
+      },
+      "TC": {
+       "mean": 31.0,
+       "min": 27,
+       "max": 38,
+       "total": 93
+      },
+      "n_timeout": {
+       "mean": 6.0,
+       "min": 0,
+       "max": 10,
+       "total": 18
+      },
+      "n_success_total": 39,
+      "MTT": {
+       "pooled": 52.59,
+       "min": 46.18,
+       "max": 65.5,
+       "seeds_without_success": 0
+      }
+     },
+     "test_lehman": {
+      "seeds": 3,
+      "n_per_seed": 2,
+      "SR": {
+       "mean": 0.0,
+       "min": 0.0,
+       "max": 0.0
+      },
+      "CR": {
+       "mean": 1.0,
+       "min": 1.0,
+       "max": 1.0
+      },
+      "timeout": {
+       "mean": 0.0,
+       "min": 0.0,
+       "max": 0.0
+      },
+      "SPL": {
+       "mean": 0.0,
+       "min": 0.0,
+       "max": 0.0
+      },
+      "TC": {
+       "mean": 2.0,
+       "min": 2,
+       "max": 2,
+       "total": 6
+      },
+      "n_timeout": {
+       "mean": 0.0,
+       "min": 0,
+       "max": 0,
+       "total": 0
+      },
+      "n_success_total": 0,
+      "MTT": {
+       "pooled": null,
+       "min": null,
+       "max": null,
+       "seeds_without_success": 3
+      }
+     }
+    },
+    "code_sha256": [
+     "590c095ac64777d2666c56c894c26bd1985e437110c281df1e467701a940a6f5"
+    ]
+   },
+   "NEAT R0 (e)": {
+    "family": "NEAT",
+    "method_label": "NEAT R0",
+    "sensor": "e",
+    "sensor_label": "(e) 30 quạt 9° + 2 quạt 45°",
+    "dir": "P2/waffle_R0_e32",
+    "status": "done",
+    "seeds_expected": [
+     0,
+     1,
+     2
+    ],
+    "seeds_done": [
+     0,
+     1,
+     2
+    ],
+    "seeds_status": {
+     "seed_0": "done",
+     "seed_1": "done",
+     "seed_2": "done"
+    },
+    "per_seed": [
+     {
+      "seed": 0,
+      "dir": "P2/waffle_R0_e32/seed_0",
+      "status": "done",
+      "backend": "gpu",
+      "code_sha256": "590c095ac64777d2666c56c894c26bd1985e437110c281df1e467701a940a6f5",
+      "data_dir": "data/maps",
+      "started": "27/11/2026 16:18:37",
+      "finished": "27/11/2026 16:34:13",
+      "job_minutes": 15.6,
+      "champion_generation": 70,
+      "val_SR": 0.53,
+      "pop_size": 150,
+      "generations": 150,
+      "maps_per_eval": 8,
+      "train_episodes": 180000,
+      "champion_nodes": 4,
+      "champion_connections": 13,
+      "sets": {
+       "test/level_1": {
+        "n": 50,
+        "SR": 1.0,
+        "CR": 0.0,
+        "timeout": 0.0,
+        "TC": 0,
+        "n_timeout": 0,
+        "n_success": 50,
+        "SPL": 0.9118,
+        "MTT": 31.44
+       },
+       "test/level_2": {
+        "n": 50,
+        "SR": 0.7,
+        "CR": 0.22,
+        "timeout": 0.08,
+        "TC": 11,
+        "n_timeout": 4,
+        "n_success": 35,
+        "SPL": 0.5797,
+        "MTT": 49.05
+       },
+       "test/level_3": {
+        "n": 50,
+        "SR": 0.16,
+        "CR": 0.44,
+        "timeout": 0.4,
+        "TC": 22,
+        "n_timeout": 20,
+        "n_success": 8,
+        "SPL": 0.1453,
+        "MTT": 48.58
+       },
+       "test/level_4": {
+        "n": 50,
+        "SR": 0.16,
+        "CR": 0.78,
+        "timeout": 0.06,
+        "TC": 39,
+        "n_timeout": 3,
+        "n_success": 8,
+        "SPL": 0.1486,
+        "MTT": 61.21
+       },
+       "test_barn": {
+        "n": 50,
+        "SR": 0.1,
+        "CR": 0.74,
+        "timeout": 0.16,
+        "TC": 37,
+        "n_timeout": 8,
+        "n_success": 5,
+        "SPL": 0.0775,
+        "MTT": 51.78
+       },
+       "test_lehman": {
+        "n": 2,
+        "SR": 0.0,
+        "CR": 1.0,
+        "timeout": 0.0,
+        "TC": 2,
+        "n_timeout": 0,
+        "n_success": 0,
+        "SPL": 0.0,
+        "MTT": null
+       },
+       "mean_levels_1_4": {
+        "n": 200,
+        "SR": 0.505,
+        "CR": 0.36,
+        "timeout": 0.135,
+        "TC": 72,
+        "n_timeout": 27,
+        "n_success": 101,
+        "SPL": 0.4464,
+        "MTT": 41.26
+       }
+      }
+     },
+     {
+      "seed": 1,
+      "dir": "P2/waffle_R0_e32/seed_1",
+      "status": "done",
+      "backend": "gpu",
+      "code_sha256": "590c095ac64777d2666c56c894c26bd1985e437110c281df1e467701a940a6f5",
+      "data_dir": "data/maps",
+      "started": "27/11/2026 16:19:02",
+      "finished": "27/11/2026 16:34:54",
+      "job_minutes": 15.9,
+      "champion_generation": 100,
+      "val_SR": 0.53,
+      "pop_size": 150,
+      "generations": 150,
+      "maps_per_eval": 8,
+      "train_episodes": 180000,
+      "champion_nodes": 6,
+      "champion_connections": 20,
+      "sets": {
+       "test/level_1": {
+        "n": 50,
+        "SR": 0.86,
+        "CR": 0.0,
+        "timeout": 0.14,
+        "TC": 0,
+        "n_timeout": 7,
+        "n_success": 43,
+        "SPL": 0.7876,
+        "MTT": 31.14
+       },
+       "test/level_2": {
+        "n": 50,
+        "SR": 0.68,
+        "CR": 0.14,
+        "timeout": 0.18,
+        "TC": 7,
+        "n_timeout": 9,
+        "n_success": 34,
+        "SPL": 0.5425,
+        "MTT": 52.02
+       },
+       "test/level_3": {
+        "n": 50,
+        "SR": 0.2,
+        "CR": 0.54,
+        "timeout": 0.26,
+        "TC": 27,
+        "n_timeout": 13,
+        "n_success": 10,
+        "SPL": 0.15,
+        "MTT": 63.37
+       },
+       "test/level_4": {
+        "n": 50,
+        "SR": 0.16,
+        "CR": 0.82,
+        "timeout": 0.02,
+        "TC": 41,
+        "n_timeout": 1,
+        "n_success": 8,
+        "SPL": 0.1325,
+        "MTT": 61.01
+       },
+       "test_barn": {
+        "n": 50,
+        "SR": 0.08,
+        "CR": 0.82,
+        "timeout": 0.1,
+        "TC": 41,
+        "n_timeout": 5,
+        "n_success": 4,
+        "SPL": 0.0538,
+        "MTT": 63.88
+       },
+       "test_lehman": {
+        "n": 2,
+        "SR": 0.0,
+        "CR": 1.0,
+        "timeout": 0.0,
+        "TC": 2,
+        "n_timeout": 0,
+        "n_success": 0,
+        "SPL": 0.0,
+        "MTT": null
+       },
+       "mean_levels_1_4": {
+        "n": 200,
+        "SR": 0.475,
+        "CR": 0.375,
+        "timeout": 0.15,
+        "TC": 75,
+        "n_timeout": 30,
+        "n_success": 95,
+        "SPL": 0.4031,
+        "MTT": 44.52
+       }
+      }
+     },
+     {
+      "seed": 2,
+      "dir": "P2/waffle_R0_e32/seed_2",
+      "status": "done",
+      "backend": "gpu",
+      "code_sha256": "590c095ac64777d2666c56c894c26bd1985e437110c281df1e467701a940a6f5",
+      "data_dir": "data/maps",
+      "started": "27/11/2026 16:19:07",
+      "finished": "27/11/2026 16:36:17",
+      "job_minutes": 17.2,
+      "champion_generation": 150,
+      "val_SR": 0.6,
+      "pop_size": 150,
+      "generations": 150,
+      "maps_per_eval": 8,
+      "train_episodes": 180000,
+      "champion_nodes": 10,
+      "champion_connections": 18,
+      "sets": {
+       "test/level_1": {
+        "n": 50,
+        "SR": 1.0,
+        "CR": 0.0,
+        "timeout": 0.0,
+        "TC": 0,
+        "n_timeout": 0,
+        "n_success": 50,
+        "SPL": 0.8424,
+        "MTT": 35.89
+       },
+       "test/level_2": {
+        "n": 50,
+        "SR": 0.8,
+        "CR": 0.18,
+        "timeout": 0.02,
+        "TC": 9,
+        "n_timeout": 1,
+        "n_success": 40,
+        "SPL": 0.6589,
+        "MTT": 52.48
+       },
+       "test/level_3": {
+        "n": 50,
+        "SR": 0.5,
+        "CR": 0.26,
+        "timeout": 0.24,
+        "TC": 13,
+        "n_timeout": 12,
+        "n_success": 25,
+        "SPL": 0.4069,
+        "MTT": 59.69
+       },
+       "test/level_4": {
+        "n": 50,
+        "SR": 0.4,
+        "CR": 0.36,
+        "timeout": 0.24,
+        "TC": 18,
+        "n_timeout": 12,
+        "n_success": 20,
+        "SPL": 0.3055,
+        "MTT": 69.49
+       },
+       "test_barn": {
+        "n": 50,
+        "SR": 0.06,
+        "CR": 0.68,
+        "timeout": 0.26,
+        "TC": 34,
+        "n_timeout": 13,
+        "n_success": 3,
+        "SPL": 0.0551,
+        "MTT": 52.1
+       },
+       "test_lehman": {
+        "n": 2,
+        "SR": 0.0,
+        "CR": 1.0,
+        "timeout": 0.0,
+        "TC": 2,
+        "n_timeout": 0,
+        "n_success": 0,
+        "SPL": 0.0,
+        "MTT": null
+       },
+       "mean_levels_1_4": {
+        "n": 200,
+        "SR": 0.675,
+        "CR": 0.2,
+        "timeout": 0.125,
+        "TC": 40,
+        "n_timeout": 25,
+        "n_success": 135,
+        "SPL": 0.5534,
+        "MTT": 50.19
+       }
+      }
+     }
+    ],
+    "val_SR": {
+     "mean": 0.5533,
+     "min": 0.53,
+     "max": 0.6
+    },
+    "champion_generations": [
+     70,
+     100,
+     150
+    ],
+    "aggregate": {
+     "test/level_1": {
+      "seeds": 3,
+      "n_per_seed": 50,
+      "SR": {
+       "mean": 0.9533,
+       "min": 0.86,
+       "max": 1.0
+      },
+      "CR": {
+       "mean": 0.0,
+       "min": 0.0,
+       "max": 0.0
+      },
+      "timeout": {
+       "mean": 0.0467,
+       "min": 0.0,
+       "max": 0.14
+      },
+      "SPL": {
+       "mean": 0.8473,
+       "min": 0.7876,
+       "max": 0.9118
+      },
+      "TC": {
+       "mean": 0.0,
+       "min": 0,
+       "max": 0,
+       "total": 0
+      },
+      "n_timeout": {
+       "mean": 2.33,
+       "min": 0,
+       "max": 7,
+       "total": 7
+      },
+      "n_success_total": 143,
+      "MTT": {
+       "pooled": 32.91,
+       "min": 31.14,
+       "max": 35.89,
+       "seeds_without_success": 0
+      }
+     },
+     "test/level_2": {
+      "seeds": 3,
+      "n_per_seed": 50,
+      "SR": {
+       "mean": 0.7267,
+       "min": 0.68,
+       "max": 0.8
+      },
+      "CR": {
+       "mean": 0.18,
+       "min": 0.14,
+       "max": 0.22
+      },
+      "timeout": {
+       "mean": 0.0933,
+       "min": 0.02,
+       "max": 0.18
+      },
+      "SPL": {
+       "mean": 0.5937,
+       "min": 0.5425,
+       "max": 0.6589
+      },
+      "TC": {
+       "mean": 9.0,
+       "min": 7,
+       "max": 11,
+       "total": 27
+      },
+      "n_timeout": {
+       "mean": 4.67,
+       "min": 1,
+       "max": 9,
+       "total": 14
+      },
+      "n_success_total": 109,
+      "MTT": {
+       "pooled": 51.24,
+       "min": 49.05,
+       "max": 52.48,
+       "seeds_without_success": 0
+      }
+     },
+     "test/level_3": {
+      "seeds": 3,
+      "n_per_seed": 50,
+      "SR": {
+       "mean": 0.2867,
+       "min": 0.16,
+       "max": 0.5
+      },
+      "CR": {
+       "mean": 0.4133,
+       "min": 0.26,
+       "max": 0.54
+      },
+      "timeout": {
+       "mean": 0.3,
+       "min": 0.24,
+       "max": 0.4
+      },
+      "SPL": {
+       "mean": 0.2341,
+       "min": 0.1453,
+       "max": 0.4069
+      },
+      "TC": {
+       "mean": 20.67,
+       "min": 13,
+       "max": 27,
+       "total": 62
+      },
+      "n_timeout": {
+       "mean": 15.0,
+       "min": 12,
+       "max": 20,
+       "total": 45
+      },
+      "n_success_total": 43,
+      "MTT": {
+       "pooled": 58.48,
+       "min": 48.58,
+       "max": 63.37,
+       "seeds_without_success": 0
+      }
+     },
+     "test/level_4": {
+      "seeds": 3,
+      "n_per_seed": 50,
+      "SR": {
+       "mean": 0.24,
+       "min": 0.16,
+       "max": 0.4
+      },
+      "CR": {
+       "mean": 0.6533,
+       "min": 0.36,
+       "max": 0.82
+      },
+      "timeout": {
+       "mean": 0.1067,
+       "min": 0.02,
+       "max": 0.24
+      },
+      "SPL": {
+       "mean": 0.1955,
+       "min": 0.1325,
+       "max": 0.3055
+      },
+      "TC": {
+       "mean": 32.67,
+       "min": 18,
+       "max": 41,
+       "total": 98
+      },
+      "n_timeout": {
+       "mean": 5.33,
+       "min": 1,
+       "max": 12,
+       "total": 16
+      },
+      "n_success_total": 36,
+      "MTT": {
+       "pooled": 65.77,
+       "min": 61.01,
+       "max": 69.49,
+       "seeds_without_success": 0
+      }
+     },
+     "mean_levels_1_4": {
+      "seeds": 3,
+      "n_per_seed": 200,
+      "SR": {
+       "mean": 0.5517,
+       "min": 0.475,
+       "max": 0.675
+      },
+      "CR": {
+       "mean": 0.3117,
+       "min": 0.2,
+       "max": 0.375
+      },
+      "timeout": {
+       "mean": 0.1367,
+       "min": 0.125,
+       "max": 0.15
+      },
+      "SPL": {
+       "mean": 0.4676,
+       "min": 0.4031,
+       "max": 0.5534
+      },
+      "TC": {
+       "mean": 62.33,
+       "min": 40,
+       "max": 75,
+       "total": 187
+      },
+      "n_timeout": {
+       "mean": 27.33,
+       "min": 25,
+       "max": 30,
+       "total": 82
+      },
+      "n_success_total": 331,
+      "MTT": {
+       "pooled": 45.84,
+       "min": 41.26,
+       "max": 50.19,
+       "seeds_without_success": 0
+      }
+     },
+     "test_barn": {
+      "seeds": 3,
+      "n_per_seed": 50,
+      "SR": {
+       "mean": 0.08,
+       "min": 0.06,
+       "max": 0.1
+      },
+      "CR": {
+       "mean": 0.7467,
+       "min": 0.68,
+       "max": 0.82
+      },
+      "timeout": {
+       "mean": 0.1733,
+       "min": 0.1,
+       "max": 0.26
+      },
+      "SPL": {
+       "mean": 0.0622,
+       "min": 0.0538,
+       "max": 0.0775
+      },
+      "TC": {
+       "mean": 37.33,
+       "min": 34,
+       "max": 41,
+       "total": 112
+      },
+      "n_timeout": {
+       "mean": 8.67,
+       "min": 5,
+       "max": 13,
+       "total": 26
+      },
+      "n_success_total": 12,
+      "MTT": {
+       "pooled": 55.89,
+       "min": 51.78,
+       "max": 63.88,
+       "seeds_without_success": 0
+      }
+     },
+     "test_lehman": {
+      "seeds": 3,
+      "n_per_seed": 2,
+      "SR": {
+       "mean": 0.0,
+       "min": 0.0,
+       "max": 0.0
+      },
+      "CR": {
+       "mean": 1.0,
+       "min": 1.0,
+       "max": 1.0
+      },
+      "timeout": {
+       "mean": 0.0,
+       "min": 0.0,
+       "max": 0.0
+      },
+      "SPL": {
+       "mean": 0.0,
+       "min": 0.0,
+       "max": 0.0
+      },
+      "TC": {
+       "mean": 2.0,
+       "min": 2,
+       "max": 2,
+       "total": 6
+      },
+      "n_timeout": {
+       "mean": 0.0,
+       "min": 0,
+       "max": 0,
+       "total": 0
+      },
+      "n_success_total": 0,
+      "MTT": {
+       "pooled": null,
+       "min": null,
+       "max": null,
+       "seeds_without_success": 3
+      }
+     }
+    },
+    "code_sha256": [
+     "590c095ac64777d2666c56c894c26bd1985e437110c281df1e467701a940a6f5"
+    ]
+   },
+   "NEAT M5 (c)": {
+    "family": "NEAT",
+    "method_label": "NEAT M5",
+    "sensor": "c",
+    "sensor_label": "(c) 12 quạt 30°",
+    "dir": "P2/waffle_M5_sec12",
+    "status": "done",
+    "seeds_expected": [
+     0,
+     1,
+     2
+    ],
+    "seeds_done": [
+     0,
+     1,
+     2
+    ],
+    "seeds_status": {
+     "seed_0": "done",
+     "seed_1": "done",
+     "seed_2": "done"
+    },
+    "per_seed": [
+     {
+      "seed": 0,
+      "dir": "P2/waffle_M5_sec12/seed_0",
+      "status": "done",
+      "backend": "batch",
+      "code_sha256": "590c095ac64777d2666c56c894c26bd1985e437110c281df1e467701a940a6f5",
+      "data_dir": "data/maps",
+      "started": "27/11/2026 16:58:02",
+      "finished": "27/11/2026 19:07:45",
+      "job_minutes": 129.7,
+      "champion_generation": 50,
+      "val_SR": 0.73,
+      "pop_size": 150,
+      "generations": 150,
+      "maps_per_eval": 8,
+      "train_episodes": 180000,
+      "champion_nodes": 6,
+      "champion_connections": 18,
+      "sets": {
+       "test/level_1": {
+        "n": 50,
+        "SR": 0.98,
+        "CR": 0.0,
+        "timeout": 0.02,
+        "TC": 0,
+        "n_timeout": 1,
+        "n_success": 49,
+        "SPL": 0.9472,
+        "MTT": 39.06
+       },
+       "test/level_2": {
+        "n": 50,
+        "SR": 0.84,
+        "CR": 0.08,
+        "timeout": 0.08,
+        "TC": 4,
+        "n_timeout": 4,
+        "n_success": 42,
+        "SPL": 0.6471,
+        "MTT": 54.82
+       },
+       "test/level_3": {
+        "n": 50,
+        "SR": 0.42,
+        "CR": 0.1,
+        "timeout": 0.48,
+        "TC": 5,
+        "n_timeout": 24,
+        "n_success": 21,
+        "SPL": 0.3201,
+        "MTT": 63.8
+       },
+       "test/level_4": {
+        "n": 50,
+        "SR": 0.8,
+        "CR": 0.14,
+        "timeout": 0.06,
+        "TC": 7,
+        "n_timeout": 3,
+        "n_success": 40,
+        "SPL": 0.5714,
+        "MTT": 72.09
+       },
+       "test_barn": {
+        "n": 50,
+        "SR": 0.42,
+        "CR": 0.24,
+        "timeout": 0.34,
+        "TC": 12,
+        "n_timeout": 17,
+        "n_success": 21,
+        "SPL": 0.3624,
+        "MTT": 49.39
+       },
+       "test_lehman": {
+        "n": 2,
+        "SR": 0.0,
+        "CR": 1.0,
+        "timeout": 0.0,
+        "TC": 2,
+        "n_timeout": 0,
+        "n_success": 0,
+        "SPL": 0.0,
+        "MTT": null
+       },
+       "mean_levels_1_4": {
+        "n": 200,
+        "SR": 0.76,
+        "CR": 0.08,
+        "timeout": 0.16,
+        "TC": 16,
+        "n_timeout": 32,
+        "n_success": 152,
+        "SPL": 0.6215,
+        "MTT": 55.52
+       }
+      }
+     },
+     {
+      "seed": 1,
+      "dir": "P2/waffle_M5_sec12/seed_1",
+      "status": "done",
+      "backend": "batch",
+      "code_sha256": "590c095ac64777d2666c56c894c26bd1985e437110c281df1e467701a940a6f5",
+      "data_dir": "data/maps",
+      "started": "27/11/2026 16:58:02",
+      "finished": "27/11/2026 19:05:13",
+      "job_minutes": 127.2,
+      "champion_generation": 140,
+      "val_SR": 0.63,
+      "pop_size": 150,
+      "generations": 150,
+      "maps_per_eval": 8,
+      "train_episodes": 180000,
+      "champion_nodes": 7,
+      "champion_connections": 15,
+      "sets": {
+       "test/level_1": {
+        "n": 50,
+        "SR": 1.0,
+        "CR": 0.0,
+        "timeout": 0.0,
+        "TC": 0,
+        "n_timeout": 0,
+        "n_success": 50,
+        "SPL": 0.9471,
+        "MTT": 46.41
+       },
+       "test/level_2": {
+        "n": 50,
+        "SR": 0.78,
+        "CR": 0.04,
+        "timeout": 0.18,
+        "TC": 2,
+        "n_timeout": 9,
+        "n_success": 39,
+        "SPL": 0.5919,
+        "MTT": 58.46
+       },
+       "test/level_3": {
+        "n": 50,
+        "SR": 0.3,
+        "CR": 0.26,
+        "timeout": 0.44,
+        "TC": 13,
+        "n_timeout": 22,
+        "n_success": 15,
+        "SPL": 0.2291,
+        "MTT": 69.1
+       },
+       "test/level_4": {
+        "n": 50,
+        "SR": 0.6,
+        "CR": 0.2,
+        "timeout": 0.2,
+        "TC": 10,
+        "n_timeout": 10,
+        "n_success": 30,
+        "SPL": 0.4335,
+        "MTT": 72.97
+       },
+       "test_barn": {
+        "n": 50,
+        "SR": 0.28,
+        "CR": 0.08,
+        "timeout": 0.64,
+        "TC": 4,
+        "n_timeout": 32,
+        "n_success": 14,
+        "SPL": 0.2698,
+        "MTT": 46.11
+       },
+       "test_lehman": {
+        "n": 2,
+        "SR": 0.0,
+        "CR": 1.0,
+        "timeout": 0.0,
+        "TC": 2,
+        "n_timeout": 0,
+        "n_success": 0,
+        "SPL": 0.0,
+        "MTT": null
+       },
+       "mean_levels_1_4": {
+        "n": 200,
+        "SR": 0.67,
+        "CR": 0.125,
+        "timeout": 0.205,
+        "TC": 25,
+        "n_timeout": 41,
+        "n_success": 134,
+        "SPL": 0.5504,
+        "MTT": 58.4
+       }
+      }
+     },
+     {
+      "seed": 2,
+      "dir": "P2/waffle_M5_sec12/seed_2",
+      "status": "done",
+      "backend": "batch",
+      "code_sha256": "590c095ac64777d2666c56c894c26bd1985e437110c281df1e467701a940a6f5",
+      "data_dir": "data/maps",
+      "started": "27/11/2026 16:58:02",
+      "finished": "27/11/2026 18:57:02",
+      "job_minutes": 119.0,
+      "champion_generation": 50,
+      "val_SR": 0.57,
+      "pop_size": 150,
+      "generations": 150,
+      "maps_per_eval": 8,
+      "train_episodes": 180000,
+      "champion_nodes": 3,
+      "champion_connections": 7,
+      "sets": {
+       "test/level_1": {
+        "n": 50,
+        "SR": 0.86,
+        "CR": 0.0,
+        "timeout": 0.14,
+        "TC": 0,
+        "n_timeout": 7,
+        "n_success": 43,
+        "SPL": 0.6543,
+        "MTT": 39.86
+       },
+       "test/level_2": {
+        "n": 50,
+        "SR": 0.68,
+        "CR": 0.1,
+        "timeout": 0.22,
+        "TC": 5,
+        "n_timeout": 11,
+        "n_success": 34,
+        "SPL": 0.4592,
+        "MTT": 59.91
+       },
+       "test/level_3": {
+        "n": 50,
+        "SR": 0.26,
+        "CR": 0.54,
+        "timeout": 0.2,
+        "TC": 27,
+        "n_timeout": 10,
+        "n_success": 13,
+        "SPL": 0.2037,
+        "MTT": 57.01
+       },
+       "test/level_4": {
+        "n": 50,
+        "SR": 0.14,
+        "CR": 0.82,
+        "timeout": 0.04,
+        "TC": 41,
+        "n_timeout": 2,
+        "n_success": 7,
+        "SPL": 0.0958,
+        "MTT": 70.64
+       },
+       "test_barn": {
+        "n": 50,
+        "SR": 0.16,
+        "CR": 0.7,
+        "timeout": 0.14,
+        "TC": 35,
+        "n_timeout": 7,
+        "n_success": 8,
+        "SPL": 0.1029,
+        "MTT": 63.19
+       },
+       "test_lehman": {
+        "n": 2,
+        "SR": 0.0,
+        "CR": 1.0,
+        "timeout": 0.0,
+        "TC": 2,
+        "n_timeout": 0,
+        "n_success": 0,
+        "SPL": 0.0,
+        "MTT": null
+       },
+       "mean_levels_1_4": {
+        "n": 200,
+        "SR": 0.485,
+        "CR": 0.365,
+        "timeout": 0.15,
+        "TC": 73,
+        "n_timeout": 30,
+        "n_success": 97,
+        "SPL": 0.3532,
+        "MTT": 51.41
+       }
+      }
+     }
+    ],
+    "val_SR": {
+     "mean": 0.6433,
+     "min": 0.57,
+     "max": 0.73
+    },
+    "champion_generations": [
+     50,
+     140,
+     50
+    ],
+    "aggregate": {
+     "test/level_1": {
+      "seeds": 3,
+      "n_per_seed": 50,
+      "SR": {
+       "mean": 0.9467,
+       "min": 0.86,
+       "max": 1.0
+      },
+      "CR": {
+       "mean": 0.0,
+       "min": 0.0,
+       "max": 0.0
+      },
+      "timeout": {
+       "mean": 0.0533,
+       "min": 0.0,
+       "max": 0.14
+      },
+      "SPL": {
+       "mean": 0.8495,
+       "min": 0.6543,
+       "max": 0.9472
+      },
+      "TC": {
+       "mean": 0.0,
+       "min": 0,
+       "max": 0,
+       "total": 0
+      },
+      "n_timeout": {
+       "mean": 2.67,
+       "min": 0,
+       "max": 7,
+       "total": 8
+      },
+      "n_success_total": 142,
+      "MTT": {
+       "pooled": 41.89,
+       "min": 39.06,
+       "max": 46.41,
+       "seeds_without_success": 0
+      }
+     },
+     "test/level_2": {
+      "seeds": 3,
+      "n_per_seed": 50,
+      "SR": {
+       "mean": 0.7667,
+       "min": 0.68,
+       "max": 0.84
+      },
+      "CR": {
+       "mean": 0.0733,
+       "min": 0.04,
+       "max": 0.1
+      },
+      "timeout": {
+       "mean": 0.16,
+       "min": 0.08,
+       "max": 0.22
+      },
+      "SPL": {
+       "mean": 0.5661,
+       "min": 0.4592,
+       "max": 0.6471
+      },
+      "TC": {
+       "mean": 3.67,
+       "min": 2,
+       "max": 5,
+       "total": 11
+      },
+      "n_timeout": {
+       "mean": 8.0,
+       "min": 4,
+       "max": 11,
+       "total": 24
+      },
+      "n_success_total": 115,
+      "MTT": {
+       "pooled": 57.56,
+       "min": 54.82,
+       "max": 59.91,
+       "seeds_without_success": 0
+      }
+     },
+     "test/level_3": {
+      "seeds": 3,
+      "n_per_seed": 50,
+      "SR": {
+       "mean": 0.3267,
+       "min": 0.26,
+       "max": 0.42
+      },
+      "CR": {
+       "mean": 0.3,
+       "min": 0.1,
+       "max": 0.54
+      },
+      "timeout": {
+       "mean": 0.3733,
+       "min": 0.2,
+       "max": 0.48
+      },
+      "SPL": {
+       "mean": 0.251,
+       "min": 0.2037,
+       "max": 0.3201
+      },
+      "TC": {
+       "mean": 15.0,
+       "min": 5,
+       "max": 27,
+       "total": 45
+      },
+      "n_timeout": {
+       "mean": 18.67,
+       "min": 10,
+       "max": 24,
+       "total": 56
+      },
+      "n_success_total": 49,
+      "MTT": {
+       "pooled": 63.62,
+       "min": 57.01,
+       "max": 69.1,
+       "seeds_without_success": 0
+      }
+     },
+     "test/level_4": {
+      "seeds": 3,
+      "n_per_seed": 50,
+      "SR": {
+       "mean": 0.5133,
+       "min": 0.14,
+       "max": 0.8
+      },
+      "CR": {
+       "mean": 0.3867,
+       "min": 0.14,
+       "max": 0.82
+      },
+      "timeout": {
+       "mean": 0.1,
+       "min": 0.04,
+       "max": 0.2
+      },
+      "SPL": {
+       "mean": 0.3669,
+       "min": 0.0958,
+       "max": 0.5714
+      },
+      "TC": {
+       "mean": 19.33,
+       "min": 7,
+       "max": 41,
+       "total": 58
+      },
+      "n_timeout": {
+       "mean": 5.0,
+       "min": 2,
+       "max": 10,
+       "total": 15
+      },
+      "n_success_total": 77,
+      "MTT": {
+       "pooled": 72.3,
+       "min": 70.64,
+       "max": 72.97,
+       "seeds_without_success": 0
+      }
+     },
+     "mean_levels_1_4": {
+      "seeds": 3,
+      "n_per_seed": 200,
+      "SR": {
+       "mean": 0.6383,
+       "min": 0.485,
+       "max": 0.76
+      },
+      "CR": {
+       "mean": 0.19,
+       "min": 0.08,
+       "max": 0.365
+      },
+      "timeout": {
+       "mean": 0.1717,
+       "min": 0.15,
+       "max": 0.205
+      },
+      "SPL": {
+       "mean": 0.5084,
+       "min": 0.3532,
+       "max": 0.6215
+      },
+      "TC": {
+       "mean": 38.0,
+       "min": 16,
+       "max": 73,
+       "total": 114
+      },
+      "n_timeout": {
+       "mean": 34.33,
+       "min": 30,
+       "max": 41,
+       "total": 103
+      },
+      "n_success_total": 383,
+      "MTT": {
+       "pooled": 55.49,
+       "min": 51.41,
+       "max": 58.4,
+       "seeds_without_success": 0
+      }
+     },
+     "test_barn": {
+      "seeds": 3,
+      "n_per_seed": 50,
+      "SR": {
+       "mean": 0.2867,
+       "min": 0.16,
+       "max": 0.42
+      },
+      "CR": {
+       "mean": 0.34,
+       "min": 0.08,
+       "max": 0.7
+      },
+      "timeout": {
+       "mean": 0.3733,
+       "min": 0.14,
+       "max": 0.64
+      },
+      "SPL": {
+       "mean": 0.245,
+       "min": 0.1029,
+       "max": 0.3624
+      },
+      "TC": {
+       "mean": 17.0,
+       "min": 4,
+       "max": 35,
+       "total": 51
+      },
+      "n_timeout": {
+       "mean": 18.67,
+       "min": 7,
+       "max": 32,
+       "total": 56
+      },
+      "n_success_total": 43,
+      "MTT": {
+       "pooled": 50.89,
+       "min": 46.11,
+       "max": 63.19,
+       "seeds_without_success": 0
+      }
+     },
+     "test_lehman": {
+      "seeds": 3,
+      "n_per_seed": 2,
+      "SR": {
+       "mean": 0.0,
+       "min": 0.0,
+       "max": 0.0
+      },
+      "CR": {
+       "mean": 1.0,
+       "min": 1.0,
+       "max": 1.0
+      },
+      "timeout": {
+       "mean": 0.0,
+       "min": 0.0,
+       "max": 0.0
+      },
+      "SPL": {
+       "mean": 0.0,
+       "min": 0.0,
+       "max": 0.0
+      },
+      "TC": {
+       "mean": 2.0,
+       "min": 2,
+       "max": 2,
+       "total": 6
+      },
+      "n_timeout": {
+       "mean": 0.0,
+       "min": 0,
+       "max": 0,
+       "total": 0
+      },
+      "n_success_total": 0,
+      "MTT": {
+       "pooled": null,
+       "min": null,
+       "max": null,
+       "seeds_without_success": 3
+      }
+     }
+    },
+    "code_sha256": [
+     "590c095ac64777d2666c56c894c26bd1985e437110c281df1e467701a940a6f5"
+    ]
+   },
+   "NEAT M5 (e)": {
+    "family": "NEAT",
+    "method_label": "NEAT M5",
+    "sensor": "e",
+    "sensor_label": "(e) 30 quạt 9° + 2 quạt 45°",
+    "dir": "P2/waffle_M5_e32",
+    "status": "done",
+    "seeds_expected": [
+     0,
+     1,
+     2
+    ],
+    "seeds_done": [
+     0,
+     1,
+     2
+    ],
+    "seeds_status": {
+     "seed_0": "done",
+     "seed_1": "done",
+     "seed_2": "done"
+    },
+    "per_seed": [
+     {
+      "seed": 0,
+      "dir": "P2/waffle_M5_e32/seed_0",
+      "status": "done",
+      "backend": "gpu",
+      "code_sha256": "590c095ac64777d2666c56c894c26bd1985e437110c281df1e467701a940a6f5",
+      "data_dir": "data/maps",
+      "started": "27/11/2026 17:20:52",
+      "finished": "27/11/2026 17:58:17",
+      "job_minutes": 37.4,
+      "champion_generation": 90,
+      "val_SR": 0.67,
+      "pop_size": 150,
+      "generations": 150,
+      "maps_per_eval": 8,
+      "train_episodes": 180000,
+      "champion_nodes": 10,
+      "champion_connections": 11,
+      "sets": {
+       "test/level_1": {
+        "n": 50,
+        "SR": 1.0,
+        "CR": 0.0,
+        "timeout": 0.0,
+        "TC": 0,
+        "n_timeout": 0,
+        "n_success": 50,
+        "SPL": 0.9408,
+        "MTT": 39.98
+       },
+       "test/level_2": {
+        "n": 50,
+        "SR": 0.64,
+        "CR": 0.24,
+        "timeout": 0.12,
+        "TC": 12,
+        "n_timeout": 6,
+        "n_success": 32,
+        "SPL": 0.5237,
+        "MTT": 54.83
+       },
+       "test/level_3": {
+        "n": 50,
+        "SR": 0.42,
+        "CR": 0.28,
+        "timeout": 0.3,
+        "TC": 14,
+        "n_timeout": 15,
+        "n_success": 21,
+        "SPL": 0.3124,
+        "MTT": 62.37
+       },
+       "test/level_4": {
+        "n": 50,
+        "SR": 0.32,
+        "CR": 0.6,
+        "timeout": 0.08,
+        "TC": 30,
+        "n_timeout": 4,
+        "n_success": 16,
+        "SPL": 0.2552,
+        "MTT": 66.43
+       },
+       "test_barn": {
+        "n": 50,
+        "SR": 0.18,
+        "CR": 0.76,
+        "timeout": 0.06,
+        "TC": 38,
+        "n_timeout": 3,
+        "n_success": 9,
+        "SPL": 0.1768,
+        "MTT": 42.62
+       },
+       "test_lehman": {
+        "n": 2,
+        "SR": 0.0,
+        "CR": 1.0,
+        "timeout": 0.0,
+        "TC": 2,
+        "n_timeout": 0,
+        "n_success": 0,
+        "SPL": 0.0,
+        "MTT": null
+       },
+       "mean_levels_1_4": {
+        "n": 200,
+        "SR": 0.595,
+        "CR": 0.28,
+        "timeout": 0.125,
+        "TC": 56,
+        "n_timeout": 25,
+        "n_success": 119,
+        "SPL": 0.508,
+        "MTT": 51.48
+       }
+      }
+     },
+     {
+      "seed": 1,
+      "dir": "P2/waffle_M5_e32/seed_1",
+      "status": "done",
+      "backend": "gpu",
+      "code_sha256": "590c095ac64777d2666c56c894c26bd1985e437110c281df1e467701a940a6f5",
+      "data_dir": "data/maps",
+      "started": "27/11/2026 17:23:25",
+      "finished": "27/11/2026 18:08:19",
+      "job_minutes": 44.9,
+      "champion_generation": 20,
+      "val_SR": 0.54,
+      "pop_size": 150,
+      "generations": 150,
+      "maps_per_eval": 8,
+      "train_episodes": 180000,
+      "champion_nodes": 2,
+      "champion_connections": 22,
+      "sets": {
+       "test/level_1": {
+        "n": 50,
+        "SR": 0.94,
+        "CR": 0.0,
+        "timeout": 0.06,
+        "TC": 0,
+        "n_timeout": 3,
+        "n_success": 47,
+        "SPL": 0.8184,
+        "MTT": 32.82
+       },
+       "test/level_2": {
+        "n": 50,
+        "SR": 0.68,
+        "CR": 0.1,
+        "timeout": 0.22,
+        "TC": 5,
+        "n_timeout": 11,
+        "n_success": 34,
+        "SPL": 0.5207,
+        "MTT": 55.44
+       },
+       "test/level_3": {
+        "n": 50,
+        "SR": 0.28,
+        "CR": 0.34,
+        "timeout": 0.38,
+        "TC": 17,
+        "n_timeout": 19,
+        "n_success": 14,
+        "SPL": 0.2126,
+        "MTT": 60.06
+       },
+       "test/level_4": {
+        "n": 50,
+        "SR": 0.46,
+        "CR": 0.34,
+        "timeout": 0.2,
+        "TC": 17,
+        "n_timeout": 10,
+        "n_success": 23,
+        "SPL": 0.3462,
+        "MTT": 67.34
+       },
+       "test_barn": {
+        "n": 50,
+        "SR": 0.14,
+        "CR": 0.62,
+        "timeout": 0.24,
+        "TC": 31,
+        "n_timeout": 12,
+        "n_success": 7,
+        "SPL": 0.0987,
+        "MTT": 61.39
+       },
+       "test_lehman": {
+        "n": 2,
+        "SR": 0.0,
+        "CR": 1.0,
+        "timeout": 0.0,
+        "TC": 2,
+        "n_timeout": 0,
+        "n_success": 0,
+        "SPL": 0.0,
+        "MTT": null
+       },
+       "mean_levels_1_4": {
+        "n": 200,
+        "SR": 0.59,
+        "CR": 0.195,
+        "timeout": 0.215,
+        "TC": 39,
+        "n_timeout": 43,
+        "n_success": 118,
+        "SPL": 0.4745,
+        "MTT": 49.3
+       }
+      }
+     },
+     {
+      "seed": 2,
+      "dir": "P2/waffle_M5_e32/seed_2",
+      "status": "done",
+      "backend": "gpu",
+      "code_sha256": "590c095ac64777d2666c56c894c26bd1985e437110c281df1e467701a940a6f5",
+      "data_dir": "data/maps",
+      "started": "27/11/2026 17:25:04",
+      "finished": "27/11/2026 18:08:46",
+      "job_minutes": 43.7,
+      "champion_generation": 70,
+      "val_SR": 0.65,
+      "pop_size": 150,
+      "generations": 150,
+      "maps_per_eval": 8,
+      "train_episodes": 180000,
+      "champion_nodes": 7,
+      "champion_connections": 12,
+      "sets": {
+       "test/level_1": {
+        "n": 50,
+        "SR": 0.96,
+        "CR": 0.0,
+        "timeout": 0.04,
+        "TC": 0,
+        "n_timeout": 2,
+        "n_success": 48,
+        "SPL": 0.8998,
+        "MTT": 35.4
+       },
+       "test/level_2": {
+        "n": 50,
+        "SR": 0.68,
+        "CR": 0.22,
+        "timeout": 0.1,
+        "TC": 11,
+        "n_timeout": 5,
+        "n_success": 34,
+        "SPL": 0.564,
+        "MTT": 50.29
+       },
+       "test/level_3": {
+        "n": 50,
+        "SR": 0.38,
+        "CR": 0.16,
+        "timeout": 0.46,
+        "TC": 8,
+        "n_timeout": 23,
+        "n_success": 19,
+        "SPL": 0.2782,
+        "MTT": 70.67
+       },
+       "test/level_4": {
+        "n": 50,
+        "SR": 0.4,
+        "CR": 0.48,
+        "timeout": 0.12,
+        "TC": 24,
+        "n_timeout": 6,
+        "n_success": 20,
+        "SPL": 0.2969,
+        "MTT": 69.62
+       },
+       "test_barn": {
+        "n": 50,
+        "SR": 0.2,
+        "CR": 0.7,
+        "timeout": 0.1,
+        "TC": 35,
+        "n_timeout": 5,
+        "n_success": 10,
+        "SPL": 0.1976,
+        "MTT": 40.12
+       },
+       "test_lehman": {
+        "n": 2,
+        "SR": 0.0,
+        "CR": 1.0,
+        "timeout": 0.0,
+        "TC": 2,
+        "n_timeout": 0,
+        "n_success": 0,
+        "SPL": 0.0,
+        "MTT": null
+       },
+       "mean_levels_1_4": {
+        "n": 200,
+        "SR": 0.605,
+        "CR": 0.215,
+        "timeout": 0.18,
+        "TC": 43,
+        "n_timeout": 36,
+        "n_success": 121,
+        "SPL": 0.5097,
+        "MTT": 50.78
+       }
+      }
+     }
+    ],
+    "val_SR": {
+     "mean": 0.62,
+     "min": 0.54,
+     "max": 0.67
+    },
+    "champion_generations": [
+     90,
+     20,
+     70
+    ],
+    "aggregate": {
+     "test/level_1": {
+      "seeds": 3,
+      "n_per_seed": 50,
+      "SR": {
+       "mean": 0.9667,
+       "min": 0.94,
+       "max": 1.0
+      },
+      "CR": {
+       "mean": 0.0,
+       "min": 0.0,
+       "max": 0.0
+      },
+      "timeout": {
+       "mean": 0.0333,
+       "min": 0.0,
+       "max": 0.06
+      },
+      "SPL": {
+       "mean": 0.8863,
+       "min": 0.8184,
+       "max": 0.9408
+      },
+      "TC": {
+       "mean": 0.0,
+       "min": 0,
+       "max": 0,
+       "total": 0
+      },
+      "n_timeout": {
+       "mean": 1.67,
+       "min": 0,
+       "max": 3,
+       "total": 5
+      },
+      "n_success_total": 145,
+      "MTT": {
+       "pooled": 36.14,
+       "min": 32.82,
+       "max": 39.98,
+       "seeds_without_success": 0
+      }
+     },
+     "test/level_2": {
+      "seeds": 3,
+      "n_per_seed": 50,
+      "SR": {
+       "mean": 0.6667,
+       "min": 0.64,
+       "max": 0.68
+      },
+      "CR": {
+       "mean": 0.1867,
+       "min": 0.1,
+       "max": 0.24
+      },
+      "timeout": {
+       "mean": 0.1467,
+       "min": 0.1,
+       "max": 0.22
+      },
+      "SPL": {
+       "mean": 0.5361,
+       "min": 0.5207,
+       "max": 0.564
+      },
+      "TC": {
+       "mean": 9.33,
+       "min": 5,
+       "max": 12,
+       "total": 28
+      },
+      "n_timeout": {
+       "mean": 7.33,
+       "min": 5,
+       "max": 11,
+       "total": 22
+      },
+      "n_success_total": 100,
+      "MTT": {
+       "pooled": 53.49,
+       "min": 50.29,
+       "max": 55.44,
+       "seeds_without_success": 0
+      }
+     },
+     "test/level_3": {
+      "seeds": 3,
+      "n_per_seed": 50,
+      "SR": {
+       "mean": 0.36,
+       "min": 0.28,
+       "max": 0.42
+      },
+      "CR": {
+       "mean": 0.26,
+       "min": 0.16,
+       "max": 0.34
+      },
+      "timeout": {
+       "mean": 0.38,
+       "min": 0.3,
+       "max": 0.46
+      },
+      "SPL": {
+       "mean": 0.2677,
+       "min": 0.2126,
+       "max": 0.3124
+      },
+      "TC": {
+       "mean": 13.0,
+       "min": 8,
+       "max": 17,
+       "total": 39
+      },
+      "n_timeout": {
+       "mean": 19.0,
+       "min": 15,
+       "max": 23,
+       "total": 57
+      },
+      "n_success_total": 54,
+      "MTT": {
+       "pooled": 64.69,
+       "min": 60.06,
+       "max": 70.67,
+       "seeds_without_success": 0
+      }
+     },
+     "test/level_4": {
+      "seeds": 3,
+      "n_per_seed": 50,
+      "SR": {
+       "mean": 0.3933,
+       "min": 0.32,
+       "max": 0.46
+      },
+      "CR": {
+       "mean": 0.4733,
+       "min": 0.34,
+       "max": 0.6
+      },
+      "timeout": {
+       "mean": 0.1333,
+       "min": 0.08,
+       "max": 0.2
+      },
+      "SPL": {
+       "mean": 0.2994,
+       "min": 0.2552,
+       "max": 0.3462
+      },
+      "TC": {
+       "mean": 23.67,
+       "min": 17,
+       "max": 30,
+       "total": 71
+      },
+      "n_timeout": {
+       "mean": 6.67,
+       "min": 4,
+       "max": 10,
+       "total": 20
+      },
+      "n_success_total": 59,
+      "MTT": {
+       "pooled": 67.87,
+       "min": 66.43,
+       "max": 69.62,
+       "seeds_without_success": 0
+      }
+     },
+     "mean_levels_1_4": {
+      "seeds": 3,
+      "n_per_seed": 200,
+      "SR": {
+       "mean": 0.5967,
+       "min": 0.59,
+       "max": 0.605
+      },
+      "CR": {
+       "mean": 0.23,
+       "min": 0.195,
+       "max": 0.28
+      },
+      "timeout": {
+       "mean": 0.1733,
+       "min": 0.125,
+       "max": 0.215
+      },
+      "SPL": {
+       "mean": 0.4974,
+       "min": 0.4745,
+       "max": 0.5097
+      },
+      "TC": {
+       "mean": 46.0,
+       "min": 39,
+       "max": 56,
+       "total": 138
+      },
+      "n_timeout": {
+       "mean": 34.67,
+       "min": 25,
+       "max": 43,
+       "total": 104
+      },
+      "n_success_total": 358,
+      "MTT": {
+       "pooled": 50.52,
+       "min": 49.3,
+       "max": 51.48,
+       "seeds_without_success": 0
+      }
+     },
+     "test_barn": {
+      "seeds": 3,
+      "n_per_seed": 50,
+      "SR": {
+       "mean": 0.1733,
+       "min": 0.14,
+       "max": 0.2
+      },
+      "CR": {
+       "mean": 0.6933,
+       "min": 0.62,
+       "max": 0.76
+      },
+      "timeout": {
+       "mean": 0.1333,
+       "min": 0.06,
+       "max": 0.24
+      },
+      "SPL": {
+       "mean": 0.1577,
+       "min": 0.0987,
+       "max": 0.1976
+      },
+      "TC": {
+       "mean": 34.67,
+       "min": 31,
+       "max": 38,
+       "total": 104
+      },
+      "n_timeout": {
+       "mean": 6.67,
+       "min": 3,
+       "max": 12,
+       "total": 20
+      },
+      "n_success_total": 26,
+      "MTT": {
+       "pooled": 46.71,
+       "min": 40.12,
+       "max": 61.39,
+       "seeds_without_success": 0
+      }
+     },
+     "test_lehman": {
+      "seeds": 3,
+      "n_per_seed": 2,
+      "SR": {
+       "mean": 0.0,
+       "min": 0.0,
+       "max": 0.0
+      },
+      "CR": {
+       "mean": 1.0,
+       "min": 1.0,
+       "max": 1.0
+      },
+      "timeout": {
+       "mean": 0.0,
+       "min": 0.0,
+       "max": 0.0
+      },
+      "SPL": {
+       "mean": 0.0,
+       "min": 0.0,
+       "max": 0.0
+      },
+      "TC": {
+       "mean": 2.0,
+       "min": 2,
+       "max": 2,
+       "total": 6
+      },
+      "n_timeout": {
+       "mean": 0.0,
+       "min": 0,
+       "max": 0,
+       "total": 0
+      },
+      "n_success_total": 0,
+      "MTT": {
+       "pooled": null,
+       "min": null,
+       "max": null,
+       "seeds_without_success": 3
+      }
+     }
+    },
+    "code_sha256": [
+     "590c095ac64777d2666c56c894c26bd1985e437110c281df1e467701a940a6f5"
+    ]
+   },
+   "GA B1 (c)": {
+    "family": "GA",
+    "method_label": "GA B1",
+    "sensor": "c",
+    "sensor_label": "(c) 12 quạt 30°",
+    "dir": "P2/waffle_ga_b1_sec12",
+    "status": "done",
+    "seeds_expected": [
+     0,
+     1,
+     2
+    ],
+    "seeds_done": [
+     0,
+     1,
+     2
+    ],
+    "seeds_status": {
+     "seed_0": "done",
+     "seed_1": "done",
+     "seed_2": "done"
+    },
+    "per_seed": [
+     {
+      "seed": 0,
+      "dir": "P2/waffle_ga_b1_sec12/seed_0",
+      "status": "done",
+      "backend": "batch",
+      "code_sha256": "590c095ac64777d2666c56c894c26bd1985e437110c281df1e467701a940a6f5",
+      "data_dir": "data/maps",
+      "started": "27/11/2026 14:46:09",
+      "finished": "27/11/2026 15:46:29",
+      "job_minutes": 60.3,
+      "champion_generation": 150,
+      "val_SR": 0.68,
+      "pop_size": 150,
+      "generations": 150,
+      "maps_per_eval": 8,
+      "train_episodes": 180000,
+      "layers": [
+       15,
+       8,
+       2
+      ],
+      "recheck_sets": 6,
+      "sets": {
+       "test/level_1": {
+        "n": 50,
+        "SR": 0.98,
+        "CR": 0.0,
+        "timeout": 0.02,
+        "TC": 0,
+        "n_timeout": 1,
+        "n_success": 49,
+        "SPL": 0.9511,
+        "MTT": 28.92
+       },
+       "test/level_2": {
+        "n": 50,
+        "SR": 0.78,
+        "CR": 0.1,
+        "timeout": 0.12,
+        "TC": 5,
+        "n_timeout": 6,
+        "n_success": 39,
+        "SPL": 0.6052,
+        "MTT": 46.04
+       },
+       "test/level_3": {
+        "n": 50,
+        "SR": 0.42,
+        "CR": 0.34,
+        "timeout": 0.24,
+        "TC": 17,
+        "n_timeout": 12,
+        "n_success": 21,
+        "SPL": 0.3514,
+        "MTT": 51.26
+       },
+       "test/level_4": {
+        "n": 50,
+        "SR": 0.56,
+        "CR": 0.2,
+        "timeout": 0.24,
+        "TC": 10,
+        "n_timeout": 12,
+        "n_success": 28,
+        "SPL": 0.4276,
+        "MTT": 59.11
+       },
+       "test_barn": {
+        "n": 50,
+        "SR": 0.26,
+        "CR": 0.5,
+        "timeout": 0.24,
+        "TC": 25,
+        "n_timeout": 12,
+        "n_success": 13,
+        "SPL": 0.2507,
+        "MTT": 36.95
+       },
+       "test_lehman": {
+        "n": 2,
+        "SR": 0.0,
+        "CR": 1.0,
+        "timeout": 0.0,
+        "TC": 2,
+        "n_timeout": 0,
+        "n_success": 0,
+        "SPL": 0.0,
+        "MTT": null
+       },
+       "mean_levels_1_4": {
+        "n": 200,
+        "SR": 0.685,
+        "CR": 0.16,
+        "timeout": 0.155,
+        "TC": 32,
+        "n_timeout": 31,
+        "n_success": 137,
+        "SPL": 0.5838,
+        "MTT": 43.39
+       }
+      }
+     },
+     {
+      "seed": 1,
+      "dir": "P2/waffle_ga_b1_sec12/seed_1",
+      "status": "done",
+      "backend": "batch",
+      "code_sha256": "590c095ac64777d2666c56c894c26bd1985e437110c281df1e467701a940a6f5",
+      "data_dir": "data/maps",
+      "started": "27/11/2026 14:46:09",
+      "finished": "27/11/2026 15:40:31",
+      "job_minutes": 54.4,
+      "champion_generation": 140,
+      "val_SR": 0.54,
+      "pop_size": 150,
+      "generations": 150,
+      "maps_per_eval": 8,
+      "train_episodes": 180000,
+      "layers": [
+       15,
+       8,
+       2
+      ],
+      "recheck_sets": 6,
+      "sets": {
+       "test/level_1": {
+        "n": 50,
+        "SR": 0.96,
+        "CR": 0.04,
+        "timeout": 0.0,
+        "TC": 2,
+        "n_timeout": 0,
+        "n_success": 48,
+        "SPL": 0.907,
+        "MTT": 29.88
+       },
+       "test/level_2": {
+        "n": 50,
+        "SR": 0.72,
+        "CR": 0.16,
+        "timeout": 0.12,
+        "TC": 8,
+        "n_timeout": 6,
+        "n_success": 36,
+        "SPL": 0.5518,
+        "MTT": 47.12
+       },
+       "test/level_3": {
+        "n": 50,
+        "SR": 0.34,
+        "CR": 0.58,
+        "timeout": 0.08,
+        "TC": 29,
+        "n_timeout": 4,
+        "n_success": 17,
+        "SPL": 0.2715,
+        "MTT": 52.82
+       },
+       "test/level_4": {
+        "n": 50,
+        "SR": 0.26,
+        "CR": 0.74,
+        "timeout": 0.0,
+        "TC": 37,
+        "n_timeout": 0,
+        "n_success": 13,
+        "SPL": 0.2062,
+        "MTT": 52.37
+       },
+       "test_barn": {
+        "n": 50,
+        "SR": 0.14,
+        "CR": 0.86,
+        "timeout": 0.0,
+        "TC": 43,
+        "n_timeout": 0,
+        "n_success": 7,
+        "SPL": 0.1258,
+        "MTT": 41.26
+       },
+       "test_lehman": {
+        "n": 2,
+        "SR": 0.0,
+        "CR": 1.0,
+        "timeout": 0.0,
+        "TC": 2,
+        "n_timeout": 0,
+        "n_success": 0,
+        "SPL": 0.0,
+        "MTT": null
+       },
+       "mean_levels_1_4": {
+        "n": 200,
+        "SR": 0.57,
+        "CR": 0.38,
+        "timeout": 0.05,
+        "TC": 76,
+        "n_timeout": 10,
+        "n_success": 114,
+        "SPL": 0.4841,
+        "MTT": 41.31
+       }
+      }
+     },
+     {
+      "seed": 2,
+      "dir": "P2/waffle_ga_b1_sec12/seed_2",
+      "status": "done",
+      "backend": "batch",
+      "code_sha256": "590c095ac64777d2666c56c894c26bd1985e437110c281df1e467701a940a6f5",
+      "data_dir": "data/maps",
+      "started": "27/11/2026 15:40:33",
+      "finished": "27/11/2026 16:29:03",
+      "job_minutes": 48.5,
+      "champion_generation": 150,
+      "val_SR": 0.72,
+      "pop_size": 150,
+      "generations": 150,
+      "maps_per_eval": 8,
+      "train_episodes": 180000,
+      "layers": [
+       15,
+       8,
+       2
+      ],
+      "recheck_sets": 6,
+      "sets": {
+       "test/level_1": {
+        "n": 50,
+        "SR": 0.92,
+        "CR": 0.0,
+        "timeout": 0.08,
+        "TC": 0,
+        "n_timeout": 4,
+        "n_success": 46,
+        "SPL": 0.9044,
+        "MTT": 27.93
+       },
+       "test/level_2": {
+        "n": 50,
+        "SR": 0.82,
+        "CR": 0.04,
+        "timeout": 0.14,
+        "TC": 2,
+        "n_timeout": 7,
+        "n_success": 41,
+        "SPL": 0.6217,
+        "MTT": 49.1
+       },
+       "test/level_3": {
+        "n": 50,
+        "SR": 0.56,
+        "CR": 0.06,
+        "timeout": 0.38,
+        "TC": 3,
+        "n_timeout": 19,
+        "n_success": 28,
+        "SPL": 0.4229,
+        "MTT": 58.97
+       },
+       "test/level_4": {
+        "n": 50,
+        "SR": 0.72,
+        "CR": 0.08,
+        "timeout": 0.2,
+        "TC": 4,
+        "n_timeout": 10,
+        "n_success": 36,
+        "SPL": 0.5285,
+        "MTT": 60.95
+       },
+       "test_barn": {
+        "n": 50,
+        "SR": 0.24,
+        "CR": 0.18,
+        "timeout": 0.58,
+        "TC": 9,
+        "n_timeout": 29,
+        "n_success": 12,
+        "SPL": 0.2112,
+        "MTT": 45.66
+       },
+       "test_lehman": {
+        "n": 2,
+        "SR": 0.0,
+        "CR": 1.0,
+        "timeout": 0.0,
+        "TC": 2,
+        "n_timeout": 0,
+        "n_success": 0,
+        "SPL": 0.0,
+        "MTT": null
+       },
+       "mean_levels_1_4": {
+        "n": 200,
+        "SR": 0.755,
+        "CR": 0.045,
+        "timeout": 0.2,
+        "TC": 9,
+        "n_timeout": 40,
+        "n_success": 151,
+        "SPL": 0.6194,
+        "MTT": 47.31
+       }
+      }
+     }
+    ],
+    "val_SR": {
+     "mean": 0.6467,
+     "min": 0.54,
+     "max": 0.72
+    },
+    "champion_generations": [
+     150,
+     140,
+     150
+    ],
+    "aggregate": {
+     "test/level_1": {
+      "seeds": 3,
+      "n_per_seed": 50,
+      "SR": {
+       "mean": 0.9533,
+       "min": 0.92,
+       "max": 0.98
+      },
+      "CR": {
+       "mean": 0.0133,
+       "min": 0.0,
+       "max": 0.04
+      },
+      "timeout": {
+       "mean": 0.0333,
+       "min": 0.0,
+       "max": 0.08
+      },
+      "SPL": {
+       "mean": 0.9208,
+       "min": 0.9044,
+       "max": 0.9511
+      },
+      "TC": {
+       "mean": 0.67,
+       "min": 0,
+       "max": 2,
+       "total": 2
+      },
+      "n_timeout": {
+       "mean": 1.67,
+       "min": 0,
+       "max": 4,
+       "total": 5
+      },
+      "n_success_total": 143,
+      "MTT": {
+       "pooled": 28.92,
+       "min": 27.93,
+       "max": 29.88,
+       "seeds_without_success": 0
+      }
+     },
+     "test/level_2": {
+      "seeds": 3,
+      "n_per_seed": 50,
+      "SR": {
+       "mean": 0.7733,
+       "min": 0.72,
+       "max": 0.82
+      },
+      "CR": {
+       "mean": 0.1,
+       "min": 0.04,
+       "max": 0.16
+      },
+      "timeout": {
+       "mean": 0.1267,
+       "min": 0.12,
+       "max": 0.14
+      },
+      "SPL": {
+       "mean": 0.5929,
+       "min": 0.5518,
+       "max": 0.6217
+      },
+      "TC": {
+       "mean": 5.0,
+       "min": 2,
+       "max": 8,
+       "total": 15
+      },
+      "n_timeout": {
+       "mean": 6.33,
+       "min": 6,
+       "max": 7,
+       "total": 19
+      },
+      "n_success_total": 116,
+      "MTT": {
+       "pooled": 47.46,
+       "min": 46.04,
+       "max": 49.1,
+       "seeds_without_success": 0
+      }
+     },
+     "test/level_3": {
+      "seeds": 3,
+      "n_per_seed": 50,
+      "SR": {
+       "mean": 0.44,
+       "min": 0.34,
+       "max": 0.56
+      },
+      "CR": {
+       "mean": 0.3267,
+       "min": 0.06,
+       "max": 0.58
+      },
+      "timeout": {
+       "mean": 0.2333,
+       "min": 0.08,
+       "max": 0.38
+      },
+      "SPL": {
+       "mean": 0.3486,
+       "min": 0.2715,
+       "max": 0.4229
+      },
+      "TC": {
+       "mean": 16.33,
+       "min": 3,
+       "max": 29,
+       "total": 49
+      },
+      "n_timeout": {
+       "mean": 11.67,
+       "min": 4,
+       "max": 19,
+       "total": 35
+      },
+      "n_success_total": 66,
+      "MTT": {
+       "pooled": 54.93,
+       "min": 51.26,
+       "max": 58.97,
+       "seeds_without_success": 0
+      }
+     },
+     "test/level_4": {
+      "seeds": 3,
+      "n_per_seed": 50,
+      "SR": {
+       "mean": 0.5133,
+       "min": 0.26,
+       "max": 0.72
+      },
+      "CR": {
+       "mean": 0.34,
+       "min": 0.08,
+       "max": 0.74
+      },
+      "timeout": {
+       "mean": 0.1467,
+       "min": 0.0,
+       "max": 0.24
+      },
+      "SPL": {
+       "mean": 0.3874,
+       "min": 0.2062,
+       "max": 0.5285
+      },
+      "TC": {
+       "mean": 17.0,
+       "min": 4,
+       "max": 37,
+       "total": 51
+      },
+      "n_timeout": {
+       "mean": 7.33,
+       "min": 0,
+       "max": 12,
+       "total": 22
+      },
+      "n_success_total": 77,
+      "MTT": {
+       "pooled": 58.83,
+       "min": 52.37,
+       "max": 60.95,
+       "seeds_without_success": 0
+      }
+     },
+     "mean_levels_1_4": {
+      "seeds": 3,
+      "n_per_seed": 200,
+      "SR": {
+       "mean": 0.67,
+       "min": 0.57,
+       "max": 0.755
+      },
+      "CR": {
+       "mean": 0.195,
+       "min": 0.045,
+       "max": 0.38
+      },
+      "timeout": {
+       "mean": 0.135,
+       "min": 0.05,
+       "max": 0.2
+      },
+      "SPL": {
+       "mean": 0.5624,
+       "min": 0.4841,
+       "max": 0.6194
+      },
+      "TC": {
+       "mean": 39.0,
+       "min": 9,
+       "max": 76,
+       "total": 117
+      },
+      "n_timeout": {
+       "mean": 27.0,
+       "min": 10,
+       "max": 40,
+       "total": 81
+      },
+      "n_success_total": 402,
+      "MTT": {
+       "pooled": 44.27,
+       "min": 41.31,
+       "max": 47.31,
+       "seeds_without_success": 0
+      }
+     },
+     "test_barn": {
+      "seeds": 3,
+      "n_per_seed": 50,
+      "SR": {
+       "mean": 0.2133,
+       "min": 0.14,
+       "max": 0.26
+      },
+      "CR": {
+       "mean": 0.5133,
+       "min": 0.18,
+       "max": 0.86
+      },
+      "timeout": {
+       "mean": 0.2733,
+       "min": 0.0,
+       "max": 0.58
+      },
+      "SPL": {
+       "mean": 0.1959,
+       "min": 0.1258,
+       "max": 0.2507
+      },
+      "TC": {
+       "mean": 25.67,
+       "min": 9,
+       "max": 43,
+       "total": 77
+      },
+      "n_timeout": {
+       "mean": 13.67,
+       "min": 0,
+       "max": 29,
+       "total": 41
+      },
+      "n_success_total": 32,
+      "MTT": {
+       "pooled": 41.16,
+       "min": 36.95,
+       "max": 45.66,
+       "seeds_without_success": 0
+      }
+     },
+     "test_lehman": {
+      "seeds": 3,
+      "n_per_seed": 2,
+      "SR": {
+       "mean": 0.0,
+       "min": 0.0,
+       "max": 0.0
+      },
+      "CR": {
+       "mean": 1.0,
+       "min": 1.0,
+       "max": 1.0
+      },
+      "timeout": {
+       "mean": 0.0,
+       "min": 0.0,
+       "max": 0.0
+      },
+      "SPL": {
+       "mean": 0.0,
+       "min": 0.0,
+       "max": 0.0
+      },
+      "TC": {
+       "mean": 2.0,
+       "min": 2,
+       "max": 2,
+       "total": 6
+      },
+      "n_timeout": {
+       "mean": 0.0,
+       "min": 0,
+       "max": 0,
+       "total": 0
+      },
+      "n_success_total": 0,
+      "MTT": {
+       "pooled": null,
+       "min": null,
+       "max": null,
+       "seeds_without_success": 3
+      }
+     }
+    },
+    "code_sha256": [
+     "590c095ac64777d2666c56c894c26bd1985e437110c281df1e467701a940a6f5"
+    ]
+   },
+   "GA B1 (e)": {
+    "family": "GA",
+    "method_label": "GA B1",
+    "sensor": "e",
+    "sensor_label": "(e) 30 quạt 9° + 2 quạt 45°",
+    "dir": "P2/waffle_ga_b1_e32",
+    "status": "done",
+    "seeds_expected": [
+     0,
+     1,
+     2
+    ],
+    "seeds_done": [
+     0,
+     1,
+     2
+    ],
+    "seeds_status": {
+     "seed_0": "done",
+     "seed_1": "done",
+     "seed_2": "done"
+    },
+    "per_seed": [
+     {
+      "seed": 0,
+      "dir": "P2/waffle_ga_b1_e32/seed_0",
+      "status": "done",
+      "backend": "gpu",
+      "code_sha256": "590c095ac64777d2666c56c894c26bd1985e437110c281df1e467701a940a6f5",
+      "data_dir": "data/maps",
+      "started": "27/11/2026 21:45:14",
+      "finished": "27/11/2026 22:02:21",
+      "job_minutes": 17.1,
+      "champion_generation": 150,
+      "val_SR": 0.6,
+      "pop_size": 150,
+      "generations": 150,
+      "maps_per_eval": 8,
+      "train_episodes": 180000,
+      "layers": [
+       35,
+       8,
+       2
+      ],
+      "recheck_sets": 6,
+      "sets": {
+       "test/level_1": {
+        "n": 50,
+        "SR": 1.0,
+        "CR": 0.0,
+        "timeout": 0.0,
+        "TC": 0,
+        "n_timeout": 0,
+        "n_success": 50,
+        "SPL": 0.8988,
+        "MTT": 33.39
+       },
+       "test/level_2": {
+        "n": 50,
+        "SR": 0.68,
+        "CR": 0.14,
+        "timeout": 0.18,
+        "TC": 7,
+        "n_timeout": 9,
+        "n_success": 34,
+        "SPL": 0.5095,
+        "MTT": 48.36
+       },
+       "test/level_3": {
+        "n": 50,
+        "SR": 0.34,
+        "CR": 0.34,
+        "timeout": 0.32,
+        "TC": 17,
+        "n_timeout": 16,
+        "n_success": 17,
+        "SPL": 0.2311,
+        "MTT": 63.59
+       },
+       "test/level_4": {
+        "n": 50,
+        "SR": 0.38,
+        "CR": 0.28,
+        "timeout": 0.34,
+        "TC": 14,
+        "n_timeout": 17,
+        "n_success": 19,
+        "SPL": 0.2826,
+        "MTT": 57.18
+       },
+       "test_barn": {
+        "n": 50,
+        "SR": 0.06,
+        "CR": 0.9,
+        "timeout": 0.04,
+        "TC": 45,
+        "n_timeout": 2,
+        "n_success": 3,
+        "SPL": 0.0404,
+        "MTT": 62.47
+       },
+       "test_lehman": {
+        "n": 2,
+        "SR": 0.0,
+        "CR": 1.0,
+        "timeout": 0.0,
+        "TC": 2,
+        "n_timeout": 0,
+        "n_success": 0,
+        "SPL": 0.0,
+        "MTT": null
+       },
+       "mean_levels_1_4": {
+        "n": 200,
+        "SR": 0.6,
+        "CR": 0.19,
+        "timeout": 0.21,
+        "TC": 38,
+        "n_timeout": 42,
+        "n_success": 120,
+        "SPL": 0.4805,
+        "MTT": 45.68
+       }
+      }
+     },
+     {
+      "seed": 1,
+      "dir": "P2/waffle_ga_b1_e32/seed_1",
+      "status": "done",
+      "backend": "gpu",
+      "code_sha256": "590c095ac64777d2666c56c894c26bd1985e437110c281df1e467701a940a6f5",
+      "data_dir": "data/maps",
+      "started": "27/11/2026 21:59:20",
+      "finished": "27/11/2026 22:08:58",
+      "job_minutes": 9.6,
+      "champion_generation": 90,
+      "val_SR": 0.63,
+      "pop_size": 150,
+      "generations": 150,
+      "maps_per_eval": 8,
+      "train_episodes": 180000,
+      "layers": [
+       35,
+       8,
+       2
+      ],
+      "recheck_sets": 6,
+      "sets": {
+       "test/level_1": {
+        "n": 50,
+        "SR": 0.9,
+        "CR": 0.0,
+        "timeout": 0.1,
+        "TC": 0,
+        "n_timeout": 5,
+        "n_success": 45,
+        "SPL": 0.7965,
+        "MTT": 31.76
+       },
+       "test/level_2": {
+        "n": 50,
+        "SR": 0.76,
+        "CR": 0.06,
+        "timeout": 0.18,
+        "TC": 3,
+        "n_timeout": 9,
+        "n_success": 38,
+        "SPL": 0.5323,
+        "MTT": 49.94
+       },
+       "test/level_3": {
+        "n": 50,
+        "SR": 0.22,
+        "CR": 0.36,
+        "timeout": 0.42,
+        "TC": 18,
+        "n_timeout": 21,
+        "n_success": 11,
+        "SPL": 0.1861,
+        "MTT": 48.89
+       },
+       "test/level_4": {
+        "n": 50,
+        "SR": 0.4,
+        "CR": 0.54,
+        "timeout": 0.06,
+        "TC": 27,
+        "n_timeout": 3,
+        "n_success": 20,
+        "SPL": 0.3078,
+        "MTT": 55.0
+       },
+       "test_barn": {
+        "n": 50,
+        "SR": 0.1,
+        "CR": 0.64,
+        "timeout": 0.26,
+        "TC": 32,
+        "n_timeout": 13,
+        "n_success": 5,
+        "SPL": 0.0708,
+        "MTT": 49.68
+       },
+       "test_lehman": {
+        "n": 2,
+        "SR": 0.0,
+        "CR": 1.0,
+        "timeout": 0.0,
+        "TC": 2,
+        "n_timeout": 0,
+        "n_success": 0,
+        "SPL": 0.0,
+        "MTT": null
+       },
+       "mean_levels_1_4": {
+        "n": 200,
+        "SR": 0.57,
+        "CR": 0.24,
+        "timeout": 0.19,
+        "TC": 48,
+        "n_timeout": 38,
+        "n_success": 114,
+        "SPL": 0.4557,
+        "MTT": 43.55
+       }
+      }
+     },
+     {
+      "seed": 2,
+      "dir": "P2/waffle_ga_b1_e32/seed_2",
+      "status": "done",
+      "backend": "gpu",
+      "code_sha256": "590c095ac64777d2666c56c894c26bd1985e437110c281df1e467701a940a6f5",
+      "data_dir": "data/maps",
+      "started": "27/11/2026 22:01:57",
+      "finished": "27/11/2026 22:10:38",
+      "job_minutes": 8.7,
+      "champion_generation": 140,
+      "val_SR": 0.6,
+      "pop_size": 150,
+      "generations": 150,
+      "maps_per_eval": 8,
+      "train_episodes": 180000,
+      "layers": [
+       35,
+       8,
+       2
+      ],
+      "recheck_sets": 6,
+      "sets": {
+       "test/level_1": {
+        "n": 50,
+        "SR": 0.82,
+        "CR": 0.06,
+        "timeout": 0.12,
+        "TC": 3,
+        "n_timeout": 6,
+        "n_success": 41,
+        "SPL": 0.7343,
+        "MTT": 32.73
+       },
+       "test/level_2": {
+        "n": 50,
+        "SR": 0.66,
+        "CR": 0.02,
+        "timeout": 0.32,
+        "TC": 1,
+        "n_timeout": 16,
+        "n_success": 33,
+        "SPL": 0.4789,
+        "MTT": 52.51
+       },
+       "test/level_3": {
+        "n": 50,
+        "SR": 0.24,
+        "CR": 0.3,
+        "timeout": 0.46,
+        "TC": 15,
+        "n_timeout": 23,
+        "n_success": 12,
+        "SPL": 0.1903,
+        "MTT": 54.32
+       },
+       "test/level_4": {
+        "n": 50,
+        "SR": 0.46,
+        "CR": 0.24,
+        "timeout": 0.3,
+        "TC": 12,
+        "n_timeout": 15,
+        "n_success": 23,
+        "SPL": 0.329,
+        "MTT": 65.09
+       },
+       "test_barn": {
+        "n": 50,
+        "SR": 0.12,
+        "CR": 0.44,
+        "timeout": 0.44,
+        "TC": 22,
+        "n_timeout": 22,
+        "n_success": 6,
+        "SPL": 0.0918,
+        "MTT": 49.22
+       },
+       "test_lehman": {
+        "n": 2,
+        "SR": 0.0,
+        "CR": 1.0,
+        "timeout": 0.0,
+        "TC": 2,
+        "n_timeout": 0,
+        "n_success": 0,
+        "SPL": 0.0,
+        "MTT": null
+       },
+       "mean_levels_1_4": {
+        "n": 200,
+        "SR": 0.545,
+        "CR": 0.155,
+        "timeout": 0.3,
+        "TC": 31,
+        "n_timeout": 60,
+        "n_success": 109,
+        "SPL": 0.4331,
+        "MTT": 47.92
+       }
+      }
+     }
+    ],
+    "val_SR": {
+     "mean": 0.61,
+     "min": 0.6,
+     "max": 0.63
+    },
+    "champion_generations": [
+     150,
+     90,
+     140
+    ],
+    "aggregate": {
+     "test/level_1": {
+      "seeds": 3,
+      "n_per_seed": 50,
+      "SR": {
+       "mean": 0.9067,
+       "min": 0.82,
+       "max": 1.0
+      },
+      "CR": {
+       "mean": 0.02,
+       "min": 0.0,
+       "max": 0.06
+      },
+      "timeout": {
+       "mean": 0.0733,
+       "min": 0.0,
+       "max": 0.12
+      },
+      "SPL": {
+       "mean": 0.8099,
+       "min": 0.7343,
+       "max": 0.8988
+      },
+      "TC": {
+       "mean": 1.0,
+       "min": 0,
+       "max": 3,
+       "total": 3
+      },
+      "n_timeout": {
+       "mean": 3.67,
+       "min": 0,
+       "max": 6,
+       "total": 11
+      },
+      "n_success_total": 136,
+      "MTT": {
+       "pooled": 32.66,
+       "min": 31.76,
+       "max": 33.39,
+       "seeds_without_success": 0
+      }
+     },
+     "test/level_2": {
+      "seeds": 3,
+      "n_per_seed": 50,
+      "SR": {
+       "mean": 0.7,
+       "min": 0.66,
+       "max": 0.76
+      },
+      "CR": {
+       "mean": 0.0733,
+       "min": 0.02,
+       "max": 0.14
+      },
+      "timeout": {
+       "mean": 0.2267,
+       "min": 0.18,
+       "max": 0.32
+      },
+      "SPL": {
+       "mean": 0.5069,
+       "min": 0.4789,
+       "max": 0.5323
+      },
+      "TC": {
+       "mean": 3.67,
+       "min": 1,
+       "max": 7,
+       "total": 11
+      },
+      "n_timeout": {
+       "mean": 11.33,
+       "min": 9,
+       "max": 16,
+       "total": 34
+      },
+      "n_success_total": 105,
+      "MTT": {
+       "pooled": 50.24,
+       "min": 48.36,
+       "max": 52.51,
+       "seeds_without_success": 0
+      }
+     },
+     "test/level_3": {
+      "seeds": 3,
+      "n_per_seed": 50,
+      "SR": {
+       "mean": 0.2667,
+       "min": 0.22,
+       "max": 0.34
+      },
+      "CR": {
+       "mean": 0.3333,
+       "min": 0.3,
+       "max": 0.36
+      },
+      "timeout": {
+       "mean": 0.4,
+       "min": 0.32,
+       "max": 0.46
+      },
+      "SPL": {
+       "mean": 0.2025,
+       "min": 0.1861,
+       "max": 0.2311
+      },
+      "TC": {
+       "mean": 16.67,
+       "min": 15,
+       "max": 18,
+       "total": 50
+      },
+      "n_timeout": {
+       "mean": 20.0,
+       "min": 16,
+       "max": 23,
+       "total": 60
+      },
+      "n_success_total": 40,
+      "MTT": {
+       "pooled": 56.77,
+       "min": 48.89,
+       "max": 63.59,
+       "seeds_without_success": 0
+      }
+     },
+     "test/level_4": {
+      "seeds": 3,
+      "n_per_seed": 50,
+      "SR": {
+       "mean": 0.4133,
+       "min": 0.38,
+       "max": 0.46
+      },
+      "CR": {
+       "mean": 0.3533,
+       "min": 0.24,
+       "max": 0.54
+      },
+      "timeout": {
+       "mean": 0.2333,
+       "min": 0.06,
+       "max": 0.34
+      },
+      "SPL": {
+       "mean": 0.3065,
+       "min": 0.2826,
+       "max": 0.329
+      },
+      "TC": {
+       "mean": 17.67,
+       "min": 12,
+       "max": 27,
+       "total": 53
+      },
+      "n_timeout": {
+       "mean": 11.67,
+       "min": 3,
+       "max": 17,
+       "total": 35
+      },
+      "n_success_total": 62,
+      "MTT": {
+       "pooled": 59.41,
+       "min": 55.0,
+       "max": 65.09,
+       "seeds_without_success": 0
+      }
+     },
+     "mean_levels_1_4": {
+      "seeds": 3,
+      "n_per_seed": 200,
+      "SR": {
+       "mean": 0.5717,
+       "min": 0.545,
+       "max": 0.6
+      },
+      "CR": {
+       "mean": 0.195,
+       "min": 0.155,
+       "max": 0.24
+      },
+      "timeout": {
+       "mean": 0.2333,
+       "min": 0.19,
+       "max": 0.3
+      },
+      "SPL": {
+       "mean": 0.4564,
+       "min": 0.4331,
+       "max": 0.4805
+      },
+      "TC": {
+       "mean": 39.0,
+       "min": 31,
+       "max": 48,
+       "total": 117
+      },
+      "n_timeout": {
+       "mean": 46.67,
+       "min": 38,
+       "max": 60,
+       "total": 140
+      },
+      "n_success_total": 343,
+      "MTT": {
+       "pooled": 45.69,
+       "min": 43.55,
+       "max": 47.92,
+       "seeds_without_success": 0
+      }
+     },
+     "test_barn": {
+      "seeds": 3,
+      "n_per_seed": 50,
+      "SR": {
+       "mean": 0.0933,
+       "min": 0.06,
+       "max": 0.12
+      },
+      "CR": {
+       "mean": 0.66,
+       "min": 0.44,
+       "max": 0.9
+      },
+      "timeout": {
+       "mean": 0.2467,
+       "min": 0.04,
+       "max": 0.44
+      },
+      "SPL": {
+       "mean": 0.0677,
+       "min": 0.0404,
+       "max": 0.0918
+      },
+      "TC": {
+       "mean": 33.0,
+       "min": 22,
+       "max": 45,
+       "total": 99
+      },
+      "n_timeout": {
+       "mean": 12.33,
+       "min": 2,
+       "max": 22,
+       "total": 37
+      },
+      "n_success_total": 14,
+      "MTT": {
+       "pooled": 52.22,
+       "min": 49.22,
+       "max": 62.47,
+       "seeds_without_success": 0
+      }
+     },
+     "test_lehman": {
+      "seeds": 3,
+      "n_per_seed": 2,
+      "SR": {
+       "mean": 0.0,
+       "min": 0.0,
+       "max": 0.0
+      },
+      "CR": {
+       "mean": 1.0,
+       "min": 1.0,
+       "max": 1.0
+      },
+      "timeout": {
+       "mean": 0.0,
+       "min": 0.0,
+       "max": 0.0
+      },
+      "SPL": {
+       "mean": 0.0,
+       "min": 0.0,
+       "max": 0.0
+      },
+      "TC": {
+       "mean": 2.0,
+       "min": 2,
+       "max": 2,
+       "total": 6
+      },
+      "n_timeout": {
+       "mean": 0.0,
+       "min": 0,
+       "max": 0,
+       "total": 0
+      },
+      "n_success_total": 0,
+      "MTT": {
+       "pooled": null,
+       "min": null,
+       "max": null,
+       "seeds_without_success": 3
+      }
+     }
+    },
+    "code_sha256": [
+     "590c095ac64777d2666c56c894c26bd1985e437110c281df1e467701a940a6f5"
+    ]
+   },
+   "APF (c)": {
+    "family": "APF",
+    "method_label": "APF",
+    "sensor": "c",
+    "sensor_label": "(c) 12 quạt 30° (APF luôn nhìn 12 quạt)",
+    "dir": "P2/waffle_apf",
+    "status": "done",
+    "seeds_expected": [
+     0
+    ],
+    "seeds_done": [
+     0
+    ],
+    "seeds_status": {
+     "seed_0": "done"
+    },
+    "per_seed": [
+     {
+      "seed": 0,
+      "dir": "P2/waffle_apf/seed_0",
+      "status": "done",
+      "backend": "batch",
+      "code_sha256": "590c095ac64777d2666c56c894c26bd1985e437110c281df1e467701a940a6f5",
+      "data_dir": "data/maps",
+      "started": "27/11/2026 14:46:09",
+      "finished": "27/11/2026 14:47:29",
+      "job_minutes": 1.3,
+      "recheck_sets": 6,
+      "sets": {
+       "test/level_1": {
+        "n": 50,
+        "SR": 1.0,
+        "CR": 0.0,
+        "timeout": 0.0,
+        "TC": 0,
+        "n_timeout": 0,
+        "n_success": 50,
+        "SPL": 1.0,
+        "MTT": 52.16
+       },
+       "test/level_2": {
+        "n": 50,
+        "SR": 0.36,
+        "CR": 0.0,
+        "timeout": 0.64,
+        "TC": 0,
+        "n_timeout": 32,
+        "n_success": 18,
+        "SPL": 0.3389,
+        "MTT": 80.66
+       },
+       "test/level_3": {
+        "n": 50,
+        "SR": 0.0,
+        "CR": 0.0,
+        "timeout": 1.0,
+        "TC": 0,
+        "n_timeout": 50,
+        "n_success": 0,
+        "SPL": 0.0,
+        "MTT": null
+       },
+       "test/level_4": {
+        "n": 50,
+        "SR": 0.0,
+        "CR": 0.0,
+        "timeout": 1.0,
+        "TC": 0,
+        "n_timeout": 50,
+        "n_success": 0,
+        "SPL": 0.0,
+        "MTT": null
+       },
+       "test_barn": {
+        "n": 50,
+        "SR": 0.2,
+        "CR": 0.0,
+        "timeout": 0.8,
+        "TC": 0,
+        "n_timeout": 40,
+        "n_success": 10,
+        "SPL": 0.1942,
+        "MTT": 73.51
+       },
+       "test_lehman": {
+        "n": 2,
+        "SR": 0.0,
+        "CR": 0.0,
+        "timeout": 1.0,
+        "TC": 0,
+        "n_timeout": 2,
+        "n_success": 0,
+        "SPL": 0.0,
+        "MTT": null
+       },
+       "mean_levels_1_4": {
+        "n": 200,
+        "SR": 0.34,
+        "CR": 0.0,
+        "timeout": 0.66,
+        "TC": 0,
+        "n_timeout": 132,
+        "n_success": 68,
+        "SPL": 0.3347,
+        "MTT": 59.7
+       }
+      }
+     }
+    ],
+    "val_SR": null,
+    "aggregate": {
+     "test/level_1": {
+      "seeds": 1,
+      "n_per_seed": 50,
+      "SR": {
+       "mean": 1.0,
+       "min": 1.0,
+       "max": 1.0
+      },
+      "CR": {
+       "mean": 0.0,
+       "min": 0.0,
+       "max": 0.0
+      },
+      "timeout": {
+       "mean": 0.0,
+       "min": 0.0,
+       "max": 0.0
+      },
+      "SPL": {
+       "mean": 1.0,
+       "min": 1.0,
+       "max": 1.0
+      },
+      "TC": {
+       "mean": 0.0,
+       "min": 0,
+       "max": 0,
+       "total": 0
+      },
+      "n_timeout": {
+       "mean": 0.0,
+       "min": 0,
+       "max": 0,
+       "total": 0
+      },
+      "n_success_total": 50,
+      "MTT": {
+       "pooled": 52.16,
+       "min": 52.16,
+       "max": 52.16,
+       "seeds_without_success": 0
+      }
+     },
+     "test/level_2": {
+      "seeds": 1,
+      "n_per_seed": 50,
+      "SR": {
+       "mean": 0.36,
+       "min": 0.36,
+       "max": 0.36
+      },
+      "CR": {
+       "mean": 0.0,
+       "min": 0.0,
+       "max": 0.0
+      },
+      "timeout": {
+       "mean": 0.64,
+       "min": 0.64,
+       "max": 0.64
+      },
+      "SPL": {
+       "mean": 0.3389,
+       "min": 0.3389,
+       "max": 0.3389
+      },
+      "TC": {
+       "mean": 0.0,
+       "min": 0,
+       "max": 0,
+       "total": 0
+      },
+      "n_timeout": {
+       "mean": 32.0,
+       "min": 32,
+       "max": 32,
+       "total": 32
+      },
+      "n_success_total": 18,
+      "MTT": {
+       "pooled": 80.66,
+       "min": 80.66,
+       "max": 80.66,
+       "seeds_without_success": 0
+      }
+     },
+     "test/level_3": {
+      "seeds": 1,
+      "n_per_seed": 50,
+      "SR": {
+       "mean": 0.0,
+       "min": 0.0,
+       "max": 0.0
+      },
+      "CR": {
+       "mean": 0.0,
+       "min": 0.0,
+       "max": 0.0
+      },
+      "timeout": {
+       "mean": 1.0,
+       "min": 1.0,
+       "max": 1.0
+      },
+      "SPL": {
+       "mean": 0.0,
+       "min": 0.0,
+       "max": 0.0
+      },
+      "TC": {
+       "mean": 0.0,
+       "min": 0,
+       "max": 0,
+       "total": 0
+      },
+      "n_timeout": {
+       "mean": 50.0,
+       "min": 50,
+       "max": 50,
+       "total": 50
+      },
+      "n_success_total": 0,
+      "MTT": {
+       "pooled": null,
+       "min": null,
+       "max": null,
+       "seeds_without_success": 1
+      }
+     },
+     "test/level_4": {
+      "seeds": 1,
+      "n_per_seed": 50,
+      "SR": {
+       "mean": 0.0,
+       "min": 0.0,
+       "max": 0.0
+      },
+      "CR": {
+       "mean": 0.0,
+       "min": 0.0,
+       "max": 0.0
+      },
+      "timeout": {
+       "mean": 1.0,
+       "min": 1.0,
+       "max": 1.0
+      },
+      "SPL": {
+       "mean": 0.0,
+       "min": 0.0,
+       "max": 0.0
+      },
+      "TC": {
+       "mean": 0.0,
+       "min": 0,
+       "max": 0,
+       "total": 0
+      },
+      "n_timeout": {
+       "mean": 50.0,
+       "min": 50,
+       "max": 50,
+       "total": 50
+      },
+      "n_success_total": 0,
+      "MTT": {
+       "pooled": null,
+       "min": null,
+       "max": null,
+       "seeds_without_success": 1
+      }
+     },
+     "mean_levels_1_4": {
+      "seeds": 1,
+      "n_per_seed": 200,
+      "SR": {
+       "mean": 0.34,
+       "min": 0.34,
+       "max": 0.34
+      },
+      "CR": {
+       "mean": 0.0,
+       "min": 0.0,
+       "max": 0.0
+      },
+      "timeout": {
+       "mean": 0.66,
+       "min": 0.66,
+       "max": 0.66
+      },
+      "SPL": {
+       "mean": 0.3347,
+       "min": 0.3347,
+       "max": 0.3347
+      },
+      "TC": {
+       "mean": 0.0,
+       "min": 0,
+       "max": 0,
+       "total": 0
+      },
+      "n_timeout": {
+       "mean": 132.0,
+       "min": 132,
+       "max": 132,
+       "total": 132
+      },
+      "n_success_total": 68,
+      "MTT": {
+       "pooled": 59.7,
+       "min": 59.7,
+       "max": 59.7,
+       "seeds_without_success": 0
+      }
+     },
+     "test_barn": {
+      "seeds": 1,
+      "n_per_seed": 50,
+      "SR": {
+       "mean": 0.2,
+       "min": 0.2,
+       "max": 0.2
+      },
+      "CR": {
+       "mean": 0.0,
+       "min": 0.0,
+       "max": 0.0
+      },
+      "timeout": {
+       "mean": 0.8,
+       "min": 0.8,
+       "max": 0.8
+      },
+      "SPL": {
+       "mean": 0.1942,
+       "min": 0.1942,
+       "max": 0.1942
+      },
+      "TC": {
+       "mean": 0.0,
+       "min": 0,
+       "max": 0,
+       "total": 0
+      },
+      "n_timeout": {
+       "mean": 40.0,
+       "min": 40,
+       "max": 40,
+       "total": 40
+      },
+      "n_success_total": 10,
+      "MTT": {
+       "pooled": 73.51,
+       "min": 73.51,
+       "max": 73.51,
+       "seeds_without_success": 0
+      }
+     },
+     "test_lehman": {
+      "seeds": 1,
+      "n_per_seed": 2,
+      "SR": {
+       "mean": 0.0,
+       "min": 0.0,
+       "max": 0.0
+      },
+      "CR": {
+       "mean": 0.0,
+       "min": 0.0,
+       "max": 0.0
+      },
+      "timeout": {
+       "mean": 1.0,
+       "min": 1.0,
+       "max": 1.0
+      },
+      "SPL": {
+       "mean": 0.0,
+       "min": 0.0,
+       "max": 0.0
+      },
+      "TC": {
+       "mean": 0.0,
+       "min": 0,
+       "max": 0,
+       "total": 0
+      },
+      "n_timeout": {
+       "mean": 2.0,
+       "min": 2,
+       "max": 2,
+       "total": 2
+      },
+      "n_success_total": 0,
+      "MTT": {
+       "pooled": null,
+       "min": null,
+       "max": null,
+       "seeds_without_success": 1
+      }
+     }
+    },
+    "code_sha256": [
+     "590c095ac64777d2666c56c894c26bd1985e437110c281df1e467701a940a6f5"
+    ]
+   }
+  }
+ },
+ "permutation_tests": {
+  "definition": "Kiểm định hoán vị chính xác hai phía trên SR từng seed của tập chính (P1: barn_100; P2: mean_levels_1_4): xét mọi cách chia lại nhãn các seed của hai nhánh; p = min(1; 2 × p một phía nhỏ hơn). 3 so với 3 seed: 20 cách chia, p nhỏ nhất có thể là 0,1.",
+  "results": [
+   {
+    "protocol": "P1",
+    "sensor": "c",
+    "a": "NEAT R0 (c)",
+    "b": "GA B1 (c)",
+    "metric": "barn_100",
+    "status": "done",
+    "n_a": 3,
+    "n_b": 3,
+    "diff_points": -2.0,
+    "p": 0.8,
+    "n_relabelings": 20,
+    "p_min_possible": 0.1,
+    "a_all_above_b": false,
+    "b_all_above_a": false
+   },
+   {
+    "protocol": "P1",
+    "sensor": "c",
+    "a": "NEAT M5 (c)",
+    "b": "GA B1 (c)",
+    "metric": "barn_100",
+    "status": "done",
+    "n_a": 3,
+    "n_b": 3,
+    "diff_points": -7.0,
+    "p": 0.7,
+    "n_relabelings": 20,
+    "p_min_possible": 0.1,
+    "a_all_above_b": false,
+    "b_all_above_a": false
+   },
+   {
+    "protocol": "P1",
+    "sensor": "c",
+    "a": "NEAT LNS (c)",
+    "b": "GA B1 (c)",
+    "metric": "barn_100",
+    "status": "done",
+    "n_a": 3,
+    "n_b": 3,
+    "diff_points": -29.33,
+    "p": 0.1,
+    "n_relabelings": 20,
+    "p_min_possible": 0.1,
+    "a_all_above_b": false,
+    "b_all_above_a": true
+   },
+   {
+    "protocol": "P1",
+    "sensor": "c",
+    "a": "NEAT M5 (c)",
+    "b": "NEAT R0 (c)",
+    "metric": "barn_100",
+    "status": "done",
+    "n_a": 3,
+    "n_b": 3,
+    "diff_points": -5.0,
+    "p": 0.7,
+    "n_relabelings": 20,
+    "p_min_possible": 0.1,
+    "a_all_above_b": false,
+    "b_all_above_a": false
+   },
+   {
+    "protocol": "P1",
+    "sensor": "e",
+    "a": "NEAT R0 (e)",
+    "b": "GA B1 (e)",
+    "metric": "barn_100",
+    "status": "done",
+    "n_a": 3,
+    "n_b": 3,
+    "diff_points": -25.33,
+    "p": 0.1,
+    "n_relabelings": 20,
+    "p_min_possible": 0.1,
+    "a_all_above_b": false,
+    "b_all_above_a": true
+   },
+   {
+    "protocol": "P1",
+    "sensor": "e",
+    "a": "NEAT M5 (e)",
+    "b": "GA B1 (e)",
+    "metric": "barn_100",
+    "status": "done",
+    "n_a": 3,
+    "n_b": 3,
+    "diff_points": -33.67,
+    "p": 0.1,
+    "n_relabelings": 20,
+    "p_min_possible": 0.1,
+    "a_all_above_b": false,
+    "b_all_above_a": true
+   },
+   {
+    "protocol": "P1",
+    "sensor": "e",
+    "a": "NEAT LNS (e)",
+    "b": "GA B1 (e)",
+    "metric": "barn_100",
+    "status": "done",
+    "n_a": 3,
+    "n_b": 3,
+    "diff_points": -43.0,
+    "p": 0.1,
+    "n_relabelings": 20,
+    "p_min_possible": 0.1,
+    "a_all_above_b": false,
+    "b_all_above_a": true
+   },
+   {
+    "protocol": "P1",
+    "sensor": "e",
+    "a": "NEAT M5 (e)",
+    "b": "NEAT R0 (e)",
+    "metric": "barn_100",
+    "status": "done",
+    "n_a": 3,
+    "n_b": 3,
+    "diff_points": -8.33,
+    "p": 0.4,
+    "n_relabelings": 20,
+    "p_min_possible": 0.1,
+    "a_all_above_b": false,
+    "b_all_above_a": false
+   },
+   {
+    "protocol": "P2",
+    "sensor": "c",
+    "a": "NEAT R0 (c)",
+    "b": "GA B1 (c)",
+    "metric": "mean_levels_1_4",
+    "status": "done",
+    "n_a": 3,
+    "n_b": 3,
+    "diff_points": -5.5,
+    "p": 0.6,
+    "n_relabelings": 20,
+    "p_min_possible": 0.1,
+    "a_all_above_b": false,
+    "b_all_above_a": false
+   },
+   {
+    "protocol": "P2",
+    "sensor": "c",
+    "a": "NEAT M5 (c)",
+    "b": "GA B1 (c)",
+    "metric": "mean_levels_1_4",
+    "status": "done",
+    "n_a": 3,
+    "n_b": 3,
+    "diff_points": -3.17,
+    "p": 0.7,
+    "n_relabelings": 20,
+    "p_min_possible": 0.1,
+    "a_all_above_b": false,
+    "b_all_above_a": false
+   },
+   {
+    "protocol": "P2",
+    "sensor": "c",
+    "a": "NEAT M5 (c)",
+    "b": "NEAT R0 (c)",
+    "metric": "mean_levels_1_4",
+    "status": "done",
+    "n_a": 3,
+    "n_b": 3,
+    "diff_points": 2.33,
+    "p": 0.8,
+    "n_relabelings": 20,
+    "p_min_possible": 0.1,
+    "a_all_above_b": false,
+    "b_all_above_a": false
+   },
+   {
+    "protocol": "P2",
+    "sensor": "e",
+    "a": "NEAT R0 (e)",
+    "b": "GA B1 (e)",
+    "metric": "mean_levels_1_4",
+    "status": "done",
+    "n_a": 3,
+    "n_b": 3,
+    "diff_points": -2.0,
+    "p": 0.9,
+    "n_relabelings": 20,
+    "p_min_possible": 0.1,
+    "a_all_above_b": false,
+    "b_all_above_a": false
+   },
+   {
+    "protocol": "P2",
+    "sensor": "e",
+    "a": "NEAT M5 (e)",
+    "b": "GA B1 (e)",
+    "metric": "mean_levels_1_4",
+    "status": "done",
+    "n_a": 3,
+    "n_b": 3,
+    "diff_points": 2.5,
+    "p": 0.3,
+    "n_relabelings": 20,
+    "p_min_possible": 0.1,
+    "a_all_above_b": false,
+    "b_all_above_a": false
+   },
+   {
+    "protocol": "P2",
+    "sensor": "e",
+    "a": "NEAT M5 (e)",
+    "b": "NEAT R0 (e)",
+    "metric": "mean_levels_1_4",
+    "status": "done",
+    "n_a": 3,
+    "n_b": 3,
+    "diff_points": 4.5,
+    "p": 0.4,
+    "n_relabelings": 20,
+    "p_min_possible": 0.1,
+    "a_all_above_b": false,
+    "b_all_above_a": false
+   }
+  ]
+ },
+ "failure_breakdown": {
+  "P1": {
+   "NEAT R0 (c)": {
+    "barn_100": {
+     "collisions": 122,
+     "timeouts": 1,
+     "collision_share": 0.9919
+    }
+   },
+   "NEAT R0 (e)": {
+    "barn_100": {
+     "collisions": 160,
+     "timeouts": 4,
+     "collision_share": 0.9756
+    }
+   },
+   "NEAT M5 (c)": {
+    "barn_100": {
+     "collisions": 135,
+     "timeouts": 3,
+     "collision_share": 0.9783
+    }
+   },
+   "NEAT M5 (e)": {
+    "barn_100": {
+     "collisions": 189,
+     "timeouts": 0,
+     "collision_share": 1.0
+    }
+   },
+   "NEAT LNS (c)": {
+    "barn_100": {
+     "collisions": 196,
+     "timeouts": 9,
+     "collision_share": 0.9561
+    }
+   },
+   "NEAT LNS (e)": {
+    "barn_100": {
+     "collisions": 212,
+     "timeouts": 5,
+     "collision_share": 0.977
+    }
+   },
+   "GA B1 (c)": {
+    "barn_100": {
+     "collisions": 117,
+     "timeouts": 0,
+     "collision_share": 1.0
+    }
+   },
+   "GA B1 (e)": {
+    "barn_100": {
+     "collisions": 88,
+     "timeouts": 0,
+     "collision_share": 1.0
+    }
+   },
+   "APF (c)": {
+    "barn_100": {
+     "collisions": 0,
+     "timeouts": 76,
+     "collision_share": 0.0
+    }
+   }
+  },
+  "P2": {
+   "NEAT R0 (c)": {
+    "test/level_1": {
+     "collisions": 0,
+     "timeouts": 6,
+     "collision_share": 0.0
+    },
+    "test/level_2": {
+     "collisions": 13,
+     "timeouts": 12,
+     "collision_share": 0.52
+    },
+    "test/level_3": {
+     "collisions": 72,
+     "timeouts": 30,
+     "collision_share": 0.7059
+    },
+    "test/level_4": {
+     "collisions": 75,
+     "timeouts": 23,
+     "collision_share": 0.7653
+    },
+    "mean_levels_1_4": {
+     "collisions": 160,
+     "timeouts": 71,
+     "collision_share": 0.6926
+    },
+    "test_barn": {
+     "collisions": 93,
+     "timeouts": 18,
+     "collision_share": 0.8378
+    }
+   },
+   "NEAT R0 (e)": {
+    "test/level_1": {
+     "collisions": 0,
+     "timeouts": 7,
+     "collision_share": 0.0
+    },
+    "test/level_2": {
+     "collisions": 27,
+     "timeouts": 14,
+     "collision_share": 0.6585
+    },
+    "test/level_3": {
+     "collisions": 62,
+     "timeouts": 45,
+     "collision_share": 0.5794
+    },
+    "test/level_4": {
+     "collisions": 98,
+     "timeouts": 16,
+     "collision_share": 0.8596
+    },
+    "mean_levels_1_4": {
+     "collisions": 187,
+     "timeouts": 82,
+     "collision_share": 0.6952
+    },
+    "test_barn": {
+     "collisions": 112,
+     "timeouts": 26,
+     "collision_share": 0.8116
+    }
+   },
+   "NEAT M5 (c)": {
+    "test/level_1": {
+     "collisions": 0,
+     "timeouts": 8,
+     "collision_share": 0.0
+    },
+    "test/level_2": {
+     "collisions": 11,
+     "timeouts": 24,
+     "collision_share": 0.3143
+    },
+    "test/level_3": {
+     "collisions": 45,
+     "timeouts": 56,
+     "collision_share": 0.4455
+    },
+    "test/level_4": {
+     "collisions": 58,
+     "timeouts": 15,
+     "collision_share": 0.7945
+    },
+    "mean_levels_1_4": {
+     "collisions": 114,
+     "timeouts": 103,
+     "collision_share": 0.5253
+    },
+    "test_barn": {
+     "collisions": 51,
+     "timeouts": 56,
+     "collision_share": 0.4766
+    }
+   },
+   "NEAT M5 (e)": {
+    "test/level_1": {
+     "collisions": 0,
+     "timeouts": 5,
+     "collision_share": 0.0
+    },
+    "test/level_2": {
+     "collisions": 28,
+     "timeouts": 22,
+     "collision_share": 0.56
+    },
+    "test/level_3": {
+     "collisions": 39,
+     "timeouts": 57,
+     "collision_share": 0.4062
+    },
+    "test/level_4": {
+     "collisions": 71,
+     "timeouts": 20,
+     "collision_share": 0.7802
+    },
+    "mean_levels_1_4": {
+     "collisions": 138,
+     "timeouts": 104,
+     "collision_share": 0.5702
+    },
+    "test_barn": {
+     "collisions": 104,
+     "timeouts": 20,
+     "collision_share": 0.8387
+    }
+   },
+   "GA B1 (c)": {
+    "test/level_1": {
+     "collisions": 2,
+     "timeouts": 5,
+     "collision_share": 0.2857
+    },
+    "test/level_2": {
+     "collisions": 15,
+     "timeouts": 19,
+     "collision_share": 0.4412
+    },
+    "test/level_3": {
+     "collisions": 49,
+     "timeouts": 35,
+     "collision_share": 0.5833
+    },
+    "test/level_4": {
+     "collisions": 51,
+     "timeouts": 22,
+     "collision_share": 0.6986
+    },
+    "mean_levels_1_4": {
+     "collisions": 117,
+     "timeouts": 81,
+     "collision_share": 0.5909
+    },
+    "test_barn": {
+     "collisions": 77,
+     "timeouts": 41,
+     "collision_share": 0.6525
+    }
+   },
+   "GA B1 (e)": {
+    "test/level_1": {
+     "collisions": 3,
+     "timeouts": 11,
+     "collision_share": 0.2143
+    },
+    "test/level_2": {
+     "collisions": 11,
+     "timeouts": 34,
+     "collision_share": 0.2444
+    },
+    "test/level_3": {
+     "collisions": 50,
+     "timeouts": 60,
+     "collision_share": 0.4545
+    },
+    "test/level_4": {
+     "collisions": 53,
+     "timeouts": 35,
+     "collision_share": 0.6023
+    },
+    "mean_levels_1_4": {
+     "collisions": 117,
+     "timeouts": 140,
+     "collision_share": 0.4553
+    },
+    "test_barn": {
+     "collisions": 99,
+     "timeouts": 37,
+     "collision_share": 0.7279
+    }
+   },
+   "APF (c)": {
+    "test/level_1": {
+     "collisions": 0,
+     "timeouts": 0,
+     "collision_share": null
+    },
+    "test/level_2": {
+     "collisions": 0,
+     "timeouts": 32,
+     "collision_share": 0.0
+    },
+    "test/level_3": {
+     "collisions": 0,
+     "timeouts": 50,
+     "collision_share": 0.0
+    },
+    "test/level_4": {
+     "collisions": 0,
+     "timeouts": 50,
+     "collision_share": 0.0
+    },
+    "mean_levels_1_4": {
+     "collisions": 0,
+     "timeouts": 132,
+     "collision_share": 0.0
+    },
+    "test_barn": {
+     "collisions": 0,
+     "timeouts": 40,
+     "collision_share": 0.0
+    }
+   }
+  }
+ },
+ "old_robot_reference": {
+  "note": "Robot cũ: đĩa r 0,25 m, lệnh hai bánh ±0,5 m/s, LiDAR 3 m, 500 bước mỗi lượt. P2: đợt 5 (docs/benchmark_sau_sua_loi.md, cùng giao thức P2). P1: một đợt chạy trước với robot cũ theo đúng giao thức P1 (cùng data/maps_barn, quần thể 150 × 150 thế hệ, 8 bản đồ mỗi thế hệ, chọn champion theo 50 bản đồ val BARN), chưa có báo cáo riêng trong repo. APF: số chấm APF robot cũ của đợt 5. SR theo %, từng seed.",
+  "values": {
+   "R0": {
+    "P1_test_barn": {
+     "per_seed_percent": [
+      60.0,
+      52.0,
+      46.0
+     ],
+     "source": "đợt chạy trước, 12 quạt, seed 0–2"
+    },
+    "P2_mean_levels_1_4": {
+     "per_seed_percent": [
+      50.5,
+      54.5,
+      67.5,
+      48.0
+     ],
+     "source": "đợt 5, 12 tia điểm, seed 0–3"
+    },
+    "P2_test_barn": {
+     "per_seed_percent": [
+      16.0,
+      30.0,
+      26.0,
+      24.0
+     ],
+     "source": "đợt 5, 12 tia điểm, seed 0–3"
+    }
+   },
+   "ga_b1": {
+    "P1_test_barn": {
+     "per_seed_percent": [
+      38.0,
+      46.0,
+      34.0
+     ],
+     "source": "đợt chạy trước, 12 tia điểm, seed 0–2"
+    },
+    "P2_mean_levels_1_4": {
+     "per_seed_percent": [
+      64.5,
+      55.0,
+      57.5
+     ],
+     "source": "đợt 5, 12 tia điểm, seed 0–2"
+    },
+    "P2_test_barn": {
+     "per_seed_percent": [
+      10.0,
+      10.0,
+      24.0
+     ],
+     "source": "đợt 5, 12 tia điểm, seed 0–2"
+    }
+   },
+   "apf": {
+    "P1_test_barn": {
+     "per_seed_percent": [
+      34.0
+     ],
+     "source": "đợt 5, 12 tia điểm"
+    },
+    "P2_mean_levels_1_4": {
+     "per_seed_percent": [
+      34.5
+     ],
+     "source": "đợt 5, 12 tia điểm"
+    },
+    "P2_test_barn": {
+     "per_seed_percent": [
+      34.0
+     ],
+     "source": "đợt 5, 12 tia điểm"
+    }
+   }
+  },
+  "R0_12_sectors_P2": {
+   "note": "NEAT R0 của robot cũ với 12 quạt ở P2 (biến thể R0_sec12 của đợt 5; benchmark_sau_sua_loi.md nêu tên biến thể nhưng không đưa số vào bảng). Không dùng trong bảng 5, ghi cạnh bảng.",
+   "values": {
+    "P2_mean_levels_1_4": {
+     "per_seed_percent": [
+      54.0,
+      50.0,
+      48.0,
+      52.5
+     ],
+     "source": "đợt 5, biến thể R0_sec12, 12 quạt, seed 0–3"
+    },
+    "P2_test_barn": {
+     "per_seed_percent": [
+      28.0,
+      44.0,
+      20.0,
+      22.0
+     ],
+     "source": "đợt 5, biến thể R0_sec12, 12 quạt, seed 0–3"
+    }
+   }
+  }
+ }
+}
